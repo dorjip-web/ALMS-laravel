@@ -139,8 +139,9 @@
 </div>
 
 <script>
-    // expose server-side flag to client
+    // expose server-side flags to client
     window.__SHOW_LATE_REASON = <?php echo $showLateReason ? 'true' : 'false'; ?>;
+    window.__INITIAL_SECTION = "{{ $initial_section ?? '' }}";
     let leaveBalances = {};
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -153,7 +154,9 @@
     (function () {
         const links = document.querySelectorAll('.menu a');
         function setActiveByHash() {
-            const hash = location.hash || '#employee';
+            const urlParams = new URLSearchParams(window.location.search || '');
+            const sectionParam = urlParams.get('section') || (window.__INITIAL_SECTION || '');
+            const hash = sectionParam ? ('#' + sectionParam) : (location.hash || '#employee');
             links.forEach(a => {
                 const href = (a.getAttribute('href') || '').toString();
                 // compute fragment part of link (if any)
@@ -172,6 +175,10 @@
         }));
         window.addEventListener('hashchange', setActiveByHash);
         setActiveByHash();
+        // if server provided initial section, ensure the page scrolls there on load
+        if (window.__INITIAL_SECTION) {
+            try { location.hash = window.__INITIAL_SECTION; const el = document.getElementById(window.__INITIAL_SECTION); if (el) el.scrollIntoView(); } catch (e) {}
+        }
     })();
     // Initialization for dynamic grid features moved into initGridFeatures()
     // so injected HTML won't get duplicate handlers. initGridFeatures()
@@ -253,12 +260,13 @@
 
                     currGrid.innerHTML = newGrid.innerHTML;
                     initGridFeatures();
-                    // if URL had a fragment, set it so section becomes visible
+                    // if URL had a section (query param or hash), set it so section becomes visible
                     try {
-                        const frag = url.split('#')[1];
-                        if (frag) {
-                            location.hash = frag;
-                            const el = document.getElementById(frag);
+                        const parsed = new URL(url, window.location.origin);
+                        const section = parsed.searchParams.get('section') || (parsed.hash ? parsed.hash.replace('#','') : null);
+                        if (section) {
+                            location.hash = section;
+                            const el = document.getElementById(section);
                             if (el) el.scrollIntoView();
                         } else {
                             window.scrollTo(0,0);
@@ -285,7 +293,9 @@
                 ev.preventDefault();
                 document.querySelectorAll('.menu a').forEach(x => x.classList.remove('active'));
                 a.classList.add('active');
-                loadAndInject(DASHBOARD_URL + href, true);
+                const frag = href.replace(/^#/, '');
+                const target = DASHBOARD_URL + '?section=' + encodeURIComponent(frag);
+                loadAndInject(target, true);
                 return;
             }
 
