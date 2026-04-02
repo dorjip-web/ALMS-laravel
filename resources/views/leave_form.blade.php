@@ -122,5 +122,24 @@
         </section>
     </main>
 </div>
+<script id="leave-balances-json" type="application/json">@json($leaveBalances)</script>
+<script>
+    (function () {
+        try {
+            const el = document.getElementById('leave-balances-json');
+            const leaveBalances = el ? JSON.parse(el.textContent || '{}') : {};
+            const sel = document.getElementById('leave-type-select');
+            const bal = document.getElementById('leave-balance');
+            if (sel && bal) {
+                const update = () => {
+                    const id = parseInt(sel.value, 10);
+                    bal.value = typeof leaveBalances[id] !== 'undefined' ? leaveBalances[id] : '-';
+                };
+                sel.addEventListener('change', update);
+                update();
+            }
+        } catch (e) { console.warn('leaveBalances init failed', e); }
+    })();
+</script>
 </body>
 </html>
