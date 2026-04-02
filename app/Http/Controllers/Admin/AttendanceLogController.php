@@ -52,7 +52,7 @@ class AttendanceLogController extends Controller
             ->count('a.employee_id');
 
         // Missing checkout, late and onTime counts from attendance rows for the date
-        $missing = (clone $attendanceBase)->where('a.checkout_status', 'Missing')->count();
+        $missing = (clone $attendanceBase)->where('a.checkout_status', 'missing')->count();
         $late = (clone $attendanceBase)->where('a.checkin_status', 'Late')->count();
         $onTime = (clone $attendanceBase)->where('a.checkin_status', 'On Time')->count();
 

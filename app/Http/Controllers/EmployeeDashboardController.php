@@ -389,7 +389,7 @@ class EmployeeDashboardController extends Controller
         $update = [
             'checkout' => $tzNow->toDateTimeString(),
             'checkout_address' => $safeAddress,
-            'checkout_status' => $isNormal ? 'Completed' : null,
+            'checkout_status' => $isNormal ? 'complete' : null,
         ];
         $updateData = $this->filterColumns('attendance', $update);
         if (empty($updateData)) {
