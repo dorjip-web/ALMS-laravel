@@ -66,10 +66,22 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Attendance Summary</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         table.attendance{width:100%;border-collapse:collapse}
         table.attendance th,table.attendance td{padding:8px;border:1px solid #e6eef4;text-align:left;font-size:14px}
         .summary-empty{margin-top:18px;padding:14px;border-radius:8px;background:#fff8e6;color:#8a3e14}
+        /* Style logout button in topbar to match other pages */
+        .topbar .logout form button{
+            background:#fff;
+            padding:8px 12px;
+            border-radius:6px;
+            border:none;
+            color:var(--orange);
+            font-weight:600;
+            cursor:pointer;
+        }
+        .topbar .logout form button:hover{filter:brightness(0.97)}
     </style>
 </head>
 <body>
