@@ -316,15 +316,18 @@ class EmployeeDashboardController extends Controller
         $lat = $request->input('lat');
         $lon = $request->input('lon');
         Log::debug('Attendance action', ['action' => $request->input('action'), 'lat' => $lat, 'lon' => $lon]);
-        // If lat/lon provided, store a Nominatim reverse URL so the display
-        // layer can resolve it later via `displayAddressForUI`. This preserves
-        // the previous behaviour where we saved the Nominatim URL (and avoids
-        // relying on immediate API responses at write-time).
+        // Prefer immediate reverse-geocoding when lat/lon are available so
+        // the stored address is human-readable. If the lookup fails, fall
+        // back to storing the Nominatim reverse URL so the UI can resolve
+        // it later.
         if (is_numeric($lat) && is_numeric($lon)) {
-            $safeAddress = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' . rawurlencode($lat) . '&lon=' . rawurlencode($lon);
+            $resolved = $this->reverseGeocode($lat, $lon);
+            if (trim($resolved) !== '') {
+                $safeAddress = $resolved;
+            } else {
+                $safeAddress = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' . rawurlencode($lat) . '&lon=' . rawurlencode($lon);
+            }
         } else {
-            // Fallback to trying an immediate reverse lookup; if that fails,
-            // store a human-readable fallback string.
             $address = $this->reverseGeocode($lat, $lon);
             if (trim($address) !== '') {
                 $safeAddress = $address;
