@@ -41,7 +41,7 @@
         <a href="{{ route('dashboard') }}#attendance">Attendance</a>
         <a href="{{ route('dashboard.attendance_summary') }}" class="ajax-link" @class(['active' => request()->routeIs('dashboard.attendance_summary')])>Attendance Summary</a>
         <a href="{{ route('dashboard.leave_form') }}" @class(['active' => request()->routeIs('dashboard.leave_form')])>Leave</a>
-        <a href="{{ route('dashboard.leave_form') }}#leave-history" @class(['active' => request()->routeIs('dashboard.leave_form')])>Leave History</a>
+        <!-- Leave History link removed per request -->
         <a href="{{ route('dashboard.tour') }}" @class(['active' => request()->routeIs('dashboard.tour')])>Tour</a>
         <a href="{{ route('dashboard.adhoc_requests') }}" @class(['active' => request()->routeIs('dashboard.adhoc_requests')])>Adhoc Requests</a>
     </nav>
