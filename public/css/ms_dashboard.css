@@ -1,0 +1,24 @@
+/* MS Dashboard styles: reuse HoD/dashboard styles */
+@import 'hod_dashboard.css';
+
+/* Minimal MS-specific overrides */
+.requests thead th {
+    color: #000000;
+}
+.avatar{background:var(--orange)}
+.card-value{color:var(--orange)}
+.btn-approve{background:var(--orange);color:#fff}
+.btn-reject{background:var(--orange);color:#fff}
+.topbar .logout button{background:#fff;padding:8px 12px;border-radius:6px;border:0;color:var(--orange);font-weight:600;cursor:pointer}
+
+.status-approved{display:inline-block;padding:4px 8px;border-radius:999px;background:#e8f8ef;color:#166534;font-weight:700;font-size:12px}
+.status-rejected{display:inline-block;padding:4px 8px;border-radius:999px;background:#fee2e2;color:#991b1b;font-weight:700;font-size:12px}
+
+.access-denied{padding:30px;text-align:center}
+.access-denied h2{margin:0 0 8px;color:#dc2626}
+.access-denied a{color:#1d4ed8;font-weight:700}
+
+@media(max-width:700px){
+    .cards{flex-direction:column}
+    table th, table td{font-size:13px}
+}

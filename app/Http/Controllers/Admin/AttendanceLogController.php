@@ -1,0 +1,167 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class AttendanceLogController extends Controller
+{
+    public function index(Request $request)
+    {
+        $filter = $request->input('filter', '');
+        $date = $request->input('date', '');
+        $fromDate = $request->input('from_date', '');
+        $dept = $request->input('department_id', '');
+
+        // Fetch all departments for dropdown
+        $departments = DB::table('department')->select('department_id', 'department_name')->orderBy('department_name')->get();
+
+        // Dashboard counts (use selected date or today)
+        $base = DB::table('attendance as a')
+            ->join('tab1 as t', 't.employee_id', '=', 'a.employee_id');
+
+        // Determine whether a date range was provided (from_date + date)
+        $isRange = $fromDate && $date;
+
+        // Build an attendance base specifically for the target date or range so counts are consistent
+        $attendanceBase = DB::table('attendance as a')
+            ->join('tab1 as t', 't.employee_id', '=', 'a.employee_id');
+
+        if ($isRange) {
+            $attendanceBase->whereBetween('a.attendance_date', [$fromDate, $date]);
+        } else {
+            $targetDate = $date ?: now()->toDateString();
+            $attendanceBase->where('a.attendance_date', $targetDate);
+        }
+
+        if ($dept) {
+            $attendanceBase->where('t.department_id', $dept);
+            $base->where('t.department_id', $dept);
+        }
+
+        // total attendance rows for target date (not used for staff percent)
+        $total = (clone $attendanceBase)->count();
+
+        // Present: staff who have both checkin AND checkout for the target date
+        $present = (clone $attendanceBase)
+            ->whereNotNull('a.checkin')
+            ->whereNotNull('a.checkout')
+            ->distinct('a.employee_id')
+            ->count('a.employee_id');
+
+        // Missing checkout, late and onTime counts from attendance rows for the date
+        $missing = (clone $attendanceBase)->where('a.checkout_status', 'Missing')->count();
+        $late = (clone $attendanceBase)->where('a.checkin_status', 'Late')->count();
+        $onTime = (clone $attendanceBase)->where('a.checkin_status', 'On Time')->count();
+
+        // total staff (from legacy employee table), optionally filtered by department
+        $totalStaffQuery = DB::table('tab1');
+        if ($dept) {
+            $totalStaffQuery->where('department_id', $dept);
+        }
+        $totalStaff = $totalStaffQuery->count();
+
+        // Absent: staff without both checkin+checkout on target date (counted from total staff)
+        $absent = max(0, $totalStaff - $present);
+
+        // Attendance percent = present staff / total staff
+        $attendancePercent = $totalStaff > 0 ? round(($present / $totalStaff) * 100, 1) : 0;
+
+        // total staff (from legacy employee table), optionally filtered by department
+        $totalStaffQuery = DB::table('tab1');
+        if ($dept) {
+            $totalStaffQuery->where('department_id', $dept);
+        }
+        $totalStaff = $totalStaffQuery->count();
+
+        // Main query - different approach for "absent" because absent employees may not have attendance rows
+        if ($filter === 'absent') {
+            $query = DB::table('tab1 as t')
+                ->leftJoin('attendance as a', function ($join) use ($isRange, $fromDate, $date) {
+                    $join->on('t.employee_id', '=', 'a.employee_id');
+                    if ($isRange) {
+                        $join->whereBetween('a.attendance_date', [$fromDate, $date]);
+                    } else {
+                        $join->where('a.attendance_date', $date ?: now()->toDateString());
+                    }
+                })
+                ->leftJoin('department as d', 'd.department_id', '=', 't.department_id')
+                ->select(
+                    't.employee_id',
+                    't.employee_name',
+                    't.designation',
+                    't.department_id',
+                    'd.department_name',
+                    DB::raw('NULL as attendance_date'),
+                    'a.shift_type',
+                    'a.checkin',
+                    'a.checkin_address',
+                    'a.checkin_status',
+                    'a.checkout',
+                    'a.checkout_address',
+                    'a.checkout_status'
+                );
+
+            if ($dept) {
+                $query->where('t.department_id', $dept);
+            }
+
+            // Absent means no attendance row for the date OR both checkin and checkout are null
+            $query->where(function ($q) {
+                $q->whereNull('a.employee_id')
+                  ->orWhere(function ($q2) {
+                      $q2->whereNull('a.checkin')->whereNull('a.checkout');
+                  });
+            });
+
+            $logs = $query->orderBy('t.employee_name')->get();
+        } else {
+            $query = DB::table('attendance as a')
+                ->join('tab1 as t', 't.employee_id', '=', 'a.employee_id')
+                ->leftJoin('department as d', 'd.department_id', '=', 't.department_id')
+                ->select(
+                    't.employee_id',
+                    't.employee_name',
+                    't.designation',
+                    't.department_id',
+                    'd.department_name',
+                    'a.attendance_date',
+                    'a.shift_type',
+                    'a.checkin',
+                    'a.checkin_address',
+                    'a.checkin_status',
+                    'a.checkout',
+                    'a.checkout_address',
+                    'a.checkout_status'
+                )
+                ;
+
+            if ($isRange) {
+                $query->whereBetween('a.attendance_date', [$fromDate, $date]);
+            } else {
+                $query->where('a.attendance_date', $targetDate);
+            }
+
+            if ($dept) {
+                $query->where('t.department_id', $dept);
+            }
+
+            if ($filter == 'late') {
+                $query->where('a.checkin_status', 'Late');
+            }
+            if ($filter == 'missing_checkout') {
+                $query->where('a.checkout_status', 'Missing');
+            }
+            if ($filter == 'present') {
+                $query->whereNotNull('a.checkin')->whereNotNull('a.checkout');
+            }
+
+            $logs = $query->orderByDesc('a.attendance_date')->get();
+        }
+
+        $from_date = $fromDate;
+        return view('admin.attendance_logs.index', compact('present', 'missing', 'late', 'absent', 'logs', 'filter', 'date', 'from_date', 'dept', 'departments', 'attendancePercent', 'total', 'onTime', 'totalStaff'));
+    }
+}

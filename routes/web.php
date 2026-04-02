@@ -1,0 +1,97 @@
+<?php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\LeaveBalanceController;
+use App\Http\Controllers\Admin\AttendanceLogController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\EmployeeDashboardController;
+use App\Http\Controllers\HodDashboardController;
+use App\Http\Controllers\MsDashboardController;
+use App\Http\Controllers\AdminLoginController;
+use App\Http\Controllers\AdminDashboardController;
+use Illuminate\Support\Facades\Auth;
+// Admin Leave Balance Management & Attendance Logs
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('leave-balances', [LeaveBalanceController::class, 'index'])->name('leave_balances.index');
+    Route::post('leave-balances/set', [LeaveBalanceController::class, 'setBalance'])->name('leave_balances.set');
+    Route::post('leave-balances/adjust', [LeaveBalanceController::class, 'adjustBalance'])->name('leave_balances.adjust');
+    Route::post('leave-balances/reset', [LeaveBalanceController::class, 'resetYear'])->name('leave_balances.reset');
+    Route::get('attendance-logs', [AttendanceLogController::class, 'index'])->name('attendance_logs.index');
+});
+// Admin Department & HoD Management
+Route::get('/admin/departments-hods', [App\Http\Controllers\Admin\DepartmentManagementController::class, 'index'])->name('admin.departments_hods.index');
+Route::get('/admin/departments/edit/{id}', [App\Http\Controllers\Admin\DepartmentEditController::class, 'edit'])->name('admin.departments.edit');
+Route::post('/admin/departments/edit/{id}', [App\Http\Controllers\Admin\DepartmentEditController::class, 'update'])->name('admin.departments.edit.update');
+// Admin Department Create
+Route::get('/admin/departments/create', [App\Http\Controllers\Admin\DepartmentCreateController::class, 'create'])->name('admin.departments.create');
+Route::post('/admin/departments/create', [App\Http\Controllers\Admin\DepartmentCreateController::class, 'store'])->name('admin.departments.create.store');
+// Admin Department Assign HoD
+Route::get('/admin/departments/assign-hod/{id}', [App\Http\Controllers\Admin\DepartmentAssignHodController::class, 'assign'])->name('admin.departments.assign_hod');
+Route::post('/admin/departments/assign-hod/{id}', [App\Http\Controllers\Admin\DepartmentAssignHodController::class, 'store'])->name('admin.departments.assign_hod.store');
+// Admin Department Toggle Status
+Route::get('/admin/departments/toggle-status/{id}', [App\Http\Controllers\Admin\DepartmentToggleStatusController::class, 'toggle'])->name('admin.departments.toggle-status');
+
+
+Route::get('/', function () {
+    return Auth::check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+});
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/tour', [EmployeeDashboardController::class, 'tour'])->name('dashboard.tour');
+    Route::post('/dashboard/tour', [EmployeeDashboardController::class, 'submitTour'])->name('dashboard.tour.store');
+    Route::post('/dashboard/attendance', [EmployeeDashboardController::class, 'attendance'])->name('dashboard.attendance');
+    Route::get('/dashboard/attendance-summary', [EmployeeDashboardController::class, 'attendanceSummary'])->name('dashboard.attendance_summary');
+    Route::get('/dashboard/adhoc-requests', [EmployeeDashboardController::class, 'adhocRequests'])->name('dashboard.adhoc_requests');
+    Route::get('/dashboard/leave', [EmployeeDashboardController::class, 'leaveForm'])->name('dashboard.leave_form');
+    Route::post('/dashboard/adhoc-requests', [EmployeeDashboardController::class, 'submitAdhocRequest'])->name('dashboard.adhoc_requests.store');
+    Route::post('/dashboard/leave', [EmployeeDashboardController::class, 'submitLeave'])->name('dashboard.leave');
+    Route::post('/dashboard/profile-picture', [EmployeeDashboardController::class, 'uploadProfilePicture'])->name('dashboard.profile.picture');
+    Route::get('/hod-dashboard', [HodDashboardController::class, 'index'])->name('hod.dashboard');
+    Route::post('/hod-dashboard/action', [HodDashboardController::class, 'processAction'])->name('hod.dashboard.action');
+    Route::get('/hod-dashboard/staff', [HodDashboardController::class, 'staffList'])->name('hod.staff_list');
+    Route::get('/ms-dashboard', [MsDashboardController::class, 'index'])->name('ms.dashboard');
+    Route::post('/ms-dashboard/action', [MsDashboardController::class, 'processAction'])->name('ms.dashboard.action');
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+});
+
+// Admin Authentication Routes (separate from employee auth)
+Route::middleware('guest')->group(function () {
+    Route::get('/admin-login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('/admin-login', [AdminLoginController::class, 'login'])->name('admin.login.post');
+});
+
+// Admin Dashboard Routes
+Route::get('/admin-dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+Route::post('/admin-logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
+
+
+// Admin User Management
+Route::get('/admin/users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('admin.users.index');
+Route::get('/admin/users/edit/{id}', [App\Http\Controllers\Admin\UserEditController::class, 'edit'])->name('admin.users.edit');
+Route::post('/admin/users/edit/{id}', [App\Http\Controllers\Admin\UserEditController::class, 'update'])->name('admin.users.edit.update');
+
+// Admin User Create
+Route::get('/admin/users/create', [App\Http\Controllers\Admin\UserCreateController::class, 'create'])->name('admin.users.create');
+Route::post('/admin/users/create', [App\Http\Controllers\Admin\UserCreateController::class, 'store'])->name('admin.users.create.store');
+
+// Admin User Toggle Status
+Route::get('/admin/users/toggle-status/{id}', [App\Http\Controllers\Admin\UserToggleStatusController::class, 'toggle'])->name('admin.users.toggle-status');
+
+// Admin Roles & Permissions Management
+Route::get('/admin/roles-permissions', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'index'])->name('admin.roles_permissions');
+Route::post('/admin/roles-permissions/save-role', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'saveRole'])->name('admin.roles_permissions.saveRole');
+Route::post('/admin/roles-permissions/save-permission', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'savePermission'])->name('admin.roles_permissions.savePermission');
+Route::post('/admin/roles-permissions/save-assign', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'saveAssign'])->name('admin.roles_permissions.saveAssign');
+
+// Legacy admin PHP page bridges (for old .php URL compatibility)
+Route::get('/admin_dashboard.php', function () {
+    return redirect()->route('admin.dashboard');
+});
+

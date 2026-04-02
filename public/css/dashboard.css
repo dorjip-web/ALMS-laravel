@@ -1,0 +1,205 @@
+:root{--orange:#ff6b00;--dark:#2f3d44;--light:#e6f0f3;--muted:#7a8a91}
+*{box-sizing:border-box;font-family:Inter,system-ui,Arial,Helvetica,sans-serif}
+body{margin:0;background:var(--light)}
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--dark);color:#fff;padding:24px 16px}
+.profile{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:24px;text-align:center}
+.avatar{width:70px;height:70px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.avatar-wrapper{position:relative;display:inline-block}
+.avatar-upload-btn{position:absolute;bottom:4px;right:4px;background:var(--orange);color:#fff;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--dark);opacity:0;transition:opacity 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.4)}
+.avatar-wrapper:hover .avatar-upload-btn{opacity:1}
+.username{font-weight:700;font-size:20px;line-height:1.25;color:var(--orange)}
+.menu a{display:block;padding:12px 16px;color:#cfd8db;margin:6px 0;border-radius:4px;text-decoration:none}
+.menu a.active{background:var(--orange);color:#fff}
+.menu .menu-item{margin:0}
+.menu .submenu a{display:block;padding:8px 16px 8px 28px;color:#cfd8db;margin:2px 0;border-radius:4px;text-decoration:none;font-size:14px}
+.menu .submenu a:hover{background:rgba(255,255,255,0.03);color:#fff}
+.main{flex:1;padding:18px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;background:var(--orange);color:#fff;padding:12px 16px;border-radius:8px}
+.topbar .search input{width:560px;padding:10px 14px;border-radius:24px;border:2px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.95);outline:none}
+.topbar .logout a{background:#fff;padding:8px 12px;border-radius:6px;text-decoration:none;color:var(--orange);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(300px,1fr));grid-auto-rows:auto;gap:20px;align-items:stretch}
+
+/* Place employee + attendance in first row, leave spans full width below */
+.grid > .employee-card{grid-column:1}
+.grid > .attendance-card{grid-column:2}
+.grid > .leave-card{grid-column:1 / -1}
+
+/* make the two top cards match size and layout their content vertically */
+.grid > .employee-card,
+.grid > .attendance-card{
+	display:flex;
+	flex-direction:column;
+	min-height:440px;
+}
+
+.card{background:#fff;border-radius:8px;padding:20px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+.card h3{margin:0 0 12px 0;color:var(--dark)}
+.card h2{margin:0 0 12px 0;color:var(--dark)}
+.welcome-light{color:#9fd6ff}
+.welcome-orange{color:var(--orange)}
+.name-blue{color:#1e73be}
+.status-active{color:#1e73be;font-weight:600}
+/* Inactive status: red */
+.status-inactive{color:#d0342a;font-weight:600}
+/* Leave status styles for employee dashboard */
+.status-pending{color:#d0342a;font-weight:600}
+.status-forwarded{color:#1e73be;font-weight:600}
+.status-approved{color:#2e7d32;font-weight:600}
+.status-rejected{color:#d0342a;font-weight:600}
+.employee-card .detail{margin:6px 0;color:var(--muted)}
+.attendance-card .att-actions{display:flex;gap:12px;margin-bottom:12px}
+.btn{background:var(--orange);border:none;color:#fff;padding:10px 14px;border-radius:6px;cursor:pointer}
+.btn[disabled]{opacity:0.5;cursor:not-allowed}
+.leave-form button, .leave-form button[type="submit"], .leave-form .btn {
+	background: var(--orange);
+	border: none;
+	color: #fff;
+	padding: 10px 14px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-weight: 600;
+}
+.leave-form button[disabled]{opacity:0.5;cursor:not-allowed}
+.leave-form button:hover{filter:brightness(0.95)}
+
+.leave-form .btn-cancel{
+	background:#fff;
+	border:1px solid #cfd8db;
+	color:#333;
+	padding:10px 14px;
+	border-radius:6px;
+	cursor:pointer;
+}
+.leave-form .btn-cancel:hover{filter:brightness(0.98)}
+.today-status div{margin:6px 0;color:#333}
+.monthly{margin-top:12px;color:var(--muted)}
+.notifications .note{background:#fff6f0;border-left:4px solid var(--orange);padding:8px;margin:8px 0;border-radius:4px;color:#6b4b2c}
+.leave-form .row{margin-bottom:10px}
+.leave-form label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+.leave-form input,.leave-form select{width:100%;padding:8px;border:1px solid var(--orange);border-radius:6px;transition:box-shadow .15s,border-color .15s}
+.leave-form input:focus,.leave-form select:focus{outline:none;box-shadow:0 0 0 3px rgba(255,107,0,0.08);border-color:var(--orange)}
+.row-inline{display:flex;gap:12px}
+.leave-form .row-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px}
+.leave-form .row-grid .col label{margin-bottom:6px}
+.leave-form .row-grid .col input,.leave-form .row-grid .col select{width:100%}
+.leave-form .row-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.leave-form .row-grid-3 .col label{margin-bottom:6px}
+.leave-form .row-grid-3 .col input,.leave-form .row-grid-3 .col select{width:100%}
+
+.leave-form .row-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.leave-form .row-grid-4 .col label{margin-bottom:6px}
+.leave-form .row-grid-4 .col input,.leave-form .row-grid-4 .col select,.leave-form .row-grid-4 .col textarea{width:100%}
+.leave-history table{width:100%;border-collapse:collapse;border-spacing:0;font-size:13px}
+.leave-history th,.leave-history td{padding:8px;border-bottom:none;text-align:left}
+
+/* Fallback / higher-specificity rules in case other styles override the defaults */
+.card.leave-card .leave-form input,
+.card.leave-card .leave-form select,
+.leave-form input[type="date"],
+.leave-form input[type="text"],
+.leave-form textarea{
+	border:1px solid var(--orange) !important;
+	border-radius:6px !important;
+}
+
+.leave-history .table-wrap,
+.leave-history .table-wrap table{
+	border-radius:8px;
+	overflow:hidden;
+}
+
+/* Thin orange divider under the Leave History table header */
+.leave-history table thead th{border-bottom:1px solid var(--orange);padding-bottom:8px}
+
+/* thin orange dividers between inner rows */
+.leave-history tbody tr + tr td{
+	border-top:1px solid var(--orange);
+}
+
+/* Action links in user management: make Edit / Toggle Status orange */
+.leave-history table.users td a.action-orange{color:var(--orange);font-weight:600;text-decoration:none}
+.leave-history table.users td a.action-orange:hover{text-decoration:underline}
+
+.leave-history .leave-status-badge{
+	display:inline-block;
+	padding:6px 14px;
+	border-radius:999px;
+	font-size:13px;
+	font-weight:700;
+	line-height:1;
+}
+
+.leave-history .leave-status-badge.status-approved{background:#dcece3;color:#0b6a3f}
+.leave-history .leave-status-badge.status-pending{background:#fff1d6;color:#8d5f00}
+.leave-history .leave-status-badge.status-rejected{background:#fde2e2;color:#a61d24}
+.leave-history .leave-status-badge.status-forwarded{background:#e4ecff;color:#1e4ed8}
+.stats-card .stat-items{display:flex;gap:12px;flex-wrap:wrap}
+.stat{flex:1;padding:10px;background:#f7fbfc;border-radius:6px}
+.stat .big{font-size:20px;color:var(--orange);font-weight:700;margin-top:8px}
+
+@media (max-width:1000px){
+	.grid{grid-template-columns:1fr;grid-auto-rows:auto;}
+	.grid > .employee-card,.grid > .attendance-card,.grid > .leave-card{grid-column:auto}
+	.grid > .employee-card,.grid > .attendance-card{min-height:auto}
+}
+
+@media (max-width:700px){
+  .leave-form .row-grid{grid-template-columns:1fr}
+}
+
+/* Admin form 3-column grid for Add/Edit user pages */
+.admin-form{padding:18px;background:transparent}
+.admin-form .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+.admin-form .form-group{display:flex;flex-direction:column}
+.admin-form .form-group label{font-weight:600;margin-bottom:8px}
+.admin-form .form-group input,.admin-form .form-group select{padding:8px;border:1px solid #cfd8db;border-radius:4px}
+.admin-form .form-actions{grid-column:1 / -1;margin-top:12px;display:flex;gap:12px;align-items:center}
+
+@media (max-width:1000px){
+	.admin-form .form-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media (max-width:700px){
+	.admin-form .form-grid{grid-template-columns:1fr}
+}
+
+/* Minimal scoped styles for attendance card (keeps impact local) */
+.attendance-card{--att-accent:#ff8a00;--att-green:#14b866;padding:18px}
+.attendance-card h3{font-size:22px;margin:0 0 6px;color:var(--dark)}
+.attendance-card .attendance-subtitle{color:#6b7280;margin:0 0 12px;font-size:14px}
+.attendance-card .att-actions{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:0 auto 16px;max-width:640px}
+.attendance-card .att-actions .btn{background:var(--orange);color:#fff;border-radius:12px;padding:8px 36px;border:none;box-shadow:0 6px 12px rgba(0,0,0,0.10);font-weight:700;font-size:16px;min-width:210px;text-align:center;white-space:normal;line-height:1.2}
+.attendance-card .att-actions .btn.checkout-locked{font-size:12px;padding:8px 16px}
+.attendance-card .att-actions .btn:hover{filter:brightness(0.95)}
+.attendance-card .att-actions .btn[disabled]{opacity:0.6;box-shadow:none}
+.attendance-card .status-box{background:#f4fff6;border:1px solid #cfeedd;padding:16px;border-radius:12px;display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.attendance-card .status-box .icon{color:var(--att-green);flex:0 0 36px}
+.attendance-card .status-box .status-title{font-weight:700;color:var(--att-green);margin-bottom:6px}
+.attendance-card .status-box .time-line{display:flex;align-items:center;gap:8px;color:#163d2f}
+.attendance-card .timeline{margin:12px 0}
+.attendance-card .timeline .title{font-weight:600;margin-bottom:8px}
+.attendance-card .timeline .timeline-row{display:flex;align-items:center;gap:12px}
+.attendance-card .timeline .timeline-time{font-size:14px;color:#10243a;line-height:1;white-space:nowrap}
+.attendance-card .timeline .timeline-time-end{text-align:right}
+.attendance-card .timeline .bar{flex:1;height:10px;background:#eef7f0;border-radius:999px;position:relative;overflow:hidden}
+.attendance-card .timeline .bar .fill{position:absolute;left:0;top:0;height:100%;background:var(--att-green);border-radius:999px;width:0}
+.attendance-card .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.attendance-card .stat{background:#fbfdff;padding:14px;border-radius:12px;text-align:center}
+.attendance-card .stat .num{font-size:20px;font-weight:700;color:var(--att-green);margin-bottom:6px}
+.attendance-card .reminder{background:linear-gradient(90deg, rgba(255,244,238,1) 0%, rgba(255,249,241,1) 100%);padding:12px 16px 12px 22px;border-radius:12px;color:#8a3e14;position:relative;font-size:15px}
+.attendance-card .reminder:before{content:'';position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--att-accent);border-top-left-radius:12px;border-bottom-left-radius:12px;box-shadow:2px 0 0 rgba(0,0,0,0.02)}
+
+/* Employee details table styling */
+.details{width:100%;border-collapse:collapse}
+.details td{padding:10px 8px;border-bottom:1px solid #e8edf6;font-size:16px;font-weight:700}
+.details td:first-child{width:120px;font-weight:700;color:var(--dark)}
+
+/* Flash messages */
+.flash{border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:14px}
+.flash-error{background:#ffe9e9;color:#9f1d1d;border:1px solid #ffbcbc}
+.flash-success{background:#e8f8ef;color:#1c6a41;border:1px solid #bde9ce}
+
+/* Inline form styling */
+.inline{display:inline}
