@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AttendanceLogController extends Controller
 {
@@ -161,7 +163,96 @@ class AttendanceLogController extends Controller
             $logs = $query->orderByDesc('a.attendance_date')->get();
         }
 
+        // Resolve stored addresses (may be Nominatim reverse URLs) into
+        // human-readable strings for the admin UI.
+        foreach ($logs as $row) {
+            $row->checkin_address = $this->displayAddressForUI($row->checkin_address ?? '');
+            $row->checkout_address = $this->displayAddressForUI($row->checkout_address ?? '');
+        }
+
         $from_date = $fromDate;
         return view('admin.attendance_logs.index', compact('present', 'missing', 'late', 'absent', 'logs', 'filter', 'date', 'from_date', 'dept', 'departments', 'attendancePercent', 'total', 'onTime', 'totalStaff'));
+    }
+
+    private function reverseGeocode($lat, $lon): string
+    {
+        if (! is_numeric($lat) || ! is_numeric($lon)) {
+            return '';
+        }
+
+        try {
+            Log::debug('Admin reverseGeocode: Calling Nominatim', ['lat' => $lat, 'lon' => $lon]);
+            $response = Http::withoutVerifying()
+                ->withHeaders([
+                    'User-Agent' => 'EmployeeAttendanceSystem/1.0',
+                ])->timeout(10)->get('https://nominatim.openstreetmap.org/reverse', [
+                    'format' => 'jsonv2',
+                    'addressdetails' => 1,
+                    'lat' => $lat,
+                    'lon' => $lon,
+                ]);
+
+            if (! $response->successful()) {
+                Log::warning('Admin reverseGeocode: API returned error', ['status' => $response->status(), 'body' => $response->body()]);
+                return '';
+            }
+
+            $data = $response->json();
+            if (! empty($data['address'])) {
+                $address = $data['address'];
+
+                $building =
+                    $data['name']
+                    ?? $address['hospital']
+                    ?? $address['amenity']
+                    ?? $address['building']
+                    ?? '';
+
+                $road = $address['road'] ?? '';
+
+                $city =
+                    $address['city']
+                    ?? $address['town']
+                    ?? $address['village']
+                    ?? $address['county']
+                    ?? '';
+
+                $country = $address['country'] ?? '';
+
+                $parts = array_filter([$building, $road, $city, $country]);
+
+                return implode(', ', $parts);
+            }
+        } catch (\Exception $e) {
+            Log::error('Admin reverseGeocode: Exception', ['error' => $e->getMessage()]);
+            return '';
+        }
+
+        return '';
+    }
+
+    private function displayAddressForUI($stored): string
+    {
+        $stored = trim((string) $stored);
+
+        if ($stored === '') {
+            return '';
+        }
+
+        if (str_contains($stored, 'nominatim.openstreetmap.org/reverse')) {
+            $parts = parse_url($stored);
+
+            if (! empty($parts['query'])) {
+                parse_str($parts['query'], $query);
+
+                if (! empty($query['lat']) && ! empty($query['lon'])) {
+                    $name = $this->reverseGeocode($query['lat'], $query['lon']);
+
+                    return $name ?: $stored;
+                }
+            }
+        }
+
+        return $stored;
     }
 }

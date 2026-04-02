@@ -75,9 +75,10 @@
                 @foreach($logs as $row)
                     @php
                         $styles = [];
-                        if ($row->checkin_status == 'Late') $styles[] = 'background:#ffcccc;';
-                        if ($row->checkout_status == 'Missing') $styles[] = 'border-bottom:4px solid #ffc107;';
-                        if ($row->checkout_status == 'Complete') $styles[] = 'background:#d4edda;';
+                        if (($row->checkin_status ?? '') === 'Late') $styles[] = 'background:#ffcccc;';
+                        $cs = strtolower($row->checkout_status ?? '');
+                        if ($cs === 'missing') $styles[] = 'border-bottom:4px solid #ffc107;';
+                        if ($cs === 'complete') $styles[] = 'background:#d4edda;';
                         $class = implode(' ', $styles);
                         $styleAttr = !empty($class) ? 'style="'.$class.'"' : '';
                     @endphp
@@ -93,7 +94,18 @@
                         <td>{{ $row->checkin_status ?? '-' }}</td>
                         <td>{{ $row->checkout ?? 'Not Yet' }}</td>
                         <td>{{ $row->checkout_address ?? '-' }}</td>
-                        <td>{{ $row->checkout_status ?? 'Pending' }}</td>
+                        <td>
+                            @php $cs = strtolower($row->checkout_status ?? ''); @endphp
+                            @if ($cs === 'complete')
+                                Completed
+                            @elseif ($cs === 'missing')
+                                Missing
+                            @elseif (! empty($row->checkout_status))
+                                {{ ucfirst($row->checkout_status) }}
+                            @else
+                                Pending
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
