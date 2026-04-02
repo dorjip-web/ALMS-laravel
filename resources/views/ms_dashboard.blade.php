@@ -16,7 +16,7 @@
         </div>
 
         <nav class="menu">
-            <a href="{{ route('dashboard') }}">Back to My Dashboard</a>
+            <a href="{{ route('dashboard') }}">Back to Dashboard</a>
             <a href="{{ route('ms.dashboard') }}" class="active">MS Dashboard</a>
             <a href="#pending-approvals">Pending Approvals</a>
             <a href="#on-tour">Staff On Tour</a>

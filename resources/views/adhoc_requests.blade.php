@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Adhoc Requests</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Style logout button in topbar to match other pages */
+        .topbar .logout form button{
+            background:#fff;
+            padding:8px 12px;
+            border-radius:6px;
+            border:none;
+            color:var(--orange);
+            font-weight:600;
+            cursor:pointer;
+        }
+        .topbar .logout form button:hover{filter:brightness(0.97)}
+    </style>
 </head>
 <body>
 @php
@@ -17,10 +31,7 @@
         <header class="topbar">
             <div class="search"><input placeholder="Search..." disabled></div>
             <div class="logout">
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-                    @csrf
-                    <button type="submit" style="background:#fff;padding:8px 12px;border-radius:6px;border:none;color:var(--orange);font-weight:600;cursor:pointer;">Logout</button>
-                </form>
+                <form method="POST" action="{{ route('logout') }}" style="display:inline;">@csrf<button type="submit">Logout</button></form>
             </div>
         </header>
 

@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>HoD Dashboard</title>
     <link rel="stylesheet" href="{{ asset('css/hod_dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body{font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;}
+        .topbar .logout form button{background:transparent;border:0;padding:6px 10px;border-radius:6px;font-weight:600}
+        .topbar .logout form button:hover{background:#f8f9fa}
+    </style>
 </head>
 <body>
 <div class="app">
@@ -15,7 +21,7 @@
         </div>
 
         <nav class="menu">
-            <a href="{{ route('dashboard') }}">Back to My Dashboard</a>
+            <a href="{{ route('dashboard') }}">Back to Dashboard</a>
             <a href="{{ route('hod.dashboard') }}" class="active">HoD Dashboard</a>
             <a href="{{ route('hod.staff_list') }}">View Staff List</a>
             <a href="#pending-requests">Pending Leave Requests</a>
@@ -28,7 +34,7 @@
         <header class="topbar">
             <div class="search"><input placeholder="Search..."></div>
             <div class="logout">
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit">Logout</button>
                 </form>
