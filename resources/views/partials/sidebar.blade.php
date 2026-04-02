@@ -39,7 +39,7 @@
             <a href="{{ route('ms.dashboard') }}">MS Dashboard</a>
         @endif
         <a href="{{ route('dashboard') }}#attendance">Attendance</a>
-        <a href="{{ route('dashboard.attendance_summary') }}" class="ajax-link" @class(['active' => request()->routeIs('dashboard.attendance_summary')])>Attendance Summary</a>
+        <a href="{{ route('dashboard.attendance_summary') }}" @class(['ajax-link', 'active' => request()->routeIs('dashboard.attendance_summary')])>Attendance Summary</a>
         <a href="{{ route('dashboard.leave_form') }}" @class(['active' => request()->routeIs('dashboard.leave_form')])>Leave</a>
         <!-- Leave History link removed per request -->
         <a href="{{ route('dashboard.tour') }}" @class(['active' => request()->routeIs('dashboard.tour')])>Tour</a>
