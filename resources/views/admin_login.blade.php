@@ -43,7 +43,7 @@
 <body>
 <main class="wrap" role="main">
     <section class="hero" aria-hidden="false">
-        <h1>Attendance and Leave System — Admin</h1>
+        <h1>Attendance and leave Management System-Admin</h1>
         <p>Manage users, view reports and adjust system settings from the admin panel.</p>
         <div style="margin-top:18px;">
             <p class="small">Secure area. Only authorized personnel should sign in.</p>

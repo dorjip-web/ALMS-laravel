@@ -131,7 +131,6 @@ class EmployeeDashboardController extends Controller
             'leaveApplications' => $leaveApplications,
             'hodName' => $hodName,
             'departmentId' => (int) ($departmentId ?? 0),
-            'initial_section' => $request->query('section', null),
         ]);
     }
 
