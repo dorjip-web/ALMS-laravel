@@ -144,6 +144,15 @@ class HodDashboardController extends Controller
             $onTourCount = count(array_unique(array_map(fn ($r) => (int) ($r['employee_id'] ?? 0), $onTourStaff)));
         }
 
+        $totalStaff = 0;
+        if (Schema::hasTable('tab1') && Schema::hasTable('department_hod')) {
+            $deptIds = DB::table('department_hod')->where('employee_id', $hodId)->pluck('department_id')->toArray();
+            $deptIds = array_values(array_filter($deptIds, fn($v) => $v !== null && $v !== ''));
+            if (! empty($deptIds)) {
+                $totalStaff = DB::table('tab1')->whereIn('department_id', $deptIds)->count();
+            }
+        }
+
         return view('hod_dashboard', [
             'authorized' => true,
             'username' => $hodUser['employee_name'] ?: Auth::user()->name,
@@ -152,6 +161,7 @@ class HodDashboardController extends Controller
             'recent' => $recent,
             'onTourCount' => $onTourCount,
             'onTourStaff' => $onTourStaff,
+            'totalStaff' => $totalStaff,
         ]);
     }
 
@@ -235,11 +245,40 @@ class HodDashboardController extends Controller
 
         $staff = $query->orderBy('t.employee_name')->get()->map(fn($r) => (array) $r)->toArray();
 
+        // Load any per-employee 'unit' values saved in session by this HoD
+        $units = (array) session('hod_units', []);
+
         return view('hod_staff_list', [
             'authorized' => true,
             'staff' => $staff,
             'username' => $hodUser['employee_name'] ?? Auth::user()->name,
+            'units' => $units,
         ]);
+    }
+
+    public function updateUnit(Request $request): RedirectResponse
+    {
+        $hodUser = $this->resolveHodUser($request);
+
+        if (! $hodUser['authorized']) {
+            return redirect(route('dashboard'))->with('flash_error', 'Access denied. You are not assigned as HoD.');
+        }
+
+        $payload = $request->validate([
+            'employee_id' => ['required', 'integer'],
+            'unit' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $units = (array) session('hod_units', []);
+        if (trim((string) $payload['unit']) === '') {
+            unset($units[$payload['employee_id']]);
+        } else {
+            $units[$payload['employee_id']] = trim((string) $payload['unit']);
+        }
+
+        session(['hod_units' => $units]);
+
+        return back()->with('flash_success', 'Unit saved.');
     }
 
     private function resolveHodUser(Request $request): array

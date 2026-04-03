@@ -53,6 +53,10 @@
 
                 <section class="cards">
                     <div class="card">
+                        <div class="card-title">Total Staff</div>
+                        <div class="card-value">{{ $totalStaff ?? 0 }}</div>
+                    </div>
+                    <div class="card">
                         <div class="card-title">Pending Approvals</div>
                         <div class="card-value">{{ $summary['pending'] }}</div>
                     </div>

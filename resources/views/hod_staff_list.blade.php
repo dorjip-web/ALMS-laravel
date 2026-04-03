@@ -76,6 +76,7 @@
                             <th><strong>EID</strong></th>
                             <th><strong>Designation</strong></th>
                             <th><strong>Department</strong></th>
+                            <th><strong>Unit</strong></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,6 +90,14 @@
                                     <td>{{ $s['eid'] ?? '-' }}</td>
                                     <td>{{ $s['designation'] ?? '-' }}</td>
                                     <td>{{ $s['department_name'] ?? '-' }}</td>
+                                    <td>
+                                        <form method="POST" action="{{ route('hod.staff_unit.update') }}" style="display:flex;gap:6px;align-items:center;">
+                                            @csrf
+                                            <input type="hidden" name="employee_id" value="{{ $s['employee_id'] ?? '' }}">
+                                            <input name="unit" placeholder="Unit" value="{{ $units[$s['employee_id']] ?? '' }}" style="padding:6px;border-radius:6px;border:1px solid #d9d9d9;width:120px;max-width:30vw;font-size:14px;">
+                                            <button type="submit" class="btn" style="padding:6px 8px;">Save</button>
+                                        </form>
+                                    </td>
                                 </tr>
                             @endforeach
                         @endif

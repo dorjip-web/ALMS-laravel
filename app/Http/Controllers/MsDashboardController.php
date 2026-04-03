@@ -163,6 +163,11 @@ class MsDashboardController extends Controller
             $onTourCount = count(array_unique(array_map(fn ($r) => (int) ($r['employee_id'] ?? 0), $onTourStaff)));
         }
 
+        $totalStaff = 0;
+        if (Schema::hasTable('tab1')) {
+            $totalStaff = DB::table('tab1')->count();
+        }
+
         return view('ms_dashboard', [
             'authorized' => true,
             'username' => $msUser['employee_name'] ?: Auth::user()->name,
@@ -172,6 +177,7 @@ class MsDashboardController extends Controller
             'recentDecisions' => $recentDecisions,
             'onTourCount' => $onTourCount,
             'onTourStaff' => $onTourStaff,
+            'totalStaff' => $totalStaff,
         ]);
     }
 
