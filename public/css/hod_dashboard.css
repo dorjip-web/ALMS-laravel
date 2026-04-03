@@ -64,3 +64,25 @@ table thead th{background:transparent;color:var(--dark);font-weight:600}
   table th, table td{font-size:13px}
 }
 .topbar .logout button{background:#fff;padding:8px 12px;border-radius:6px;border:0;color:var(--orange);font-weight:600;cursor:pointer}
+
+/* Tile style for quick links */
+.tiles{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.tile{flex:0 1 calc((100% - 28px) / 3);color:#fff;padding:26px;border-radius:6px;display:flex;align-items:center;gap:18px;text-decoration:none;min-height:130px}
+.tile .icon{width:64px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.12);font-size:22px}
+.tile .content{flex:1}
+.tile .title{font-size:20px;font-weight:700;margin:0 0 8px}
+.tile .subtitle{font-size:13px;opacity:0.9;margin:0}
+.tile-purple{background:#6a1b9a}
+.tile-blue{background:#0288d1}
+.tile-gray{background:#757575}
+.tile-yellow{background:#f6c343;color:#333}
+.tile-red{background:#d32f2f}
+.tile-orange{background:#ff6d00}
+
+@media (max-width:900px) {
+  .tile{flex:0 1 calc((100% - 14px) / 2)}
+}
+
+@media(max-width:500px){
+  .tile{flex:1 1 100%}
+}

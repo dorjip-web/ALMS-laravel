@@ -43,146 +43,62 @@
                     <div class="notice">{{ session('message') }}</div>
                 @endif
 
-                <section class="cards">
-                    <div class="card">
-                        <div class="card-title">Total Staff</div>
-                        <div class="card-value">{{ $totalStaff ?? 0 }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Pending</div>
-                        <div class="card-value">{{ $summary['pending'] }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Forwarded to MS</div>
-                        <div class="card-value">{{ $summary['forwarded'] }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Rejected</div>
-                        <div class="card-value">{{ $summary['rejected'] }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Staff On Tour</div>
-                        <div class="card-value">{{ $onTourCount ?? 0 }}</div>
-                    </div>
-                </section>
+                <section class="tiles">
+                    <a class="tile tile-purple" href="{{ route('hod.staff_list') }}">
+                        <div class="icon">👥</div>
+                        <div class="content">
+                            <div class="title">Total Staff</div>
+                            <div class="subtitle">View your department staff</div>
+                        </div>
+                        <div class="content" style="text-align:right"><div class="title">{{ $totalStaff ?? 0 }}</div></div>
+                    </a>
 
-                <section class="panel">
-                    <h2 id="on-tour">Staff Currently On Tour</h2>
-                    <div class="leave-history"><div class="table-wrap"><table class="users requests">
-                        <thead>
-                            <tr>
-                                <th><strong>Employee</strong></th>
-                                <th><strong>Department</strong></th>
-                                <th><strong>Place</strong></th>
-                                <th><strong>From</strong></th>
-                                <th><strong>To</strong></th>
-                                <th><strong>Purpose</strong></th>
-                                <th><strong>Office Order</strong></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (empty($onTourStaff))
-                                <tr><td colspan="6" class="empty">No staff on tour right now</td></tr>
-                            @else
-                                @foreach ($onTourStaff as $tour)
-                                    <tr>
-                                        <td>{{ $tour['employee_name'] ?? '-' }}</td>
-                                        <td>{{ $tour['department_name'] ?? '-' }}</td>
-                                        <td>{{ $tour['place'] ?? '-' }}</td>
-                                        <td>{{ ! empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date'])->format('d M Y') : '-' }}</td>
-                                        <td>{{ ! empty($tour['end_date']) ? \Illuminate\Support\Carbon::parse($tour['end_date'])->format('d M Y') : '-' }}</td>
-                                        <td>{{ $tour['purpose'] ?? '-' }}</td>
-                                        <td>
-                                            @if (!empty($tour['office_order_pdf']))
-                                                <a href="{{ asset('storage/' . $tour['office_order_pdf']) }}" target="_blank" class="btn btn-pdf">View PDF</a>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
-                        </tbody>
-                    </table></div></div>
-                </section>
+                    <a class="tile tile-blue" href="{{ route('hod.pending') }}">
+                        <div class="icon">⏳</div>
+                        <div class="content">
+                            <div class="title">Pending</div>
+                            <div class="subtitle">Requests awaiting your action</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $summary['pending'] }}</div></div>
+                    </a>
 
-                <section class="panel">
-                    <h2 id="pending-requests">Pending Leave Requests</h2>
-                    <div class="leave-history"><div class="table-wrap"><table class="users requests">
-                        <thead>
-                            <tr>
-                                <th><strong>Employee</strong></th>
-                                <th><strong>Leave</strong></th>
-                                <th><strong>From</strong></th>
-                                <th><strong>To</strong></th>
-                                <th><strong>Days</strong></th>
-                                <th><strong>Reason</strong></th>
-                                <th><strong>Action</strong></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (empty($pending))
-                                <tr><td colspan="7" class="empty">No pending requests</td></tr>
-                            @else
-                                @foreach ($pending as $req)
-                                    <tr>
-                                        <td>{{ $req['employee_name'] }}</td>
-                                        <td>{{ $req['leave_name'] }}</td>
-                                        <td>{{ \Illuminate\Support\Carbon::parse($req['from_date'])->format('d M') }}</td>
-                                        <td>{{ \Illuminate\Support\Carbon::parse($req['to_date'])->format('d M') }}</td>
-                                        <td>{{ $req['total_days'] }}</td>
-                                        <td>{{ $req['reason'] }}</td>
-                                        <td class="actions">
-                                            <form method="POST" action="{{ route('hod.dashboard.action') }}" class="inline-form">
-                                                @csrf
-                                                <input type="hidden" name="request_id" value="{{ $req['application_id'] }}">
-                                                <button type="submit" name="action" value="Forward" class="btn btn-forward">Forward</button>
-                                                <button type="submit" name="action" value="Reject" class="btn btn-reject">Reject</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
-                        </tbody>
-                    </table></div></div>
-                </section>
+                    <a class="tile tile-gray" href="{{ route('hod.recent') }}">
+                        <div class="icon">📨</div>
+                        <div class="content">
+                            <div class="title">Forwarded to MS</div>
+                            <div class="subtitle">Recently forwarded</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $summary['forwarded'] }}</div></div>
+                    </a>
 
-                <section class="panel">
-                    <h2 id="recent-actions">Recent Leave Actions</h2>
-                    <div class="leave-history"><div class="table-wrap"><table class="users recent">
-                        <thead>
-                            <tr>
-                                <th><strong>Employee</strong></th>
-                                <th><strong>Leave</strong></th>
-                                <th><strong>HoD Action</strong></th>
-                                <th><strong>Date</strong></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (empty($recent))
-                                <tr><td colspan="4" class="empty">No recent actions</td></tr>
-                            @else
-                                @foreach ($recent as $r)
-                                    @php $act = strtolower(trim((string) ($r['action'] ?? ''))); @endphp
-                                    <tr>
-                                        <td>{{ $r['employee'] }}</td>
-                                        <td>{{ $r['leave_name'] }}</td>
-                                        <td>
-                                            @if ($act === 'forwarded')
-                                                <span class="status-forwarded">Forwarded</span>
-                                            @elseif ($act === 'rejected')
-                                                <span class="status-rejected">Rejected</span>
-                                            @else
-                                                {{ $r['action'] }}
-                                            @endif
-                                        </td>
-                                        <td>{{ ! empty($r['action_at']) ? \Illuminate\Support\Carbon::parse($r['action_at'])->format('d M') : '-' }}</td>
-                                    </tr>
-                                @endforeach
-                            @endif
-                        </tbody>
-                    </table></div></div>
+                    <a class="tile tile-yellow" href="{{ route('hod.adhoc.index') }}">
+                        <div class="icon">📌</div>
+                        <div class="content">
+                            <div class="title">Adhoc Requests</div>
+                            <div class="subtitle">Manage adhoc duty requests</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $adhocCount ?? 0 }}</div></div>
+                    </a>
+
+                    <a class="tile tile-red" href="{{ route('hod.recent') }}">
+                        <div class="icon">❌</div>
+                        <div class="content">
+                            <div class="title">Rejected</div>
+                            <div class="subtitle">Requests you rejected</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $summary['rejected'] }}</div></div>
+                    </a>
+
+                    <a class="tile tile-orange" href="{{ route('hod.on_tour') }}">
+                        <div class="icon">🧭</div>
+                        <div class="content">
+                            <div class="title">Staff On Tour</div>
+                            <div class="subtitle">Current tours in your depts</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $onTourCount ?? 0 }}</div></div>
+                    </a>
                 </section>
+                <!-- Removed embedded detailed lists (moved to dedicated pages) -->
             @endif
         </div>
     </main>

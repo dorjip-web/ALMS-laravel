@@ -153,6 +153,27 @@ class HodDashboardController extends Controller
             }
         }
 
+        // Adhoc requests count for this HoD (from departments managed by HoD)
+        $adhocCount = 0;
+        if (Schema::hasTable('tab1') && Schema::hasTable('department_hod')) {
+            $deptIds = DB::table('department_hod')->where('employee_id', $hodId)->pluck('department_id')->toArray();
+            $deptIds = array_values(array_filter($deptIds, fn($v) => $v !== null && $v !== ''));
+
+            $adhocTable = null;
+            if (Schema::hasTable('adhoc_requests')) {
+                $adhocTable = 'adhoc_requests';
+            } elseif (Schema::hasTable('adhoc_request')) {
+                $adhocTable = 'adhoc_request';
+            }
+
+            if ($adhocTable && ! empty($deptIds)) {
+                $adhocCount = DB::table($adhocTable . ' as a')
+                    ->join('tab1 as t', 'a.employee_id', '=', 't.employee_id')
+                    ->whereIn('t.department_id', $deptIds)
+                    ->count();
+            }
+        }
+
         return view('hod_dashboard', [
             'authorized' => true,
             'username' => $hodUser['employee_name'] ?: Auth::user()->name,
@@ -162,6 +183,140 @@ class HodDashboardController extends Controller
             'onTourCount' => $onTourCount,
             'onTourStaff' => $onTourStaff,
             'totalStaff' => $totalStaff,
+            'adhocCount' => $adhocCount,
+        ]);
+    }
+
+    public function pending(Request $request): View|\Illuminate\Http\RedirectResponse
+    {
+        $hodUser = $this->resolveHodUser($request);
+        if (! $hodUser['authorized']) {
+            return redirect(route('hod.dashboard'))->with('flash_error', 'Access denied. You are not assigned as HoD.');
+        }
+
+        $hodId = $hodUser['employee_id'];
+        $pending = [];
+        if (
+            Schema::hasTable('leave_application')
+            && Schema::hasTable('tab1')
+            && Schema::hasTable('leave_type')
+            && Schema::hasTable('department_hod')
+        ) {
+            $pending = DB::table('leave_application as la')
+                ->join('tab1 as e', 'la.employee_id', '=', 'e.employee_id')
+                ->join('leave_type as lt', 'la.leave_type_id', '=', 'lt.leave_type_id')
+                ->join('department_hod as dh', 'e.department_id', '=', 'dh.department_id')
+                ->where('dh.employee_id', $hodId)
+                ->whereRaw('LOWER(la.HoD_status) = ?', ['pending'])
+                ->orderByDesc('la.applied_at')
+                ->select([
+                    'la.application_id',
+                    'e.employee_name',
+                    'lt.leave_name',
+                    'la.from_date',
+                    'la.to_date',
+                    'la.total_days',
+                    'la.reason',
+                ])
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->toArray();
+        }
+
+        return view('hod.pending', [
+            'authorized' => true,
+            'username' => $hodUser['employee_name'] ?? Auth::user()->name,
+            'pending' => $pending,
+        ]);
+    }
+
+    public function recent(Request $request): View|\Illuminate\Http\RedirectResponse
+    {
+        $hodUser = $this->resolveHodUser($request);
+        if (! $hodUser['authorized']) {
+            return redirect(route('hod.dashboard'))->with('flash_error', 'Access denied. You are not assigned as HoD.');
+        }
+
+        $hodId = $hodUser['employee_id'];
+        $recent = [];
+        if (Schema::hasTable('leave_application') && Schema::hasTable('tab1') && Schema::hasTable('leave_type')) {
+            $recent = DB::table('leave_application as la')
+                ->join('tab1 as e', 'la.employee_id', '=', 'e.employee_id')
+                ->join('leave_type as lt', 'la.leave_type_id', '=', 'lt.leave_type_id')
+                ->where('la.HoD_action_by', $hodId)
+                ->whereRaw('LOWER(la.HoD_status) IN (?, ?)', ['forwarded', 'rejected'])
+                ->orderByDesc('la.HoD_action_at')
+                ->limit(50)
+                ->select([
+                    'e.employee_name as employee',
+                    'lt.leave_name as leave_name',
+                    'la.HoD_status as action',
+                    'la.HoD_action_at as action_at',
+                ])
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->toArray();
+        }
+
+        return view('hod.recent', [
+            'authorized' => true,
+            'username' => $hodUser['employee_name'] ?? Auth::user()->name,
+            'recent' => $recent,
+        ]);
+    }
+
+    public function onTour(Request $request): View|\Illuminate\Http\RedirectResponse
+    {
+        $hodUser = $this->resolveHodUser($request);
+        if (! $hodUser['authorized']) {
+            return redirect(route('hod.dashboard'))->with('flash_error', 'Access denied. You are not assigned as HoD.');
+        }
+
+        $hodId = $hodUser['employee_id'];
+        $onTourStaff = [];
+        if (Schema::hasTable('tour_records') && Schema::hasTable('tab1') && Schema::hasTable('department_hod')) {
+            $today = now('Asia/Thimphu')->toDateString();
+            $hasDepartmentTable = Schema::hasTable('department');
+
+            $tourQuery = DB::table('tour_records as tr')
+                ->join('tab1 as e', 'tr.employee_id', '=', 'e.employee_id')
+                ->join('department_hod as dh', 'e.department_id', '=', 'dh.department_id')
+                ->where('dh.employee_id', $hodId)
+                ->whereDate('tr.start_date', '<=', $today)
+                ->where(function ($q) use ($today): void {
+                    $q->whereNull('tr.end_date')
+                        ->orWhereDate('tr.end_date', '>=', $today);
+                });
+
+            if ($hasDepartmentTable) {
+                $tourQuery->leftJoin('department as d', 'e.department_id', '=', 'd.department_id');
+            }
+
+            $tourSelect = [
+                'tr.employee_id',
+                'e.employee_name',
+                'tr.place',
+                'tr.start_date',
+                'tr.end_date',
+                'tr.purpose',
+                'tr.office_order_pdf',
+            ];
+            $tourSelect[] = $hasDepartmentTable
+                ? DB::raw("COALESCE(d.department_name, '-') as department_name")
+                : DB::raw("'-' as department_name");
+
+            $onTourStaff = $tourQuery
+                ->orderBy('e.employee_name')
+                ->select($tourSelect)
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->toArray();
+        }
+
+        return view('hod.on_tour', [
+            'authorized' => true,
+            'username' => $hodUser['employee_name'] ?? Auth::user()->name,
+            'onTourStaff' => $onTourStaff,
         ]);
     }
 

@@ -9,9 +9,9 @@
         <a href="{{ route('hod.dashboard') }}" @class(['active' => request()->routeIs('hod.dashboard')])>HoD Dashboard</a>
         <a href="{{ route('hod.adhoc.index') }}" @class(['active' => request()->routeIs('hod.adhoc.*')])>Adhoc Requests</a>
         <a href="{{ route('hod.staff_list') }}" @class(['active' => request()->routeIs('hod.staff_list')])>View Staff List</a>
-        <a href="{{ route('hod.dashboard') }}#pending-requests">Pending Leave Requests</a>
-        <a href="{{ route('hod.dashboard') }}#on-tour">Staff On Tour</a>
-        <a href="{{ route('hod.dashboard') }}#recent-actions">Recent Leave Actions</a>
+        <a href="{{ route('hod.pending') }}" @class(['active' => request()->routeIs('hod.pending')])>Pending Leave Requests</a>
+        <a href="{{ route('hod.on_tour') }}" @class(['active' => request()->routeIs('hod.on_tour')])>Staff On Tour</a>
+        <a href="{{ route('hod.recent') }}" @class(['active' => request()->routeIs('hod.recent')])>Recent Leave Actions</a>
     </nav>
     <script>
         // ensure clicked links get highlighted immediately

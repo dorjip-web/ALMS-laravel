@@ -58,6 +58,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/hod-dashboard', [HodDashboardController::class, 'index'])->name('hod.dashboard');
     Route::post('/hod-dashboard/action', [HodDashboardController::class, 'processAction'])->name('hod.dashboard.action');
     Route::get('/hod-dashboard/staff', [HodDashboardController::class, 'staffList'])->name('hod.staff_list');
+    Route::get('/hod/pending', [HodDashboardController::class, 'pending'])->name('hod.pending');
+    Route::get('/hod/recent', [HodDashboardController::class, 'recent'])->name('hod.recent');
+    Route::get('/hod/on-tour', [HodDashboardController::class, 'onTour'])->name('hod.on_tour');
     Route::post('/hod-dashboard/unit', [HodDashboardController::class, 'updateUnit'])->name('hod.staff_unit.update');
     Route::get('/ms-dashboard', [MsDashboardController::class, 'index'])->name('ms.dashboard');
     Route::post('/ms-dashboard/action', [MsDashboardController::class, 'processAction'])->name('ms.dashboard.action');

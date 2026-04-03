@@ -168,10 +168,23 @@ class MsDashboardController extends Controller
             $totalStaff = DB::table('tab1')->count();
         }
 
+        // Adhoc requests count (support either table name)
+        $adhocCount = 0;
+        $adhocTable = null;
+        if (Schema::hasTable('adhoc_requests')) {
+            $adhocTable = 'adhoc_requests';
+        } elseif (Schema::hasTable('adhoc_request')) {
+            $adhocTable = 'adhoc_request';
+        }
+        if ($adhocTable) {
+            $adhocCount = DB::table($adhocTable)->count();
+        }
+
         return view('ms_dashboard', [
             'authorized' => true,
             'username' => ($msUser['employee_name'] ?: Auth::user()->name) && $msUser['authorized'] ? 'Medical Superintendent' : ($msUser['employee_name'] ?: Auth::user()->name),
             'summary' => $summary,
+            'adhocCount' => $adhocCount,
             'forwardedRequests' => $forwardedRequests,
             'directRequests' => $directRequests,
             'recentDecisions' => $recentDecisions,

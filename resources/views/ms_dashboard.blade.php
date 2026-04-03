@@ -52,6 +52,10 @@
                         <div class="card-value">{{ $summary['approved'] }}</div>
                     </div>
                     <div class="card">
+                        <div class="card-title">Adhoc Requests</div>
+                        <div class="card-value">{{ $adhocCount ?? 0 }}</div>
+                    </div>
+                    <div class="card">
                         <div class="card-title">Rejected</div>
                         <div class="card-value">{{ $summary['rejected'] }}</div>
                     </div>
