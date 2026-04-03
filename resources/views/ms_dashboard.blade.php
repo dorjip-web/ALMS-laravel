@@ -9,20 +9,7 @@
 </head>
 <body>
 <div class="app">
-    <aside class="sidebar">
-        <div class="profile">
-            <div class="avatar">M</div>
-            <div class="username">{{ $username }}</div>
-        </div>
-
-        <nav class="menu">
-            <a href="{{ route('dashboard') }}">Back to Dashboard</a>
-            <a href="{{ route('ms.dashboard') }}" class="active">MS Dashboard</a>
-            <a href="#pending-approvals">Pending Approvals</a>
-            <a href="#on-tour">Staff On Tour</a>
-            <a href="#recent-decisions">Recent Decisions</a>
-        </nav>
-    </aside>
+    @include('partials.ms_sidebar')
 
     <main class="main">
         <header class="topbar">

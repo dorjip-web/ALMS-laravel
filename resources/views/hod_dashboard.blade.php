@@ -14,21 +14,7 @@
 </head>
 <body>
 <div class="app">
-    <aside class="sidebar">
-        <div class="profile">
-            <div class="avatar">H</div>
-            <div class="username">{{ $username }}</div>
-        </div>
-
-        <nav class="menu">
-            <a href="{{ route('dashboard') }}">Back to Dashboard</a>
-            <a href="{{ route('hod.dashboard') }}" class="active">HoD Dashboard</a>
-            <a href="{{ route('hod.staff_list') }}">View Staff List</a>
-            <a href="#pending-requests">Pending Leave Requests</a>
-            <a href="#on-tour">Staff On Tour</a>
-            <a href="#recent-actions">Recent Leave Actions</a>
-        </nav>
-    </aside>
+    @include('partials.hod_sidebar')
 
     <main class="main">
         <header class="topbar">

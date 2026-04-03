@@ -7,6 +7,14 @@
     $roleName = strtolower(trim((string) ($employee['role_name'] ?? '')));
     $isMs = $roleName === 'ms' || str_contains($roleName, 'medical') || str_contains($roleName, 'superintendent');
     $showShift = isset($employee['department_id']) && (int) ($employee['department_id'] ?? 0) === 3;
+
+    $displayName = $fullName;
+    $displayAvatar = $initials;
+    $msRouteDetected = request()->routeIs('ms.*') || request()->is('ms*') || str_contains(request()->path(), 'ms-dashboard');
+    if ($isMs && $msRouteDetected) {
+        $displayName = 'Medical Superintendent';
+        $displayAvatar = 'MS';
+    }
 @endphp
 
 <aside class="sidebar">
@@ -16,7 +24,7 @@
                 @if(auth()->user()->profile_picture && file_exists(public_path('profile_pictures/' . auth()->user()->profile_picture)))
                     <img src="{{ asset('profile_pictures/' . auth()->user()->profile_picture) }}" alt="Profile">
                 @else
-                    {{ strtoupper(substr(trim(explode(' ', $fullName)[0] ?? 'U'), 0, 1) ?? 'U') }}
+                    {{ $displayAvatar }}
                 @endif
             </div>
             <label class="avatar-upload-btn" for="profilePicInput" title="Change photo">
@@ -27,13 +35,21 @@
                 <input type="file" id="profilePicInput" name="profile_picture" accept="image/jpeg,image/png,image/gif,image/webp">
             </form>
         </div>
-        <div class="username">{{ $fullName }}</div>
+        <div class="username">{{ $displayName }}</div>
     </div>
 
     <nav class="menu">
         <a href="{{ route('dashboard') }}#employee" @class(['active' => request()->routeIs('dashboard') && ! request()->routeIs('dashboard.attendance_summary')])>My Dashboard</a>
         @if (strtolower((string) ($employee['role_name'] ?? '')) === 'hod')
             <a href="{{ route('hod.dashboard') }}">HoD Dashboard</a>
+            @if(request()->routeIs('hod.dashboard'))
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('hod.adhoc.index') }}">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Adhoc Requests</span>
+                    </a>
+                </li>
+            @endif
         @endif
         @if ($isMs)
             <a href="{{ route('ms.dashboard') }}">MS Dashboard</a>

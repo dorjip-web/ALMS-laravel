@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\EmployeeDashboardController;
 use App\Http\Controllers\HodDashboardController;
 use App\Http\Controllers\MsDashboardController;
+use App\Http\Controllers\MsAdhocController;
+use App\Http\Controllers\HodAdhocController;
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Support\Facades\Auth;
@@ -59,6 +61,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/hod-dashboard/unit', [HodDashboardController::class, 'updateUnit'])->name('hod.staff_unit.update');
     Route::get('/ms-dashboard', [MsDashboardController::class, 'index'])->name('ms.dashboard');
     Route::post('/ms-dashboard/action', [MsDashboardController::class, 'processAction'])->name('ms.dashboard.action');
+    // MS Dashboard
+    Route::get('/ms/adhoc', [MsAdhocController::class, 'index'])->name('ms.adhoc.index');
+
+    // HoD Dashboard
+    Route::get('/hod/adhoc', [HodAdhocController::class, 'index'])->name('hod.adhoc.index');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 

@@ -170,7 +170,7 @@ class MsDashboardController extends Controller
 
         return view('ms_dashboard', [
             'authorized' => true,
-            'username' => $msUser['employee_name'] ?: Auth::user()->name,
+            'username' => ($msUser['employee_name'] ?: Auth::user()->name) && $msUser['authorized'] ? 'Medical Superintendent' : ($msUser['employee_name'] ?: Auth::user()->name),
             'summary' => $summary,
             'forwardedRequests' => $forwardedRequests,
             'directRequests' => $directRequests,
