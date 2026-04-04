@@ -18,6 +18,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('leave-balances/adjust', [LeaveBalanceController::class, 'adjustBalance'])->name('leave_balances.adjust');
     Route::post('leave-balances/reset', [LeaveBalanceController::class, 'resetYear'])->name('leave_balances.reset');
     Route::get('attendance-logs', [AttendanceLogController::class, 'index'])->name('attendance_logs.index');
+    // Leave Types management (Add / Edit / Delete / Toggle)
+    Route::get('leave-types', [App\Http\Controllers\Admin\LeaveTypeController::class, 'index'])->name('leave_types.index');
+    Route::get('leave-types/create', [App\Http\Controllers\Admin\LeaveTypeController::class, 'create'])->name('leave_types.create');
+    Route::post('leave-types', [App\Http\Controllers\Admin\LeaveTypeController::class, 'store'])->name('leave_types.store');
+    Route::get('leave-types/{id}/edit', [App\Http\Controllers\Admin\LeaveTypeController::class, 'edit'])->name('leave_types.edit');
+    Route::put('leave-types/{id}', [App\Http\Controllers\Admin\LeaveTypeController::class, 'update'])->name('leave_types.update');
+    Route::delete('leave-types/{id}', [App\Http\Controllers\Admin\LeaveTypeController::class, 'destroy'])->name('leave_types.destroy');
+    Route::post('leave-types/{id}/toggle', [App\Http\Controllers\Admin\LeaveTypeController::class, 'toggleStatus'])->name('leave_types.toggle');
 });
 // Admin Department & HoD Management
 Route::get('/admin/departments-hods', [App\Http\Controllers\Admin\DepartmentManagementController::class, 'index'])->name('admin.departments_hods.index');
