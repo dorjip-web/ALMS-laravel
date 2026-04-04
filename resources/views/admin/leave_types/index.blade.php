@@ -50,12 +50,6 @@
 									@csrf
 									<button class="action-orange" type="submit" style="background:none;border:none;padding:0;margin:0;cursor:pointer">Toggle</button>
 								</form>
-								|
-								<form method="POST" action="{{ route('admin.leave_types.destroy', $lt->leave_type_id) }}" style="display:inline" onsubmit="return confirm('Delete this leave type?');">
-									@csrf
-									@method('DELETE')
-									<button class="action-orange" style="background:none;border:none;padding:0;margin:0;cursor:pointer">Delete</button>
-								</form>
 							</td>
 						</tr>
 						@endforeach
