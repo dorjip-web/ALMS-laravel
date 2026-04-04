@@ -98,7 +98,7 @@ class AttendanceController extends Controller
 
         // Update checkout info
         $attendance->checkout = $currentTime;
-        $attendance->checkout_status = 'complete';
+        $attendance->checkout_status = 'completed';
         $attendance->checkout_address = $request->ip();
         $attendance->save();
 

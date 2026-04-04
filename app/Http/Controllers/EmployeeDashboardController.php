@@ -406,6 +406,8 @@ class EmployeeDashboardController extends Controller
                 'checkin_status' => $isNormal ? ($time <= '09:15:00' ? 'On Time' : 'Late') : null,
                 'shift_type' => $shift,
                     'late_reason' => $lateReasonInput ?: null,
+                    // persist computed remarks (uses same logic as admin UI)
+                    'remarks' => $this->computeRemarksForEmployeeDate($employeeId, $today, true, false),
                     ];
 
             $insertData = $this->filterColumns('attendance', $insert);
@@ -430,7 +432,10 @@ class EmployeeDashboardController extends Controller
         $update = [
             'checkout' => $tzNow->toDateTimeString(),
             'checkout_address' => $safeAddress,
-            'checkout_status' => $isNormal ? 'complete' : null,
+            // Ensure DB NOT NULL constraint satisfied by always setting a valid status
+            'checkout_status' => 'completed',
+            // checkout implies both checkin+checkout => present
+            'remarks' => 'Present',
         ];
         $updateData = $this->filterColumns('attendance', $update);
         if (empty($updateData)) {
@@ -835,5 +840,98 @@ class EmployeeDashboardController extends Controller
         }
 
         return $stored;
+    }
+
+    /**
+     * Compute a remarks string for a given employee and date using the
+     * same heuristics as the admin UI (adhoc, leave, tour, present, bunking).
+     */
+    private function computeRemarksForEmployeeDate($employeeId, $rowDate, $hasCheckin = false, $hasCheckout = false): ?string
+    {
+        // Both checkin and checkout => Present
+        if (! empty($hasCheckin) && ! empty($hasCheckout)) {
+            return 'Present';
+        }
+
+        // Checked-in but no checkout => look for adhoc requests
+        if (! empty($hasCheckin) && empty($hasCheckout)) {
+            $adhocTable = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
+            if ($adhocTable) {
+                $adhocQuery = DB::table($adhocTable)
+                    ->where(function ($q) use ($employeeId, $rowDate) {
+                        if (! empty($employeeId)) {
+                            $q->where('employee_id', $employeeId);
+                        }
+                        $q->whereDate('date', $rowDate);
+                    });
+
+                if (Schema::hasColumn($adhocTable, 'id')) {
+                    $adhocQuery->orderByDesc('id');
+                } elseif (Schema::hasColumn($adhocTable, 'application_id')) {
+                    $adhocQuery->orderByDesc('application_id');
+                } elseif (Schema::hasColumn($adhocTable, 'applied_at')) {
+                    $adhocQuery->orderByDesc('applied_at');
+                } elseif (Schema::hasColumn($adhocTable, 'created_at')) {
+                    $adhocQuery->orderByDesc('created_at');
+                }
+
+                $req = $adhocQuery->first();
+                if ($req) {
+                    $purpose = strtolower(trim((string) ($req->purpose ?? '')));
+                    if (in_array($purpose, ['meeting', 'emergency'], true)) {
+                        return ucfirst($purpose);
+                    }
+                    return $req->remarks ?? ($purpose !== '' ? ucfirst($purpose) : 'Adhoc');
+                }
+            }
+
+            return 'Bunking';
+        }
+
+        // No checkin and no checkout => check leave and tour
+        if (Schema::hasTable('leave_application') && ! empty($employeeId)) {
+            $leaveQuery = DB::table('leave_application')
+                ->where('employee_id', $employeeId)
+                ->whereDate('from_date', '<=', $rowDate)
+                ->whereDate('to_date', '>=', $rowDate);
+
+            if (Schema::hasColumn('leave_application', 'application_id')) {
+                $leaveQuery->orderByDesc('application_id');
+            } elseif (Schema::hasColumn('leave_application', 'applied_at')) {
+                $leaveQuery->orderByDesc('applied_at');
+            } elseif (Schema::hasColumn('leave_application', 'created_at')) {
+                $leaveQuery->orderByDesc('created_at');
+            }
+
+            $leave = $leaveQuery->first();
+            if ($leave) {
+                $msStatus = strtolower((string) ($leave->medical_superintendent_status ?? ''));
+                if ($msStatus === 'approved') {
+                    return 'On Leave';
+                }
+            }
+        }
+
+        if (Schema::hasTable('tour_records') && ! empty($employeeId)) {
+            $tourQuery = DB::table('tour_records')
+                ->where('employee_id', $employeeId)
+                ->whereDate('start_date', '<=', $rowDate)
+                ->where(function ($q) use ($rowDate) {
+                    $q->whereNull('end_date')->orWhereDate('end_date', '>=', $rowDate);
+                });
+
+            if (Schema::hasColumn('tour_records', 'id')) {
+                $tourQuery->orderByDesc('id');
+            } elseif (Schema::hasColumn('tour_records', 'created_at')) {
+                $tourQuery->orderByDesc('created_at');
+            }
+
+            $tour = $tourQuery->first();
+            if ($tour) {
+                return 'On Tour';
+            }
+        }
+
+        return 'Absent';
     }
 }
