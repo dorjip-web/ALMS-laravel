@@ -26,6 +26,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('leave-types/{id}', [App\Http\Controllers\Admin\LeaveTypeController::class, 'update'])->name('leave_types.update');
     Route::delete('leave-types/{id}', [App\Http\Controllers\Admin\LeaveTypeController::class, 'destroy'])->name('leave_types.destroy');
     Route::post('leave-types/{id}/toggle', [App\Http\Controllers\Admin\LeaveTypeController::class, 'toggleStatus'])->name('leave_types.toggle');
+    Route::get('leave-records', [App\Http\Controllers\Admin\LeaveRecordsController::class, 'index'])->name('leave_records.index');
+    Route::get('leave-records/export', [App\Http\Controllers\Admin\LeaveRecordsController::class, 'export'])->name('leave_records.export');
 });
 // Admin Department & HoD Management
 Route::get('/admin/departments-hods', [App\Http\Controllers\Admin\DepartmentManagementController::class, 'index'])->name('admin.departments_hods.index');
