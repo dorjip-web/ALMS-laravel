@@ -107,15 +107,28 @@ class HodDashboardController extends Controller
             $today = now('Asia/Thimphu')->toDateString();
             $hasDepartmentTable = Schema::hasTable('department');
 
+            // departments managed by this HoD
+            $managedDeptIds = DB::table('department_hod')->where('employee_id', $hodId)->pluck('department_id')->toArray();
+            $managedDeptIds = array_values(array_filter($managedDeptIds, fn($v) => $v !== null && $v !== ''));
+
             $tourQuery = DB::table('tour_records as tr')
                 ->join('tab1 as e', 'tr.employee_id', '=', 'e.employee_id')
-                ->join('department_hod as dh', 'e.department_id', '=', 'dh.department_id')
-                ->where('dh.employee_id', $hodId)
-                ->whereDate('tr.start_date', '<=', $today)
+                // include tours that have already started OR are scheduled to start in future
+                ->where(function ($q) use ($today): void {
+                    $q->whereDate('tr.start_date', '<=', $today)
+                        ->orWhereDate('tr.start_date', '>=', $today);
+                })
                 ->where(function ($q) use ($today): void {
                     $q->whereNull('tr.end_date')
                         ->orWhereDate('tr.end_date', '>=', $today);
                 });
+
+            if (! empty($managedDeptIds)) {
+                $tourQuery->where(function ($q) use ($managedDeptIds) {
+                    $q->whereIn('e.department_id', $managedDeptIds)
+                      ->orWhereIn('tr.department_id', $managedDeptIds);
+                });
+            }
 
             if ($hasDepartmentTable) {
                 $tourQuery->leftJoin('department as d', 'e.department_id', '=', 'd.department_id');
@@ -142,6 +155,12 @@ class HodDashboardController extends Controller
                 ->toArray();
 
             $onTourCount = count(array_unique(array_map(fn ($r) => (int) ($r['employee_id'] ?? 0), $onTourStaff)));
+
+            try {
+                \Illuminate\Support\Facades\Log::debug('HoD onTour fetched', ['hod' => $hodId, 'managedDeptIds' => $managedDeptIds, 'count' => $onTourCount]);
+            } catch (\Throwable $e) {
+                // ignore
+            }
         }
 
         $totalStaff = 0;
@@ -278,15 +297,28 @@ class HodDashboardController extends Controller
             $today = now('Asia/Thimphu')->toDateString();
             $hasDepartmentTable = Schema::hasTable('department');
 
+            // departments managed by this HoD
+            $managedDeptIds = DB::table('department_hod')->where('employee_id', $hodId)->pluck('department_id')->toArray();
+            $managedDeptIds = array_values(array_filter($managedDeptIds, fn($v) => $v !== null && $v !== ''));
+
             $tourQuery = DB::table('tour_records as tr')
                 ->join('tab1 as e', 'tr.employee_id', '=', 'e.employee_id')
-                ->join('department_hod as dh', 'e.department_id', '=', 'dh.department_id')
-                ->where('dh.employee_id', $hodId)
-                ->whereDate('tr.start_date', '<=', $today)
+                // include tours that have already started OR are scheduled to start in future
+                ->where(function ($q) use ($today): void {
+                    $q->whereDate('tr.start_date', '<=', $today)
+                        ->orWhereDate('tr.start_date', '>=', $today);
+                })
                 ->where(function ($q) use ($today): void {
                     $q->whereNull('tr.end_date')
                         ->orWhereDate('tr.end_date', '>=', $today);
                 });
+
+            if (! empty($managedDeptIds)) {
+                $tourQuery->where(function ($q) use ($managedDeptIds) {
+                    $q->whereIn('e.department_id', $managedDeptIds)
+                      ->orWhereIn('tr.department_id', $managedDeptIds);
+                });
+            }
 
             if ($hasDepartmentTable) {
                 $tourQuery->leftJoin('department as d', 'e.department_id', '=', 'd.department_id');
@@ -311,6 +343,12 @@ class HodDashboardController extends Controller
                 ->get()
                 ->map(fn ($r) => (array) $r)
                 ->toArray();
+
+            try {
+                \Illuminate\Support\Facades\Log::debug('HoD onTour fetched', ['hod' => $hodId, 'managedDeptIds' => $managedDeptIds, 'count' => count($onTourStaff ?? [])]);
+            } catch (\Throwable $e) {
+                // ignore
+            }
         }
 
         return view('hod.on_tour', [

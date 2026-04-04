@@ -130,7 +130,11 @@ class MsDashboardController extends Controller
 
             $tourQuery = DB::table('tour_records as tr')
                 ->join('tab1 as e', 'tr.employee_id', '=', 'e.employee_id')
-                ->whereDate('tr.start_date', '<=', $today)
+                // include tours that have already started OR are scheduled to start in future
+                ->where(function ($q) use ($today): void {
+                    $q->whereDate('tr.start_date', '<=', $today)
+                        ->orWhereDate('tr.start_date', '>=', $today);
+                })
                 ->where(function ($q) use ($today): void {
                     $q->whereNull('tr.end_date')
                         ->orWhereDate('tr.end_date', '>=', $today);
@@ -161,6 +165,12 @@ class MsDashboardController extends Controller
                 ->toArray();
 
             $onTourCount = count(array_unique(array_map(fn ($r) => (int) ($r['employee_id'] ?? 0), $onTourStaff)));
+
+            try {
+                \Illuminate\Support\Facades\Log::debug('MS onTour fetched', ['count' => $onTourCount]);
+            } catch (\Throwable $e) {
+                // ignore
+            }
         }
 
         $totalStaff = 0;

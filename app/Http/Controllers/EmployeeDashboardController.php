@@ -162,7 +162,31 @@ class EmployeeDashboardController extends Controller
 
         $user = Auth::user();
         $employee = $this->resolveEmployee($request, $user->id, $user->name, $user->email);
-        $employeeId = $employee['employee_id'] ?? $user->id;
+
+        // Ensure we have a numeric tab1.employee_id matching the employee
+        $employeeId = $employee['employee_id'] ?? null;
+        if (empty($employeeId) && Schema::hasTable('tab1')) {
+            $candidate = DB::table('tab1')
+                ->where(function ($q) use ($user, $employee) {
+                    $q->where('eid', $user->email);
+                    if (! empty($employee['eid'])) {
+                        $q->orWhere('eid', $employee['eid']);
+                    }
+                    $q->orWhere('employee_id', $user->id);
+                })
+                ->select('employee_id', 'department_id')
+                ->first();
+
+            if ($candidate) {
+                $employeeId = $candidate->employee_id;
+                $employee['department_id'] = $candidate->department_id ?? $employee['department_id'] ?? null;
+            }
+        }
+
+        // Fallback to users.id only if no tab1 mapping found — but prefer null so queries that join tab1 don't match incorrect ids
+        if (empty($employeeId)) {
+            $employeeId = null;
+        }
         $start = Carbon::parse($payload['start_date']);
         $end = Carbon::parse($payload['end_date']);
 
@@ -196,6 +220,13 @@ class EmployeeDashboardController extends Controller
         $insertData = $this->filterColumns('tour_records', $insert);
         if (empty($insertData)) {
             return back()->with('flash_error', 'Tour records table columns do not match expected fields.');
+        }
+
+        // Log insert for debugging if available
+        try {
+            \Illuminate\Support\Facades\Log::debug('submitTour inserting', ['insert' => $insertData]);
+        } catch (\Throwable $e) {
+            // ignore
         }
 
         DB::table('tour_records')->insert($insertData);

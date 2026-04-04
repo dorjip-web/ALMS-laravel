@@ -4,7 +4,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>HoD - Staff On Tour</title>
-    <link rel="stylesheet" href="{{ asset('css/hod_dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Match logout button style to other dashboard pages */
+        .topbar .logout form button{
+            background:#fff;
+            padding:8px 12px;
+            border-radius:6px;
+            border:none;
+            color:var(--orange);
+            font-weight:600;
+            cursor:pointer;
+        }
+        .topbar .logout form button:hover{filter:brightness(0.97)}
+        /* Keep office order PDF button from overflowing table cells */
+        .leave-history td{vertical-align:middle}
+        .leave-history td .btn.btn-pdf{padding:6px 10px;border-radius:6px;display:inline-block;white-space:nowrap;box-shadow:none}
+    </style>
 </head>
 <body>
 <div class="app">
@@ -25,6 +42,7 @@
                         <th><strong>Place</strong></th>
                         <th><strong>From</strong></th>
                         <th><strong>To</strong></th>
+                        <th><strong>Total Days</strong></th>
                         <th><strong>Purpose</strong></th>
                         <th><strong>Office Order</strong></th>
                     </tr>
@@ -40,6 +58,21 @@
                                 <td>{{ $tour['place'] ?? '-' }}</td>
                                 <td>{{ ! empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date'])->format('d M Y') : '-' }}</td>
                                 <td>{{ ! empty($tour['end_date']) ? \Illuminate\Support\Carbon::parse($tour['end_date'])->format('d M Y') : '-' }}</td>
+                                <td>
+                                    @php
+                                        $totalDays = '-';
+                                        if (!empty($tour['start_date'])) {
+                                            $start = \Illuminate\Support\Carbon::parse($tour['start_date']);
+                                            if (!empty($tour['end_date'])) {
+                                                $end = \Illuminate\Support\Carbon::parse($tour['end_date']);
+                                                $totalDays = $start->diffInDays($end) + 1;
+                                            } else {
+                                                // ongoing or open-ended: count up to today
+                                                $totalDays = $start->diffInDays(now('Asia/Thimphu')) + 1;
+                                            }
+                                        }
+                                    @endphp
+                                    {{ $totalDays }}</td>
                                 <td>{{ $tour['purpose'] ?? '-' }}</td>
                                 <td>
                                     @if (!empty($tour['office_order_pdf']))
