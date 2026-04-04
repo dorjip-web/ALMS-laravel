@@ -35,7 +35,7 @@
             <a href="{{ route('admin.roles_permissions') }}" @class(['active' => ($activeNav ?? '') === 'roles_permissions'])>Roles &amp; Permissions</a>
             <a href="{{ route('admin.departments_hods.index') }}" @class(['active' => ($activeNav ?? '') === 'departments_hods'])>Department &amp; HoD Management</a>
             <a href="{{ route('admin.leave_balances.index') }}" @class(['active' => ($activeNav ?? '') === 'leave_balances'])>Leave Balance</a>
-            <a href="{{ route('admin.leave_balances.index') }}" @class(['active' => ($activeNav ?? '') === 'leave_management'])>Leave Management</a>
+            <a href="{{ route('admin.leave_types.index') }}" @class(['active' => ($activeNav ?? '') === 'leave_types'])>Leave Management</a>
             <a href="{{ route('admin.attendance_logs.index') }}" @class(['active' => ($activeNav ?? '') === 'attendance_logs'])>Attendance Logs</a>
             <a href="{{ url('leave_records.php') }}" @class(['active' => ($activeNav ?? '') === 'leave_records'])>Leave Records</a>
             <a href="{{ url('reports.php') }}" @class(['active' => ($activeNav ?? '') === 'reports'])>Reports</a>
