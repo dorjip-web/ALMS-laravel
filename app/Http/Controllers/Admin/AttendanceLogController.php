@@ -196,12 +196,18 @@ class AttendanceLogController extends Controller
                         ->first();
 
                     if ($req) {
-                        $row->remarks = ! empty($req->purpose) ? ucfirst($req->purpose) : ($req->remarks ?? 'Adhoc');
+                        $purpose = strtolower(trim((string) ($req->purpose ?? '')));
+                        if (in_array($purpose, ['meeting', 'emergency'], true)) {
+                            $row->remarks = ucfirst($purpose);
+                        } else {
+                            $row->remarks = $req->remarks ?? ( $purpose !== '' ? ucfirst($purpose) : 'Adhoc' );
+                        }
                         continue;
                     }
                 }
 
-                $row->remarks = 'Checked In';
+                // No adhoc request found for this checked-in-but-not-checked-out row => mark as Bunking
+                $row->remarks = 'Bunking';
                 continue;
             }
 
