@@ -22,3 +22,5 @@
     .cards{flex-direction:column}
     table th, table td{font-size:13px}
 }
+
+/* MS-specific overrides use HoD tile styles (imported from hod_dashboard.css) */

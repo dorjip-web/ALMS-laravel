@@ -38,199 +38,63 @@
                     <div class="notice">{{ session('message') }}</div>
                 @endif
 
-                <section class="cards">
-                    <div class="card">
-                        <div class="card-title">Total Staff</div>
-                        <div class="card-value">{{ $totalStaff ?? 0 }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Pending Approvals</div>
-                        <div class="card-value">{{ $summary['pending'] }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Approved Leaves</div>
-                        <div class="card-value">{{ $summary['approved'] }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Adhoc Requests</div>
-                        <div class="card-value">{{ $adhocCount ?? 0 }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Rejected</div>
-                        <div class="card-value">{{ $summary['rejected'] }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Staff On Tour</div>
-                        <div class="card-value">{{ $onTourCount ?? 0 }}</div>
-                    </div>
+                <section class="tiles">
+                    <a class="tile tile-purple" href="{{ route('ms.staff_list') }}">
+                        <div class="icon">👥</div>
+                        <div class="content">
+                            <div class="title">Total Staff</div>
+                            <div class="subtitle">View staff directory</div>
+                        </div>
+                        <div class="content" style="text-align:right"><div class="title">{{ $totalStaff ?? 0 }}</div></div>
+                    </a>
+
+                    <a class="tile tile-blue" href="{{ route('ms.pending') }}">
+                        <div class="icon">⏳</div>
+                        <div class="content">
+                            <div class="title">Pending</div>
+                            <div class="subtitle">Requests awaiting your action</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $summary['pending'] }}</div></div>
+                    </a>
+
+                    <a class="tile tile-gray" href="{{ route('ms.recent') }}?filter=approved">
+                        <div class="icon">📨</div>
+                        <div class="content">
+                            <div class="title">Approved Leaves</div>
+                            <div class="subtitle">Recently approved</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $summary['approved'] }}</div></div>
+                    </a>
+
+                    <a class="tile tile-yellow" href="{{ route('ms.adhoc.index') }}">
+                        <div class="icon">📌</div>
+                        <div class="content">
+                            <div class="title">Adhoc Requests</div>
+                            <div class="subtitle">Manage adhoc duty requests</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $adhocCount ?? 0 }}</div></div>
+                    </a>
+
+                    <a class="tile tile-red" href="{{ route('ms.recent') }}?filter=rejected">
+                        <div class="icon">❌</div>
+                        <div class="content">
+                            <div class="title">Rejected</div>
+                            <div class="subtitle">Requests you rejected</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $summary['rejected'] }}</div></div>
+                    </a>
+
+                    <a class="tile tile-orange" href="{{ route('ms.on_tour') }}">
+                        <div class="icon">🧭</div>
+                        <div class="content">
+                            <div class="title">Staff On Tour</div>
+                            <div class="subtitle">Current tours in your depts</div>
+                        </div>
+                        <div style="text-align:right"><div class="title">{{ $onTourCount ?? 0 }}</div></div>
+                    </a>
                 </section>
 
-                <section class="panel">
-                    <h2 id="on-tour"><span style="color:#2563eb;">Staff Currently On Tour</span></h2>
-                    <div class="leave-history"><div class="table-wrap"><table class="users">
-                        <thead>
-                        <tr>
-                            <th><strong>Employee</strong></th>
-                            <th><strong>Department</strong></th>
-                            <th><strong>Place</strong></th>
-                            <th><strong>From</strong></th>
-                            <th><strong>To</strong></th>
-                            <th><strong>Total Days</strong></th>
-                            <th><strong>Purpose</strong></th>
-                            <th><strong>Office Order</strong></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @if (empty($onTourStaff))
-                            <tr><td colspan="7" class="empty">No staff on tour right now</td></tr>
-                        @else
-                            @foreach($onTourStaff as $tour)
-                                <tr>
-                                    <td>{{ $tour['employee_name'] ?? '-' }}</td>
-                                    <td>{{ $tour['department_name'] ?? '-' }}</td>
-                                    <td>{{ $tour['place'] ?? '-' }}</td>
-                                    <td>{{ ! empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date'])->format('d M Y') : '-' }}</td>
-                                    <td>{{ ! empty($tour['end_date']) ? \Illuminate\Support\Carbon::parse($tour['end_date'])->format('d M Y') : '-' }}</td>
-                                    <td>
-                                        @php
-                                            $from = !empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date']) : null;
-                                            $to = !empty($tour['end_date']) ? \Illuminate\Support\Carbon::parse($tour['end_date']) : null;
-                                        @endphp
-                                        {{ ($from && $to) ? $from->diffInDays($to) + 1 : '-' }}
-                                    </td>
-                                    <td>{{ $tour['purpose'] ?? '-' }}</td>
-                                    <td>
-                                        @if (!empty($tour['office_order_pdf']))
-                                            <a href="{{ asset('storage/' . $tour['office_order_pdf']) }}" target="_blank" class="btn btn-pdf">View PDF</a>
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @endif
-                        </tbody>
-                    </table></div></div>
-                </section>
-
-                <section class="panel">
-                    <h2 id="pending-approvals">Leaves Forwarded by HoD</h2>
-                    <div class="leave-history"><div class="table-wrap"><table class="users">
-                        <thead>
-                        <tr>
-                            <th><strong>Employee</strong></th>
-                            <th><strong>Leave Type</strong></th>
-                            <th><strong>From</strong></th>
-                            <th><strong>To</strong></th>
-                            <th><strong>Days</strong></th>
-                            <th><strong>HoD Note</strong></th>
-                            <th><strong>Action</strong></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @if (empty($forwardedRequests))
-                            <tr><td colspan="7" class="empty">No pending approvals</td></tr>
-                        @else
-                            @foreach($forwardedRequests as $req)
-                                <tr>
-                                    <td>{{ $req['employee_name'] }}</td>
-                                    <td>{{ $req['leave_type'] }}</td>
-                                    <td>{{ \Illuminate\Support\Carbon::parse($req['from_date'])->format('d M') }}</td>
-                                    <td>{{ \Illuminate\Support\Carbon::parse($req['to_date'])->format('d M') }}</td>
-                                    <td>{{ $req['total_days'] }}</td>
-                                    <td>{{ $req['hod_note'] ?? '-' }}</td>
-                                    <td class="actions">
-                                        <form method="POST" action="{{ route('ms.dashboard.action') }}" class="inline-form">
-                                            @csrf
-                                            <input type="hidden" name="request_id" value="{{ $req['application_id'] }}">
-                                            <button type="submit" name="action" value="approve" class="btn btn-approve">Approve</button>
-                                            <button type="submit" name="action" value="reject" class="btn btn-reject">Reject</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @endif
-                        </tbody>
-                    </table></div></div>
-                </section>
-
-                <section class="panel">
-                    <h2>Direct Leave Requests</h2>
-                    <div class="leave-history"><div class="table-wrap"><table class="users">
-                        <thead>
-                        <tr>
-                            <th><strong>Employee</strong></th>
-                            <th><strong>Leave</strong></th>
-                            <th><strong>From</strong></th>
-                            <th><strong>To</strong></th>
-                            <th><strong>Days</strong></th>
-                            <th><strong>Reason</strong></th>
-                            <th><strong>Action</strong></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @if (empty($directRequests))
-                            <tr><td colspan="7" class="empty">No direct requests</td></tr>
-                        @else
-                            @foreach($directRequests as $req)
-                                <tr>
-                                    <td>{{ $req['employee_name'] }}</td>
-                                    <td>{{ $req['leave_type'] }}</td>
-                                    <td>{{ \Illuminate\Support\Carbon::parse($req['from_date'])->format('d M') }}</td>
-                                    <td>{{ \Illuminate\Support\Carbon::parse($req['to_date'])->format('d M') }}</td>
-                                    <td>{{ $req['total_days'] }}</td>
-                                    <td>{{ $req['reason'] }}</td>
-                                    <td class="actions">
-                                        <form method="POST" action="{{ route('ms.dashboard.action') }}" class="inline-form">
-                                            @csrf
-                                            <input type="hidden" name="application_id" value="{{ $req['application_id'] }}">
-                                            <button type="submit" name="action" value="approve" class="btn btn-approve">Approve</button>
-                                            <button type="submit" name="action" value="reject" class="btn btn-reject">Reject</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        @endif
-                        </tbody>
-                    </table></div></div>
-                </section>
-
-                <section class="panel">
-                    <h2 id="recent-decisions">Recent Decisions</h2>
-                    <div class="leave-history"><div class="table-wrap"><table class="users">
-                        <thead>
-                        <tr>
-                            <th>Employee</th>
-                            <th>Leave</th>
-                            <th>MS Action</th>
-                            <th>Date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @if (empty($recentDecisions))
-                            <tr><td colspan="4" class="empty">No recent decisions</td></tr>
-                        @else
-                            @foreach ($recentDecisions as $r)
-                                @php $s = strtolower(trim((string) ($r['medical_superintendent_status'] ?? ''))); @endphp
-                                <tr>
-                                    <td>{{ $r['employee_name'] }}</td>
-                                    <td>{{ $r['leave_name'] }}</td>
-                                    <td>
-                                        @if ($s === 'approved')
-                                            <span class="status-approved">Approved</span>
-                                        @elseif ($s === 'rejected')
-                                            <span class="status-rejected">Rejected</span>
-                                        @else
-                                            {{ $r['medical_superintendent_status'] }}
-                                        @endif
-                                    </td>
-                                    <td>{{ ! empty($r['medical_superintendent_action_at']) ? \Illuminate\Support\Carbon::parse($r['medical_superintendent_action_at'])->format('d M') : '-' }}</td>
-                                </tr>
-                            @endforeach
-                        @endif
-                        </tbody>
-                    </table></div></div>
-                </section>
+                <!-- Detailed lists moved to dedicated pages: use sidebar links -->
             @endif
         </div>
     </main>

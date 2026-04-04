@@ -57,7 +57,6 @@
             <table class="users">
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Name</th>
                         <th>Designation</th>
                         <th>Department</th>
@@ -69,6 +68,7 @@
                         <th>Check-out</th>
                         <th>Check-out Address</th>
                         <th>Check-out Status</th>
+                        <th>Remarks</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,7 +83,6 @@
                         $styleAttr = !empty($class) ? 'style="'.$class.'"' : '';
                     @endphp
                     <tr {{ $styleAttr }}>
-                        <td>{{ $row->employee_id }}</td>
                         <td>{{ $row->employee_name }}</td>
                         <td>{{ $row->designation ?? '-' }}</td>
                         <td>{{ $row->department_name ?? '-' }}</td>
@@ -106,6 +105,7 @@
                                 Pending
                             @endif
                         </td>
+                        <td>{{ $row->remarks ?? '-' }}</td>
                     </tr>
                 @endforeach
                 </tbody>

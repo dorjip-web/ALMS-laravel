@@ -103,7 +103,8 @@ class AttendanceLogController extends Controller
                     'a.checkin_status',
                     'a.checkout',
                     'a.checkout_address',
-                    'a.checkout_status'
+                    'a.checkout_status',
+                    'a.remarks'
                 );
 
             if ($dept) {
@@ -136,7 +137,8 @@ class AttendanceLogController extends Controller
                     'a.checkin_status',
                     'a.checkout',
                     'a.checkout_address',
-                    'a.checkout_status'
+                    'a.checkout_status',
+                    'a.remarks'
                 )
                 ;
 

@@ -204,6 +204,191 @@ class MsDashboardController extends Controller
         ]);
     }
 
+    public function staffList(Request $request): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+    {
+        $msUser = $this->resolveMsUser($request);
+
+        if (! $msUser['authorized']) {
+            return redirect(route('dashboard'))->with('flash_error', 'Access denied. You are not assigned as Medical Superintendent.');
+        }
+
+        if (! Schema::hasTable('tab1')) {
+            return view('ms_staff_list', ['staff' => [], 'authorized' => true, 'username' => $msUser['employee_name'] ?? Auth::user()->name]);
+        }
+
+        $query = DB::table('tab1 as t')
+            ->select('t.employee_id', 't.employee_name', 't.eid', 't.designation', 't.department_id');
+
+        if (Schema::hasTable('department')) {
+            $query->leftJoin('department as d', 't.department_id', '=', 'd.department_id')
+                ->addSelect(DB::raw("COALESCE(d.department_name, '-') as department_name"));
+        } else {
+            $query->addSelect(DB::raw("'-' as department_name"));
+        }
+
+        $staff = $query->orderBy('t.employee_name')->get()->map(fn($r) => (array) $r)->toArray();
+
+        return view('ms_staff_list', [
+            'authorized' => true,
+            'staff' => $staff,
+            'username' => $msUser['employee_name'] ?? Auth::user()->name,
+        ]);
+    }
+
+    public function pending(Request $request): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+    {
+        $msUser = $this->resolveMsUser($request);
+
+        if (! $msUser['authorized']) {
+            return redirect(route('dashboard'))->with('flash_error', 'Access denied. You are not assigned as Medical Superintendent.');
+        }
+
+        $forwardedRequests = [];
+        $directRequests = [];
+
+        if (Schema::hasTable('leave_application') && Schema::hasTable('tab1') && Schema::hasTable('leave_type')) {
+            $forwardedRequests = DB::table('leave_application as la')
+                ->join('tab1 as e', 'la.employee_id', '=', 'e.employee_id')
+                ->join('leave_type as lt', 'la.leave_type_id', '=', 'lt.leave_type_id')
+                ->whereRaw("LOWER(COALESCE(la.HoD_status, '')) = ?", ['forwarded'])
+                ->whereRaw("LOWER(COALESCE(la.medical_superintendent_status, '')) = ?", ['pending'])
+                ->orderByDesc('la.applied_at')
+                ->select([
+                    'la.application_id',
+                    'e.employee_name',
+                    'lt.leave_name as leave_type',
+                    'la.from_date',
+                    'la.to_date',
+                    'la.total_days',
+                    'la.hod_note',
+                ])
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->toArray();
+
+            $directRequests = DB::table('leave_application as la')
+                ->join('tab1 as e', 'la.employee_id', '=', 'e.employee_id')
+                ->join('leave_type as lt', 'la.leave_type_id', '=', 'lt.leave_type_id')
+                ->where(function ($q): void {
+                    $q->whereNull('la.HoD_status')
+                        ->orWhere('la.HoD_status', '')
+                        ->orWhereRaw('LOWER(la.HoD_status) = ?', ['skipped']);
+                })
+                ->whereRaw("LOWER(COALESCE(la.medical_superintendent_status, '')) = ?", ['pending'])
+                ->orderByDesc('la.applied_at')
+                ->select([
+                    'la.application_id',
+                    'e.employee_name',
+                    'lt.leave_name as leave_type',
+                    'la.from_date',
+                    'la.to_date',
+                    'la.total_days',
+                    'la.reason',
+                ])
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->toArray();
+        }
+
+        return view('ms_pending', [
+            'authorized' => true,
+            'username' => $msUser['employee_name'] ?? Auth::user()->name,
+            'forwardedRequests' => $forwardedRequests,
+            'directRequests' => $directRequests,
+        ]);
+    }
+
+    public function onTourList(Request $request): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+    {
+        $msUser = $this->resolveMsUser($request);
+        if (! $msUser['authorized']) {
+            return redirect(route('dashboard'))->with('flash_error', 'Access denied. You are not assigned as Medical Superintendent.');
+        }
+
+        $onTourStaff = [];
+        if (Schema::hasTable('tour_records') && Schema::hasTable('tab1')) {
+            $today = now('Asia/Thimphu')->toDateString();
+            $hasDepartmentTable = Schema::hasTable('department');
+
+            $tourQuery = DB::table('tour_records as tr')
+                ->join('tab1 as e', 'tr.employee_id', '=', 'e.employee_id')
+                ->where(function ($q) use ($today): void {
+                    $q->whereDate('tr.start_date', '<=', $today)
+                        ->orWhereDate('tr.start_date', '>=', $today);
+                })
+                ->where(function ($q) use ($today): void {
+                    $q->whereNull('tr.end_date')
+                        ->orWhereDate('tr.end_date', '>=', $today);
+                });
+
+            if ($hasDepartmentTable) {
+                $tourQuery->leftJoin('department as d', 'e.department_id', '=', 'd.department_id');
+            }
+
+            $tourSelect = [
+                'tr.employee_id',
+                'e.employee_name',
+                'tr.place',
+                'tr.start_date',
+                'tr.end_date',
+                'tr.purpose',
+                'tr.office_order_pdf',
+            ];
+            $tourSelect[] = $hasDepartmentTable
+                ? DB::raw("COALESCE(d.department_name, '-') as department_name")
+                : DB::raw("'-' as department_name");
+
+            $onTourStaff = $tourQuery
+                ->orderBy('e.employee_name')
+                ->select($tourSelect)
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->toArray();
+        }
+
+        return view('ms_on_tour', [
+            'authorized' => true,
+            'username' => $msUser['employee_name'] ?? Auth::user()->name,
+            'onTourStaff' => $onTourStaff,
+        ]);
+    }
+
+    public function recentList(Request $request): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+    {
+        $msUser = $this->resolveMsUser($request);
+        if (! $msUser['authorized']) {
+            return redirect(route('dashboard'))->with('flash_error', 'Access denied. You are not assigned as Medical Superintendent.');
+        }
+
+        $recentDecisions = [];
+        if (Schema::hasTable('leave_application') && Schema::hasTable('tab1') && Schema::hasTable('leave_type')) {
+            $query = DB::table('leave_application as la')
+                ->join('tab1 as e', 'la.employee_id', '=', 'e.employee_id')
+                ->join('leave_type as lt', 'la.leave_type_id', '=', 'lt.leave_type_id')
+                ->whereRaw("LOWER(COALESCE(la.medical_superintendent_status, '')) IN (?, ?)", ['approved', 'rejected'])
+                ->orderByDesc('la.medical_superintendent_action_at')
+                ->limit(50)
+                ->select([
+                    'e.employee_name',
+                    'lt.leave_name',
+                    'la.medical_superintendent_status',
+                    'la.medical_superintendent_action_at',
+                ]);
+
+            if (Schema::hasColumn('leave_application', 'medical_superintendent_action_by')) {
+                $query->where('la.medical_superintendent_action_by', $msUser['employee_id']);
+            }
+
+            $recentDecisions = $query->get()->map(fn ($r) => (array) $r)->toArray();
+        }
+
+        return view('ms_recent', [
+            'authorized' => true,
+            'username' => $msUser['employee_name'] ?? Auth::user()->name,
+            'recentDecisions' => $recentDecisions,
+        ]);
+    }
+
     public function processAction(Request $request): RedirectResponse
     {
         $msUser = $this->resolveMsUser($request);

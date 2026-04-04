@@ -12,9 +12,10 @@
         <a href="{{ route('dashboard') }}" @class(['active' => request()->routeIs('dashboard')])>Back to Dashboard</a>
         <a href="{{ route('ms.dashboard') }}" @class(['active' => request()->routeIs('ms.dashboard')])>MS Dashboard</a>
         <a href="{{ route('ms.adhoc.index') }}" @class(['active' => request()->routeIs('ms.adhoc.*')])>Adhoc Requests</a>
-        <a href="{{ route('ms.dashboard') }}#pending-approvals">Pending Approvals</a>
-        <a href="{{ route('ms.dashboard') }}#on-tour">Staff On Tour</a>
-        <a href="{{ route('ms.dashboard') }}#recent-decisions">Recent Decisions</a>
+        <a href="{{ route('ms.staff_list') }}" @class(['active' => request()->routeIs('ms.staff_list')])>View Staff List</a>
+        <a href="{{ route('ms.pending') }}" @class(['active' => request()->routeIs('ms.pending')])>Pending Approvals</a>
+        <a href="{{ route('ms.on_tour') }}" @class(['active' => request()->routeIs('ms.on_tour')])>Staff On Tour</a>
+        <a href="{{ route('ms.recent') }}" @class(['active' => request()->routeIs('ms.recent')])>Recent Decisions</a>
     </nav>
     <script>
         (function () {
