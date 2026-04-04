@@ -242,8 +242,11 @@ class AttendanceLogController extends Controller
                 $leave = $leaveQuery->first();
 
                 if ($leave) {
-                    $row->remarks = 'On Leave';
-                    $marked = true;
+                    $msStatus = strtolower((string) ($leave->medical_superintendent_status ?? ''));
+                    if ($msStatus === 'approved') {
+                        $row->remarks = 'On Leave';
+                        $marked = true;
+                    }
                 }
             }
 
