@@ -1,37 +1,35 @@
 @extends('admin_layout')
 
 @section('content')
-<div style="padding:24px">
+<div class="container">
     <h2>Leave Records</h2>
 
-    <form method="GET" action="{{ route('admin.leave_records.index') }}" style="display:flex;gap:12px;align-items:flex-end;margin-bottom:12px;flex-wrap:wrap;">
-        <div>
-            <label>Status</label>
-            <select name="status" class="form-control">
+    <div class="filter-box" style="background:#1e293b;padding:15px;border-radius:10px;margin-bottom:20px;">
+        <form method="GET" action="{{ route('admin.leave_records.index') }}" class="leave-form row-inline" style="margin-bottom:0;gap:12px;align-items:center;">
+            <select name="status">
                 <option value="all" {{ $status === 'all' ? 'selected' : '' }}>All</option>
                 <option value="approved" {{ $status === 'approved' ? 'selected' : '' }}>Approved</option>
                 <option value="rejected" {{ $status === 'rejected' ? 'selected' : '' }}>Rejected</option>
                 <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>Pending</option>
             </select>
-        </div>
 
-        <div>
-            <label>Department</label>
-            <select name="department_id" class="form-control">
+            <select name="department_id">
                 <option value="">All Departments</option>
                 @foreach($departments as $d)
                     <option value="{{ $d->department_id }}" {{ $dept == $d->department_id ? 'selected' : '' }}>{{ $d->department_name }}</option>
                 @endforeach
             </select>
-        </div>
 
-        <div style="display:flex;gap:8px">
-            <button class="btn" type="submit">Filter</button>
-            <a class="btn" href="{{ route('admin.leave_records.export', array_merge(request()->query(), ['export' => 'csv'])) }}">Export CSV</a>
-        </div>
-    </form>
+            <input type="date" name="from_date" value="{{ request('from_date', '') }}">
+            <input type="date" name="to_date" value="{{ request('to_date', '') }}">
 
-    <div class="table-wrap">
+            <button type="submit" class="btn">Apply</button>
+            <a class="btn" href="{{ route('admin.leave_records.export', request()->query()) }}">Export CSV</a>
+        </form>
+    </div>
+
+    <div class="leave-history">
+        <div class="table-wrap">
         <table class="users">
             <thead>
                 <tr>
@@ -66,6 +64,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     <div style="margin-top:12px">{{ $records->links() }}</div>
