@@ -30,6 +30,9 @@
     <main class="main">
         <header class="topbar">
             <div class="search"><input placeholder="Search..." disabled></div>
+                <div class="notifications">
+                    <a href="#" class="notif-btn" title="Notifications" aria-label="Notifications">✉️<span class="badge">0</span></a>
+                </div>
             <div class="logout">
                 <form method="POST" action="{{ route('logout') }}" style="display:inline;">@csrf<button type="submit">Logout</button></form>
             </div>

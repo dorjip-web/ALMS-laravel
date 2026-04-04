@@ -45,6 +45,9 @@
     <main class="main">
         <header class="topbar">
             <div class="search"><input placeholder="Search..."></div>
+            <div class="notifications">
+                <a href="#" class="notif-btn" title="Notifications" aria-label="Notifications">✉️<span class="badge">0</span></a>
+            </div>
             <div class="logout">
                 <form method="POST" action="{{ route('admin.logout') }}" style="display:inline;">
                     @csrf

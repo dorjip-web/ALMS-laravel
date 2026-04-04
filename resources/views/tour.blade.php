@@ -28,6 +28,9 @@
                     <button type="submit" style="background:#fff;padding:8px 12px;border-radius:6px;border:none;color:var(--orange);font-weight:600;cursor:pointer;">Logout</button>
                 </form>
             </div>
+                <div class="notifications">
+                    <a href="#" class="notif-btn" title="Notifications" aria-label="Notifications">✉️<span class="badge">0</span></a>
+                </div>
         </header>
 
         @if (session('flash_error'))
