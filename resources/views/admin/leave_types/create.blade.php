@@ -3,7 +3,7 @@
 @section('content')
 <div style="padding:18px">
     <h3>Add Leave Type</h3>
-    <form method="POST" action="{{ route('admin.leave_types.store') }}">
+    <form method="POST" action="{{ route('admin.leave_types.store') }}" class="leave-form" style="max-width:700px;background:#fff;padding:24px 28px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-top:18px;">
         @csrf
         <div class="row-grid-4">
             <div class="col">
