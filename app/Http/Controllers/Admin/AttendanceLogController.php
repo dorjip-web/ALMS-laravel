@@ -185,15 +185,26 @@ class AttendanceLogController extends Controller
             if (! empty($row->checkin) && empty($row->checkout)) {
                 $adhocTable = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
                 if ($adhocTable) {
-                    $req = DB::table($adhocTable)
+                    $adhocQuery = DB::table($adhocTable)
                         ->where(function ($q) use ($row, $rowDate) {
                             if (! empty($row->employee_id)) {
                                 $q->where('employee_id', $row->employee_id);
                             }
                             $q->whereDate('date', $rowDate);
-                        })
-                        ->orderByDesc('id')
-                        ->first();
+                        });
+
+                    // choose a safe ordering column for adhoc table
+                    if (Schema::hasColumn($adhocTable, 'id')) {
+                        $adhocQuery->orderByDesc('id');
+                    } elseif (Schema::hasColumn($adhocTable, 'application_id')) {
+                        $adhocQuery->orderByDesc('application_id');
+                    } elseif (Schema::hasColumn($adhocTable, 'applied_at')) {
+                        $adhocQuery->orderByDesc('applied_at');
+                    } elseif (Schema::hasColumn($adhocTable, 'created_at')) {
+                        $adhocQuery->orderByDesc('created_at');
+                    }
+
+                    $req = $adhocQuery->first();
 
                     if ($req) {
                         $purpose = strtolower(trim((string) ($req->purpose ?? '')));
