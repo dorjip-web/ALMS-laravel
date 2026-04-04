@@ -38,6 +38,7 @@
                 <option value="">All</option>
                 <option value="absent" {{ $filter == 'absent' ? 'selected' : '' }}>Absent</option>
                 <option value="late" {{ $filter == 'late' ? 'selected' : '' }}>Late</option>
+                <option value="on_time" {{ $filter == 'on_time' ? 'selected' : '' }}>On Time</option>
                 <option value="missing_checkout" {{ $filter == 'missing_checkout' ? 'selected' : '' }}>Missing Checkout</option>
                 <option value="present" {{ $filter == 'present' ? 'selected' : '' }}>Present</option>
             </select>
@@ -78,7 +79,7 @@
                         if (($row->checkin_status ?? '') === 'Late') $styles[] = 'background:#ffcccc;';
                         $cs = strtolower($row->checkout_status ?? '');
                         if ($cs === 'missing') $styles[] = 'border-bottom:4px solid #ffc107;';
-                        if ($cs === 'complete') $styles[] = 'background:#d4edda;';
+                        if ($cs === 'completed') $styles[] = 'background:#d4edda;';
                         $class = implode(' ', $styles);
                         $styleAttr = !empty($class) ? 'style="'.$class.'"' : '';
                     @endphp
@@ -95,7 +96,7 @@
                         <td>{{ $row->checkout_address ?? '-' }}</td>
                         <td>
                             @php $cs = strtolower($row->checkout_status ?? ''); @endphp
-                            @if ($cs === 'complete')
+                            @if ($cs === 'completed')
                                 Completed
                             @elseif ($cs === 'missing')
                                 Missing

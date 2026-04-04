@@ -6,22 +6,22 @@
 
     <div class="filter-box" style="background:#1e293b;padding:15px;border-radius:10px;margin-bottom:20px;">
         <form method="GET" action="{{ route('admin.leave_records.index') }}" class="leave-form row-inline" style="margin-bottom:0;gap:12px;align-items:center;">
-            <select name="status" style="max-width:220px">
+            <select name="status">
                 <option value="all" {{ $status === 'all' ? 'selected' : '' }}>All</option>
                 <option value="approved" {{ $status === 'approved' ? 'selected' : '' }}>Approved</option>
                 <option value="rejected" {{ $status === 'rejected' ? 'selected' : '' }}>Rejected</option>
                 <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>Pending</option>
             </select>
 
-            <select name="department_id" style="max-width:260px">
+            <select name="department_id">
                 <option value="">All Departments</option>
                 @foreach($departments as $d)
                     <option value="{{ $d->department_id }}" {{ $dept == $d->department_id ? 'selected' : '' }}>{{ $d->department_name }}</option>
                 @endforeach
             </select>
 
-            <input type="date" name="from_date" value="{{ request('from_date', '') }}" style="max-width:180px">
-            <input type="date" name="to_date" value="{{ request('to_date', '') }}" style="max-width:180px">
+            <input type="date" name="from_date" value="{{ request('from_date', '') }}">
+            <input type="date" name="to_date" value="{{ request('to_date', '') }}">
 
             <button type="submit" class="btn">Apply</button>
             <a class="btn" href="{{ route('admin.leave_records.export', request()->query()) }}">Export CSV</a>

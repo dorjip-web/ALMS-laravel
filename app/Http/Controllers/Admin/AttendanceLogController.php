@@ -156,6 +156,9 @@ class AttendanceLogController extends Controller
             if ($filter == 'late') {
                 $query->where('a.checkin_status', 'Late');
             }
+            if ($filter == 'on_time') {
+                $query->where('a.checkin_status', 'On Time');
+            }
             if ($filter == 'missing_checkout') {
                 $query->where('a.checkout_status', 'Missing');
             }
