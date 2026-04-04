@@ -1,9 +1,9 @@
 @extends('admin_layout')
 
 @section('content')
-<div style="padding:18px">
+<div style="padding:28px">
     <h1>Edit Leave Type</h1>
-    <form method="POST" action="{{ route('admin.leave_types.update', $leaveType->leave_type_id) }}" class="leave-form" style="max-width:700px;background:#fff;padding:24px 28px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-top:18px;">
+    <form method="POST" action="{{ route('admin.leave_types.update', $leaveType->leave_type_id) }}" class="leave-form" style="width:100%;background:#fff;padding:28px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-top:18px;box-sizing:border-box;">
         @csrf
         @method('PUT')
         <div class="row-grid-4">
