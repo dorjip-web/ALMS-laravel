@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Envelope icon styled to match provided sample: blue envelope with white flap -->
-<svg xmlns="http://www.w3.org/2000/svg" width="56" height="40" viewBox="0 0 56 40" aria-hidden="true">
-  <rect x="0" y="0" width="56" height="40" rx="6" ry="6" fill="#0ea2ff" />
-  <!-- envelope flap lines -->
-  <path d="M6 8 L28 22 L50 8" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M6 8 L6 32 L50 32 L50 8" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.0" />
-</svg>
