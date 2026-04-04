@@ -214,12 +214,21 @@ class AttendanceLogController extends Controller
             // No checkin and no checkout => consult leave and tour tables
             $marked = false;
             if (Schema::hasTable('leave_application') && ! empty($row->employee_id)) {
-                $leave = DB::table('leave_application')
+                $leaveQuery = DB::table('leave_application')
                     ->where('employee_id', $row->employee_id)
                     ->whereDate('from_date', '<=', $rowDate)
-                    ->whereDate('to_date', '>=', $rowDate)
-                    ->orderByDesc('id')
-                    ->first();
+                    ->whereDate('to_date', '>=', $rowDate);
+
+                // choose a safe ordering column
+                if (Schema::hasColumn('leave_application', 'application_id')) {
+                    $leaveQuery->orderByDesc('application_id');
+                } elseif (Schema::hasColumn('leave_application', 'applied_at')) {
+                    $leaveQuery->orderByDesc('applied_at');
+                } elseif (Schema::hasColumn('leave_application', 'created_at')) {
+                    $leaveQuery->orderByDesc('created_at');
+                }
+
+                $leave = $leaveQuery->first();
 
                 if ($leave) {
                     $row->remarks = 'On Leave';
@@ -228,14 +237,20 @@ class AttendanceLogController extends Controller
             }
 
             if (! $marked && Schema::hasTable('tour_records') && ! empty($row->employee_id)) {
-                $tour = DB::table('tour_records')
+                $tourQuery = DB::table('tour_records')
                     ->where('employee_id', $row->employee_id)
                     ->whereDate('start_date', '<=', $rowDate)
                     ->where(function ($q) use ($rowDate) {
                         $q->whereNull('end_date')->orWhereDate('end_date', '>=', $rowDate);
-                    })
-                    ->orderByDesc('id')
-                    ->first();
+                    });
+
+                if (Schema::hasColumn('tour_records', 'id')) {
+                    $tourQuery->orderByDesc('id');
+                } elseif (Schema::hasColumn('tour_records', 'created_at')) {
+                    $tourQuery->orderByDesc('created_at');
+                }
+
+                $tour = $tourQuery->first();
 
                 if ($tour) {
                     $row->remarks = 'On Tour';
