@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class AttendanceLogController extends Controller
 {
@@ -166,10 +167,79 @@ class AttendanceLogController extends Controller
         }
 
         // Resolve stored addresses (may be Nominatim reverse URLs) into
-        // human-readable strings for the admin UI.
+        // human-readable strings for the admin UI and compute Remarks.
         foreach ($logs as $row) {
             $row->checkin_address = $this->displayAddressForUI($row->checkin_address ?? '');
             $row->checkout_address = $this->displayAddressForUI($row->checkout_address ?? '');
+
+            // Determine a date to use for cross-table lookups.
+            $rowDate = $row->attendance_date ?? ($date ?: now()->toDateString());
+
+            // If both checkin and checkout exist => Present
+            if (! empty($row->checkin) && ! empty($row->checkout)) {
+                $row->remarks = 'Present';
+                continue;
+            }
+
+            // If checked in but no checkout => consult adhoc requests for that date
+            if (! empty($row->checkin) && empty($row->checkout)) {
+                $adhocTable = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
+                if ($adhocTable) {
+                    $req = DB::table($adhocTable)
+                        ->where(function ($q) use ($row, $rowDate) {
+                            if (! empty($row->employee_id)) {
+                                $q->where('employee_id', $row->employee_id);
+                            }
+                            $q->whereDate('date', $rowDate);
+                        })
+                        ->orderByDesc('id')
+                        ->first();
+
+                    if ($req) {
+                        $row->remarks = ! empty($req->purpose) ? ucfirst($req->purpose) : ($req->remarks ?? 'Adhoc');
+                        continue;
+                    }
+                }
+
+                $row->remarks = 'Checked In';
+                continue;
+            }
+
+            // No checkin and no checkout => consult leave and tour tables
+            $marked = false;
+            if (Schema::hasTable('leave_application') && ! empty($row->employee_id)) {
+                $leave = DB::table('leave_application')
+                    ->where('employee_id', $row->employee_id)
+                    ->whereDate('from_date', '<=', $rowDate)
+                    ->whereDate('to_date', '>=', $rowDate)
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($leave) {
+                    $row->remarks = 'On Leave';
+                    $marked = true;
+                }
+            }
+
+            if (! $marked && Schema::hasTable('tour_records') && ! empty($row->employee_id)) {
+                $tour = DB::table('tour_records')
+                    ->where('employee_id', $row->employee_id)
+                    ->whereDate('start_date', '<=', $rowDate)
+                    ->where(function ($q) use ($rowDate) {
+                        $q->whereNull('end_date')->orWhereDate('end_date', '>=', $rowDate);
+                    })
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($tour) {
+                    $row->remarks = 'On Tour';
+                    $marked = true;
+                }
+            }
+
+            if (! $marked) {
+                $row->remarks = 'Absent';
+            }
         }
 
         $from_date = $fromDate;
