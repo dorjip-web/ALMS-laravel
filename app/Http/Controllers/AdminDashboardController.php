@@ -12,9 +12,7 @@ class AdminDashboardController extends Controller
      */
     public function index()
     {
-        $role = Session::get('role', '');
-        $adminLoggedIn = Session::get('admin_logged_in', false)
-            || (is_string($role) && strtolower($role) === 'admin');
+        $adminLoggedIn = Session::get('admin_logged_in', false);
         $adminName = Session::get('admin_name') ?: Session::get('admin_user') ?: 'NTMH';
         
         if (!$adminLoggedIn) {

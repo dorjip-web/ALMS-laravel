@@ -24,15 +24,38 @@ class RolePermissionManagementController extends Controller
         if ($request->has('edit_perm')) {
             $editPermission = DB::table('permission')->where('permission_id', $request->input('edit_perm'))->first();
         }
-        if ($request->has('assign_role_id')) {
+        if ($request->has('assign_role_id') || $request->has('assign_role')) {
+            $roleParam = $request->input('assign_role_id') ?: $request->input('assign_role');
             $assignedPermissions = DB::table('role_permission')
-                ->where('role_id', $request->input('assign_role_id'))
+                ->where('role_id', $roleParam)
                 ->pluck('permission_id')->toArray();
         }
 
         return view('admin.roles_permissions.index', compact(
             'roles', 'permissions', 'editRole', 'editPermission', 'assignedPermissions', 'message'
         ));
+    }
+
+    public function toggleRole($id)
+    {
+        $role = DB::table('role')->where('role_id', $id)->first();
+        if ($role) {
+            $new = (strtolower(trim($role->status ?? '')) === 'active') ? 'inactive' : 'active';
+            DB::table('role')->where('role_id', $id)->update(['status' => $new]);
+            return Redirect::route('admin.roles_permissions');
+        }
+        return Redirect::route('admin.roles_permissions');
+    }
+
+    public function togglePermission($id)
+    {
+        $perm = DB::table('permission')->where('permission_id', $id)->first();
+        if ($perm) {
+            $new = (strtolower(trim($perm->status ?? '')) === 'active') ? 'inactive' : 'active';
+            DB::table('permission')->where('permission_id', $id)->update(['status' => $new]);
+            return Redirect::route('admin.roles_permissions');
+        }
+        return Redirect::route('admin.roles_permissions');
     }
 
     public function saveRole(Request $request)

@@ -114,6 +114,8 @@ Route::get('/admin/roles-permissions', [App\Http\Controllers\Admin\RolePermissio
 Route::post('/admin/roles-permissions/save-role', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'saveRole'])->name('admin.roles_permissions.saveRole');
 Route::post('/admin/roles-permissions/save-permission', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'savePermission'])->name('admin.roles_permissions.savePermission');
 Route::post('/admin/roles-permissions/save-assign', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'saveAssign'])->name('admin.roles_permissions.saveAssign');
+Route::get('/admin/roles-permissions/toggle-role/{id}', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'toggleRole'])->name('admin.roles_permissions.toggleRole');
+Route::get('/admin/roles-permissions/toggle-perm/{id}', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'togglePermission'])->name('admin.roles_permissions.togglePerm');
 
 // Legacy admin PHP page bridges (for old .php URL compatibility)
 Route::get('/admin_dashboard.php', function () {

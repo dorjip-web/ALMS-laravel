@@ -85,7 +85,6 @@ class AdminLoginController extends Controller
                 Session::put('admin_id', $admin->id ?? null);
                 Session::put('admin_user', $admin->username ?? null);
                 Session::put('admin_name', $admin->name ?? $admin->username ?? null);
-                Session::put('role', 'admin');
 
                 // Upgrade to password_hash if needed
                 if ($rehashNeeded) {
