@@ -45,6 +45,17 @@
             </header>
 
             <section class="panel staff-list-panel">
+                <div style="margin-bottom:12px;display:flex;gap:10px;align-items:center;">
+                    <form method="GET" action="{{ route('ms.staff_list') }}" style="display:flex;gap:10px;align-items:center;margin:0">
+                        <select name="department_id" style="padding:8px;border-radius:6px;border:1px solid #ddd">
+                            <option value="">All Departments</option>
+                            @foreach(($departments ?? []) as $d)
+                                <option value="{{ $d->department_id }}" {{ (string)($dept ?? '') === (string)$d->department_id ? 'selected' : '' }}>{{ $d->department_name }}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="btn" style="padding:6px 10px;">Apply</button>
+                    </form>
+                </div>
                 <div class="leave-history"><div class="table-wrap"><table class="users">
                     <thead>
                         <tr>

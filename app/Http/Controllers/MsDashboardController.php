@@ -218,8 +218,9 @@ class MsDashboardController extends Controller
         }
 
         if (! Schema::hasTable('tab1')) {
-            return view('ms_staff_list', ['staff' => [], 'authorized' => true, 'username' => $msUser['employee_name'] ?? Auth::user()->name]);
+            return view('ms_staff_list', ['staff' => [], 'authorized' => true, 'username' => $msUser['employee_name'] ?? Auth::user()->name, 'departments' => [], 'dept' => '']);
         }
+        $dept = $request->input('department_id', '');
 
         $query = DB::table('tab1 as t')
             ->select('t.employee_id', 't.employee_name', 't.eid', 't.designation', 't.department_id');
@@ -231,12 +232,23 @@ class MsDashboardController extends Controller
             $query->addSelect(DB::raw("'-' as department_name"));
         }
 
+        if ($dept) {
+            $query->where('t.department_id', $dept);
+        }
+
         $staff = $query->orderBy('t.employee_name')->get()->map(fn($r) => (array) $r)->toArray();
+
+        $departments = [];
+        if (Schema::hasTable('department')) {
+            $departments = DB::table('department')->select('department_id', 'department_name')->orderBy('department_name')->get();
+        }
 
         return view('ms_staff_list', [
             'authorized' => true,
             'staff' => $staff,
             'username' => $msUser['employee_name'] ?? Auth::user()->name,
+            'departments' => $departments,
+            'dept' => $dept,
         ]);
     }
 
