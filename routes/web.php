@@ -77,6 +77,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/ms-dashboard/staff', [MsDashboardController::class, 'staffList'])->name('ms.staff_list');
     Route::get('/ms-dashboard/pending', [MsDashboardController::class, 'pending'])->name('ms.pending');
     Route::get('/ms-dashboard/on-tour', [MsDashboardController::class, 'onTourList'])->name('ms.on_tour');
+    Route::get('/ms-dashboard/on-tour/edit/{id}', [MsDashboardController::class, 'editTour'])->name('ms.on_tour.edit');
+    Route::post('/ms-dashboard/on-tour/update/{id}', [MsDashboardController::class, 'updateTour'])->name('ms.on_tour.update');
+    Route::post('/ms-dashboard/on-tour/delete/{id}', [MsDashboardController::class, 'deleteTour'])->name('ms.on_tour.delete');
     Route::get('/ms-dashboard/recent', [MsDashboardController::class, 'recentList'])->name('ms.recent');
     // MS Dashboard
     Route::get('/ms/adhoc', [MsAdhocController::class, 'index'])->name('ms.adhoc.index');

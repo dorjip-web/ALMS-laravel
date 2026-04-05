@@ -24,26 +24,43 @@
 
             <section class="panel">
                 <h2>Staff Currently On Tour</h2>
+                <div style="margin:12px 0 18px 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                    <form method="GET" action="{{ route('ms.on_tour') }}" style="display:flex;gap:8px;align-items:center">
+                        <label style="font-weight:700">Department:</label>
+                        <select name="department_id" style="padding:8px;border:1px solid #e6eef8;border-radius:6px">
+                            <option value="">All Departments</option>
+                            @foreach($departments as $d)
+                                <option value="{{ $d->department_id }}" @if((string)($dept ?? '') === (string)$d->department_id) selected @endif>{{ $d->department_name }}</option>
+                            @endforeach
+                        </select>
+                        <button class="btn" type="submit">Filter</button>
+                        @if(!empty($dept))
+                            <a href="{{ route('ms.on_tour') }}" style="margin-left:8px;display:inline-block;color:#666">Clear</a>
+                        @endif
+                    </form>
+                </div>
                 <div class="leave-history"><div class="table-wrap"><table class="users requests">
                     <thead>
                     <tr>
                         <th>Employee</th>
                         <th>Department</th>
+                        <th>Department</th>
                         <th>Place</th>
                         <th>From</th>
                         <th>To</th>
                         <th>Total Days</th>
-                        <th>Purpose</th>
+                        <th>Office Order</th>
+                        <th>Actions</th>
                         <th>Office Order</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @if (empty($onTourStaff))
+                        <tr><td colspan="9" class="empty">No staff on tour right now</td></tr>
                         <tr><td colspan="8" class="empty">No staff on tour right now</td></tr>
                     @else
                         @foreach($onTourStaff as $tour)
                             <tr>
-                                <td>{{ $tour['employee_name'] ?? '-' }}</td>
+                                <td>{{ $tour['department_name'] ?? '-' }}</td>
                                 <td>{{ $tour['department_name'] ?? '-' }}</td>
                                 <td>{{ $tour['place'] ?? '-' }}</td>
                                 <td>{{ ! empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date'])->format('d M Y') : '-' }}</td>
@@ -62,6 +79,14 @@
                                     @else
                                         -
                                     @endif
+                                </td>
+                                <td style="white-space:nowrap">
+                                    <a class="action-link" href="{{ route('ms.on_tour.edit', $tour['employee_id'] ?? '') }}">Edit</a>
+                                    |
+                                    <form method="POST" action="{{ route('ms.on_tour.delete', $tour['employee_id'] ?? '') }}" style="display:inline" onsubmit="return confirm('Delete this tour record?');">
+                                        @csrf
+                                        <button type="submit" style="background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;padding:0;margin-left:6px">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach

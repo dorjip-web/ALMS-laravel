@@ -322,6 +322,8 @@ class MsDashboardController extends Controller
             return redirect(route('dashboard'))->with('flash_error', 'Access denied. You are not assigned as Medical Superintendent.');
         }
 
+        $dept = $request->input('department_id', '');
+
         $onTourStaff = [];
         if (Schema::hasTable('tour_records') && Schema::hasTable('tab1')) {
             $today = now('Asia/Thimphu')->toDateString();
@@ -337,6 +339,10 @@ class MsDashboardController extends Controller
                     $q->whereNull('tr.end_date')
                         ->orWhereDate('tr.end_date', '>=', $today);
                 });
+
+            if ($dept) {
+                $tourQuery->where('e.department_id', $dept);
+            }
 
             if ($hasDepartmentTable) {
                 $tourQuery->leftJoin('department as d', 'e.department_id', '=', 'd.department_id');
@@ -367,7 +373,66 @@ class MsDashboardController extends Controller
             'authorized' => true,
             'username' => $msUser['employee_name'] ?? Auth::user()->name,
             'onTourStaff' => $onTourStaff,
+            'departments' => (Schema::hasTable('department') ? DB::table('department')->select('department_id','department_name')->orderBy('department_name')->get() : []),
+            'dept' => $dept,
         ]);
+    }
+
+    // Edit tour record form
+    public function editTour(Request $request, $id)
+    {
+        $msUser = $this->resolveMsUser($request);
+        if (! $msUser['authorized']) {
+            return redirect(route('dashboard'))->with('flash_error', 'Access denied.');
+        }
+
+        if (! Schema::hasTable('tour_records')) {
+            return redirect()->back()->with('flash_error', 'Tour records not available.');
+        }
+
+        $record = DB::table('tour_records')->where('id', $id)->first();
+        if (! $record) {
+            return redirect()->route('ms.on_tour')->with('flash_error', 'Record not found');
+        }
+
+        $departments = Schema::hasTable('department') ? DB::table('department')->select('department_id','department_name')->orderBy('department_name')->get() : [];
+
+        return view('ms_on_tour_edit', [
+            'record' => (array) $record,
+            'departments' => $departments,
+        ]);
+    }
+
+    // Update tour record
+    public function updateTour(Request $request, $id)
+    {
+        $msUser = $this->resolveMsUser($request);
+        if (! $msUser['authorized']) {
+            return redirect(route('dashboard'))->with('flash_error', 'Access denied.');
+        }
+
+        $data = $request->validate([
+            'place' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'purpose' => 'nullable|string',
+        ]);
+
+        DB::table('tour_records')->where('id', $id)->update($data + ['updated_at' => now()]);
+
+        return redirect()->route('ms.on_tour')->with('flash_success', 'Tour record updated');
+    }
+
+    // Delete tour record
+    public function deleteTour(Request $request, $id)
+    {
+        $msUser = $this->resolveMsUser($request);
+        if (! $msUser['authorized']) {
+            return redirect(route('dashboard'))->with('flash_error', 'Access denied.');
+        }
+
+        DB::table('tour_records')->where('id', $id)->delete();
+        return redirect()->route('ms.on_tour')->with('flash_success', 'Tour record deleted');
     }
 
     public function recentList(Request $request): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
