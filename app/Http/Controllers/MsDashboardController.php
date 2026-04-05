@@ -369,12 +369,23 @@ class MsDashboardController extends Controller
                 ->toArray();
         }
 
+        // also provide employees for the create form (filtered by dept if present)
+        $employees = [];
+        if (Schema::hasTable('tab1')) {
+            $empQuery = DB::table('tab1')->select('employee_id','employee_name','department_id');
+            if ($dept) {
+                $empQuery->where('department_id', $dept);
+            }
+            $employees = $empQuery->orderBy('employee_name')->get();
+        }
+
         return view('ms_on_tour', [
             'authorized' => true,
             'username' => $msUser['employee_name'] ?? Auth::user()->name,
             'onTourStaff' => $onTourStaff,
             'departments' => (Schema::hasTable('department') ? DB::table('department')->select('department_id','department_name')->orderBy('department_name')->get() : []),
             'dept' => $dept,
+            'employees' => $employees,
         ]);
     }
 
@@ -433,6 +444,27 @@ class MsDashboardController extends Controller
 
         DB::table('tour_records')->where('id', $id)->delete();
         return redirect()->route('ms.on_tour')->with('flash_success', 'Tour record deleted');
+    }
+
+    // Store new tour record
+    public function storeTour(Request $request)
+    {
+        $msUser = $this->resolveMsUser($request);
+        if (! $msUser['authorized']) {
+            return redirect(route('dashboard'))->with('flash_error', 'Access denied.');
+        }
+
+        $data = $request->validate([
+            'employee_id' => 'required|integer',
+            'place' => 'nullable|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'purpose' => 'nullable|string',
+        ]);
+
+        DB::table('tour_records')->insert(array_merge($data, ['created_at' => now(), 'updated_at' => now()]));
+
+        return redirect()->route('ms.on_tour')->with('flash_success', 'Tour record added');
     }
 
     public function recentList(Request $request): \Illuminate\View\View|\Illuminate\Http\RedirectResponse

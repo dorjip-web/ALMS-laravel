@@ -24,20 +24,56 @@
 
             <section class="panel">
                 <h2>Staff Currently On Tour</h2>
-                <div style="margin:12px 0 18px 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-                    <form method="GET" action="{{ route('ms.on_tour') }}" style="display:flex;gap:8px;align-items:center">
-                        <label style="font-weight:700">Department:</label>
-                        <select name="department_id" style="padding:8px;border:1px solid #e6eef8;border-radius:6px">
-                            <option value="">All Departments</option>
-                            @foreach($departments as $d)
-                                <option value="{{ $d->department_id }}" @if((string)($dept ?? '') === (string)$d->department_id) selected @endif>{{ $d->department_name }}</option>
-                            @endforeach
-                        </select>
-                        <button class="btn" type="submit">Filter</button>
-                        @if(!empty($dept))
-                            <a href="{{ route('ms.on_tour') }}" style="margin-left:8px;display:inline-block;color:#666">Clear</a>
-                        @endif
-                    </form>
+                <div style="margin:12px 0 18px 0;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                    <div style="flex:1;min-width:320px">
+                        <form method="POST" action="{{ route('ms.on_tour.store') }}" style="display:block;padding:12px;border:1px solid #e6eef8;border-radius:8px;background:#fff">
+                            @csrf
+                            <div style="margin-bottom:8px;font-weight:700">Add Tour Record</div>
+                            <div style="margin-bottom:8px">
+                                <label style="display:block;margin-bottom:6px">Employee</label>
+                                <select name="employee_id" required style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
+                                    <option value="">-- Select Employee --</option>
+                                    @foreach($employees as $emp)
+                                        <option value="{{ $emp->employee_id }}">{{ $emp->employee_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div style="display:flex;gap:8px;margin-bottom:8px">
+                                <div style="flex:1">
+                                    <label style="display:block;margin-bottom:6px">Start Date</label>
+                                    <input type="date" name="start_date" class="form-input" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
+                                </div>
+                                <div style="flex:1">
+                                    <label style="display:block;margin-bottom:6px">End Date</label>
+                                    <input type="date" name="end_date" class="form-input" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
+                                </div>
+                            </div>
+                            <div style="margin-bottom:8px">
+                                <label style="display:block;margin-bottom:6px">Place</label>
+                                <input type="text" name="place" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
+                            </div>
+                            <div style="margin-bottom:8px">
+                                <label style="display:block;margin-bottom:6px">Purpose</label>
+                                <textarea name="purpose" rows="2" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px"></textarea>
+                            </div>
+                            <div>
+                                <button class="btn" type="submit">Add Tour</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div style="min-width:240px">
+                        <form method="GET" action="{{ route('ms.on_tour') }}" style="display:flex;gap:8px;align-items:center">
+                            <label style="font-weight:700">Department:</label>
+                            <select name="department_id" style="padding:8px;border:1px solid #e6eef8;border-radius:6px">
+                                <option value="">All</option>
+                                @foreach($departments as $d)
+                                    <option value="{{ $d->department_id }}" @if((string)($dept ?? '') === (string)$d->department_id) selected @endif>{{ $d->department_name }}</option>
+                                @endforeach
+                            </select>
+                            <button class="btn" type="submit">Filter</button>
+                        </form>
+                    </div>
                 </div>
                 <div class="leave-history"><div class="table-wrap"><table class="users requests">
                     <thead>
