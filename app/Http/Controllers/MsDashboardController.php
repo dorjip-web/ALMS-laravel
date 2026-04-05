@@ -31,10 +31,15 @@ class MsDashboardController extends Controller
 
         $summary = ['pending' => 0, 'approved' => 0, 'rejected' => 0];
         if (Schema::hasTable('leave_application')) {
-            // Only count as pending if HoD has forwarded and MS has not yet acted
+            // Count pending MS actions including both forwarded by HoD and direct requests
             $pending = DB::table('leave_application')
-                ->whereRaw("LOWER(COALESCE(HoD_status, '')) = ?", ['forwarded'])
                 ->whereRaw("LOWER(COALESCE(medical_superintendent_status, '')) = ?", ['pending'])
+                ->where(function ($q): void {
+                    $q->whereRaw("LOWER(COALESCE(HoD_status, '')) = ?", ['forwarded'])
+                        ->orWhereNull('HoD_status')
+                        ->orWhere('HoD_status', '')
+                        ->orWhereRaw("LOWER(COALESCE(HoD_status, '')) = ?", ['skipped']);
+                })
                 ->count();
 
             $approved = DB::table('leave_application')
@@ -456,7 +461,14 @@ class MsDashboardController extends Controller
             }
         }
 
-        return redirect()->route('ms.dashboard')->with('message', 'Request processed: ' . ucfirst($newStatus));
+        // Prefer returning to the same page the MS was on. If no referrer, fall back to MS dashboard.
+        $response = redirect()->back()->with('message', 'Request processed: ' . ucfirst($newStatus));
+        if (url()->previous() === url()->current()) {
+            // No previous URL available (or same), fallback to dashboard
+            $response = redirect()->route('ms.dashboard')->with('message', 'Request processed: ' . ucfirst($newStatus));
+        }
+
+        return $response;
     }
 
     private function resolveMsUser(Request $request): array

@@ -197,6 +197,16 @@ class EmployeeDashboardController extends Controller
 
         $totalDays = $start->diffInDays($end) + 1;
 
+        // Prevent overlapping tour submissions for the same employee and dates
+        $overlapExists = DB::table('tour_records')
+            ->where('employee_id', $employeeId)
+            ->whereRaw('NOT (end_date < ? OR start_date > ?)', [$start->toDateString(), $end->toDateString()])
+            ->exists();
+
+        if ($overlapExists) {
+            return back()->with('flash_error', 'Tour overlaps an existing tour for the selected dates.');
+        }
+
         $pdfPath = null;
         if ($request->hasFile('office_order_pdf')) {
             $file = $request->file('office_order_pdf');
@@ -340,6 +350,8 @@ class EmployeeDashboardController extends Controller
         $user = Auth::user();
         $employee = $this->resolveEmployee($request, $user->id, $user->name, $user->email);
         $employeeId = $employee['employee_id'] ?? $user->id;
+
+        
         $departmentId = (int) ($employee['department_id'] ?? 0);
         $tzNow = now('Asia/Thimphu');
         $time = $tzNow->format('H:i:s');
@@ -596,9 +608,31 @@ class EmployeeDashboardController extends Controller
         $employee = $this->resolveEmployee($request, $user->id, $user->name, $user->email);
         $employeeId = $employee['employee_id'] ?? $user->id;
 
+        // Normalize date to YYYY-MM-DD for reliable comparison
+        try {
+            $canonicalDate = \Illuminate\Support\Carbon::parse($payload['date'])->toDateString();
+        } catch (\Throwable $e) {
+            $canonicalDate = $payload['date'];
+        }
+
+        // Prevent duplicate adhoc requests on the same date for the same employee
+        $cols = Schema::getColumnListing($table);
+        $existQuery = DB::table($table)->whereRaw("DATE(`date`) = ?", [$canonicalDate]);
+        if ($employeeId && in_array('employee_id', $cols, true)) {
+            $existQuery->where('employee_id', $employeeId);
+        } elseif (! empty($employee['eid']) && in_array('eid', $cols, true)) {
+            $existQuery->where('eid', $employee['eid']);
+        } elseif (in_array('user_id', $cols, true)) {
+            $existQuery->where('user_id', $user->id);
+        }
+
+        if ($existQuery->exists()) {
+            return back()->with('flash_error', 'An adhoc request already exists for the selected date.');
+        }
+
         $insert = [
             'employee_id' => $employeeId,
-            'date' => $payload['date'],
+            'date' => $canonicalDate,
             'purpose' => $payload['purpose'],
             'remarks' => $payload['remarks'] ?? null,
             'created_at' => now(),
@@ -652,6 +686,16 @@ class EmployeeDashboardController extends Controller
             $days = $from->diffInDays($to) + 1;
         }
 
+        // Prevent overlapping leave submissions for the same employee and dates
+        $overlapExists = DB::table('leave_application')
+            ->where('employee_id', $employeeId)
+            ->whereRaw('NOT (to_date < ? OR from_date > ?)', [$from->toDateString(), $to->toDateString()])
+            ->exists();
+
+        if ($overlapExists) {
+            return back()->with('flash_error', 'Leave overlaps an existing leave for the selected dates.');
+        }
+
         $submitTo = strtolower((string) $payload['submit_to']);
         $hodStatus = $submitTo === 'hod' ? 'pending' : null;
         $msStatus = 'pending';
@@ -680,7 +724,7 @@ class EmployeeDashboardController extends Controller
         }
         DB::table('leave_application')->insert($insertData);
 
-        return redirect()->to(route('dashboard') . '#leave')
+        return redirect()->route('dashboard.leave_form')
             ->with('flash_success', 'Leave submitted successfully.');
     }
 

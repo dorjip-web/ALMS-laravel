@@ -6,25 +6,25 @@
 
     <div class="filter-box" style="background:#1e293b;padding:15px;border-radius:10px;margin-bottom:20px;">
         <form method="GET" action="{{ route('admin.leave_records.index') }}" class="leave-form row-inline" style="margin-bottom:0;gap:12px;align-items:center;">
-            <select name="status">
+            <select name="status" style="width:160px;">
                 <option value="all" {{ $status === 'all' ? 'selected' : '' }}>All</option>
                 <option value="approved" {{ $status === 'approved' ? 'selected' : '' }}>Approved</option>
                 <option value="rejected" {{ $status === 'rejected' ? 'selected' : '' }}>Rejected</option>
                 <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>Pending</option>
             </select>
 
-            <select name="department_id">
+            <select name="department_id" style="width:220px;">
                 <option value="">All Departments</option>
                 @foreach($departments as $d)
                     <option value="{{ $d->department_id }}" {{ $dept == $d->department_id ? 'selected' : '' }}>{{ $d->department_name }}</option>
                 @endforeach
             </select>
 
-            <input type="date" name="from_date" value="{{ request('from_date', '') }}">
-            <input type="date" name="to_date" value="{{ request('to_date', '') }}">
+            <input type="date" name="from_date" value="{{ request('from_date', '') }}" style="width:160px;">
+            <input type="date" name="to_date" value="{{ request('to_date', '') }}" style="width:160px;">
 
-            <button type="submit" class="btn">Apply</button>
-            <a class="btn" href="{{ route('admin.leave_records.export', request()->query()) }}">Export CSV</a>
+            <button type="submit" class="btn" style="padding:6px 10px;">Apply</button>
+            <a class="btn" href="{{ route('admin.leave_records.export', request()->query()) }}" style="padding:6px 10px;">Export CSV</a>
         </form>
     </div>
 
