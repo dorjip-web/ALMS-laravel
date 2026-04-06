@@ -18,15 +18,18 @@ class AdminAdhocController extends Controller
         }
         $dept = $request->input('department_id', '');
 
+        // determine which adhoc table actually exists (prefer plural)
+        $candidates = ['adhoc_requests', 'adhoc_request'];
         $table = null;
-        if (Schema::hasTable('adhoc_requests')) {
-            $table = 'adhoc_requests';
-        } elseif (Schema::hasTable('adhoc_request')) {
-            $table = 'adhoc_request';
+        foreach ($candidates as $cand) {
+            if (Schema::hasTable($cand)) {
+                $table = $cand;
+                break;
+            }
         }
 
         $rows = [];
-        if ($table) {
+        if ($table && Schema::hasTable($table)) {
             $hasEmployees = Schema::hasTable('employees') || Schema::hasTable('tab1');
 
             $q = DB::table($table . ' as a');
@@ -57,11 +60,21 @@ class AdminAdhocController extends Controller
                 }
             }
 
-            $rows = $q->orderByDesc($table . '.created_at')
-                ->select($select)
-                ->get()
-                ->map(fn($r) => (array) $r)
-                ->toArray();
+            try {
+                // prefer created_at ordering where present
+                if (Schema::hasColumn($table, 'created_at')) {
+                    $q->orderByDesc($table . '.created_at');
+                } elseif (Schema::hasColumn($table, 'id')) {
+                    $q->orderByDesc($table . '.id');
+                }
+
+                $rows = $q->select($select)->get()->map(fn($r) => (array) $r)->toArray();
+            } catch (\Throwable $e) {
+                // If something went wrong querying the table (missing table, permissions),
+                // avoid blowing up the admin page — fall back to empty list and log.
+                logger()->error('AdminAdhocController index query failed', ['error' => $e->getMessage()]);
+                $rows = [];
+            }
         }
 
         $departments = [];
