@@ -87,9 +87,34 @@ class AdminAdhocController extends Controller
 
             $select = ['a.*'];
             if ($hasEmployees) {
-                $select[] = DB::raw("COALESCE(e.employee_name, e.name, e.eid, '-') as employee_name");
+                $employeeDisplayParts = [];
+                if (! empty($employeeCols) && in_array('employee_name', $employeeCols, true)) {
+                    $employeeDisplayParts[] = 'e.employee_name';
+                }
+                if (! empty($employeeCols) && in_array('name', $employeeCols, true)) {
+                    $employeeDisplayParts[] = 'e.name';
+                }
+                if (! empty($employeeCols) && in_array('eid', $employeeCols, true)) {
+                    $employeeDisplayParts[] = 'e.eid';
+                }
+                if (! empty($employeeCols) && in_array('employee_id', $employeeCols, true)) {
+                    $employeeDisplayParts[] = 'e.employee_id';
+                }
+
+                if (! empty($employeeDisplayParts)) {
+                    $select[] = DB::raw('COALESCE(' . implode(', ', $employeeDisplayParts) . ", '-') as employee_name");
+                } else {
+                    $select[] = DB::raw("'-' as employee_name");
+                }
+
                 if ($hasDepartment) {
-                    $select[] = DB::raw("COALESCE(d.department_name, '-') as department_name");
+                    // use department_name if available
+                    $deptCols = Schema::getColumnListing('department');
+                    if (in_array('department_name', $deptCols, true)) {
+                        $select[] = DB::raw("COALESCE(d.department_name, '-') as department_name");
+                    } else {
+                        $select[] = DB::raw("'-' as department_name");
+                    }
                 }
             }
 
@@ -119,6 +144,29 @@ class AdminAdhocController extends Controller
                         logger()->debug('AdminAdhocController raw fallback failed', ['error' => $e->getMessage()]);
                     }
                 }
+
+                // Normalize row keys so views and routes can rely on common names
+                foreach ($rows as &$row) {
+                    // Normalize primary id: prefer known column names used across installs
+                    $pkCandidates = ['adhoc_request_id', 'adhoc_id', 'application_id', 'id'];
+                    foreach ($pkCandidates as $pk) {
+                        if (array_key_exists($pk, $row) && ! empty($row[$pk])) {
+                            $row['id'] = $row['id'] ?? $row[$pk];
+                            $row['adhoc_id'] = $row['adhoc_id'] ?? $row[$pk];
+                            break;
+                        }
+                    }
+
+                    // Ensure an employee display value exists
+                    if (empty($row['employee_name'])) {
+                        if (! empty($row['eid'])) {
+                            $row['employee_name'] = $row['eid'];
+                        } elseif (! empty($row['employee_id'])) {
+                            $row['employee_name'] = (string) $row['employee_id'];
+                        }
+                    }
+                }
+                unset($row);
             } catch (\Throwable $e) {
                 // If something went wrong querying the table (missing table, permissions),
                 // avoid blowing up the admin page — fall back to empty list and log.
