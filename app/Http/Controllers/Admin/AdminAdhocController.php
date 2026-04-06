@@ -225,6 +225,20 @@ class AdminAdhocController extends Controller
         return null;
     }
 
+    /**
+     * Find the primary/key column name used by the adhoc table in this install.
+     */
+    private function findAdhocPkColumn(string $table): ?string
+    {
+        $candidates = ['adhoc_request_id', 'adhoc_id', 'application_id', 'id', 'employee_id'];
+        foreach ($candidates as $c) {
+            if (Schema::hasColumn($table, $c)) {
+                return $c;
+            }
+        }
+        return null;
+    }
+
     public function edit(Request $request, $id)
     {
         $adminLoggedIn = Session::get('admin_logged_in', false);
@@ -237,9 +251,8 @@ class AdminAdhocController extends Controller
             return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc table not found.');
         }
 
-        $record = DB::table($table)
-            ->when(Schema::hasColumn($table, 'adhoc_request_id'), fn($q) => $q->where('adhoc_request_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'adhoc_id'), fn($q2) => $q2->where('adhoc_id', $id), fn($q2) => $q2->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))))
-            ->first();
+        $pk = $this->findAdhocPkColumn($table);
+        $record = $pk ? DB::table($table)->where($pk, $id)->first() : null;
 
         if (! $record) {
             return redirect()->route('admin.adhoc')->with('flash_error', 'Record not found');
@@ -272,9 +285,10 @@ class AdminAdhocController extends Controller
             'remarks' => 'nullable|string|max:255',
         ]);
 
-        DB::table($table)
-            ->when(Schema::hasColumn($table, 'adhoc_request_id'), fn($q) => $q->where('adhoc_request_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'adhoc_id'), fn($q2) => $q2->where('adhoc_id', $id), fn($q2) => $q2->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))))
-            ->update(array_merge($data, ['updated_at' => now()]));
+        $pk = $this->findAdhocPkColumn($table);
+        if ($pk) {
+            DB::table($table)->where($pk, $id)->update(array_merge($data, ['updated_at' => now()]));
+        }
 
         return redirect()->route('admin.adhoc')->with('flash_success', 'Adhoc request updated');
     }
@@ -286,9 +300,10 @@ class AdminAdhocController extends Controller
             return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc table not found.');
         }
 
-        DB::table($table)
-            ->when(Schema::hasColumn($table, 'adhoc_request_id'), fn($q) => $q->where('adhoc_request_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'adhoc_id'), fn($q2) => $q2->where('adhoc_id', $id), fn($q2) => $q2->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))))
-            ->delete();
+        $pk = $this->findAdhocPkColumn($table);
+        if ($pk) {
+            DB::table($table)->where($pk, $id)->delete();
+        }
 
         return redirect()->route('admin.adhoc')->with('flash_success', 'Adhoc request deleted');
     }
