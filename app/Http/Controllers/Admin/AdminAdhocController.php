@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\DB as DBFacade;
 
 class AdminAdhocController extends Controller
 {
@@ -28,28 +27,53 @@ class AdminAdhocController extends Controller
 
         $rows = [];
         if ($table) {
-            $query = DBFacade::table($table . ' as a')
-                ->leftJoin('tab1 as e', 'a.employee_id', '=', 'e.employee_id')
-                ->select('a.*', DBFacade::raw("COALESCE(e.employee_name, '') as employee_name"))
-                ->orderByDesc('a.created_at');
+            $hasEmployees = Schema::hasTable('employees') || Schema::hasTable('tab1');
 
-            if ($dept) {
-                $query->where('e.department_id', $dept);
+            $q = DB::table($table . ' as a');
+
+            if ($hasEmployees) {
+                if (Schema::hasTable('employees')) {
+                    $q->join('employees as e', 'a.employee_id', '=', 'e.employee_id');
+                } else {
+                    $q->join('tab1 as e', 'a.employee_id', '=', 'e.employee_id');
+                }
             }
 
-            $rows = $query->get()->map(fn($r) => (array) $r)->toArray();
+            if ($dept && $hasEmployees) {
+                $q->where('e.department_id', $dept);
+            }
+
+            // Add department name if available
+            $hasDepartment = Schema::hasTable('department');
+            if ($hasDepartment) {
+                $q->leftJoin('department as d', 'e.department_id', '=', 'd.department_id');
+            }
+
+            $select = [$table . '.*'];
+            if ($hasEmployees) {
+                $select[] = DB::raw("COALESCE(e.employee_name, e.name, e.eid, '-') as employee_name");
+                if ($hasDepartment) {
+                    $select[] = DB::raw("COALESCE(d.department_name, '-') as department_name");
+                }
+            }
+
+            $rows = $q->orderByDesc($table . '.created_at')
+                ->select($select)
+                ->get()
+                ->map(fn($r) => (array) $r)
+                ->toArray();
         }
 
         $departments = [];
         if (Schema::hasTable('department')) {
-            $departments = DBFacade::table('department')->select('department_id','department_name')->orderBy('department_name')->get();
+            $departments = DB::table('department')->select('department_id','department_name')->orderBy('department_name')->get();
         }
 
         $employees = [];
         if (Schema::hasTable('tab1')) {
-            $empQ = DBFacade::table('tab1')->select('employee_id','employee_name','department_id')->orderBy('employee_name');
-            if ($dept) $empQ->where('department_id', $dept);
-            $employees = $empQ->get();
+            $employees = DB::table('tab1')->select('employee_id','employee_name','department_id')->orderBy('employee_name')->get();
+        } elseif (Schema::hasTable('employees')) {
+            $employees = DB::table('employees')->select('employee_id','name as employee_name','department_id')->orderBy('name')->get();
         }
 
         return view('admin_adhoc_requests', [
@@ -57,33 +81,9 @@ class AdminAdhocController extends Controller
             'rows' => $rows,
             'username' => Session::get('admin_name') ?? Session::get('admin_user'),
             'departments' => $departments,
-            'dept' => $dept,
             'employees' => $employees,
+            'dept' => $dept,
         ]);
-    }
-
-    public function store(Request $request)
-    {
-        $adminLoggedIn = Session::get('admin_logged_in', false);
-        if (! $adminLoggedIn) {
-            return redirect()->route('admin.login');
-        }
-
-        $table = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
-        if (! $table) {
-            return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc requests table not found.');
-        }
-
-        $data = $request->validate([
-            'employee_id' => ['required', 'integer'],
-            'date' => ['required', 'date'],
-            'purpose' => ['required', 'string'],
-            'remarks' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        DBFacade::table($table)->insert(array_merge($data, ['created_at' => now(), 'updated_at' => now()]));
-
-        return redirect()->route('admin.adhoc')->with('flash_success', 'Adhoc request added');
     }
 
     public function edit(Request $request, $id)
@@ -94,56 +94,62 @@ class AdminAdhocController extends Controller
         }
 
         $table = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
-        if (! $table) return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc requests table not found.');
-
-        $record = DBFacade::table($table)->where(function($q) use ($id){ $q->where('id', $id)->orWhere('adhoc_id', $id)->orWhere('application_id', $id); })->first();
-        if (! $record) return redirect()->route('admin.adhoc')->with('flash_error', 'Record not found');
-
-        $departments = [];
-        if (Schema::hasTable('department')) {
-            $departments = DBFacade::table('department')->select('department_id','department_name')->orderBy('department_name')->get();
+        if (! $table) {
+            return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc table not found.');
         }
+
+        $record = DB::table($table)
+            ->when(Schema::hasColumn($table, 'adhoc_id'), fn($q) => $q->where('adhoc_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))
+            ->first();
+
+        if (! $record) {
+            return redirect()->route('admin.adhoc')->with('flash_error', 'Record not found');
+        }
+
         $employees = [];
         if (Schema::hasTable('tab1')) {
-            $employees = DBFacade::table('tab1')->select('employee_id','employee_name','department_id')->orderBy('employee_name')->get();
+            $employees = DB::table('tab1')->select('employee_id','employee_name')->orderBy('employee_name')->get();
+        } elseif (Schema::hasTable('employees')) {
+            $employees = DB::table('employees')->select('employee_id','name as employee_name')->orderBy('name')->get();
         }
 
-        return view('admin_adhoc_edit', ['record' => (array)$record, 'departments' => $departments, 'employees' => $employees]);
+        return view('admin_adhoc_edit', [
+            'record' => (array) $record,
+            'employees' => $employees,
+        ]);
     }
 
     public function update(Request $request, $id)
     {
-        $adminLoggedIn = Session::get('admin_logged_in', false);
-        if (! $adminLoggedIn) {
-            return redirect()->route('admin.login');
+        $table = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
+        if (! $table) {
+            return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc table not found.');
         }
 
-        $table = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
-        if (! $table) return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc requests table not found.');
-
         $data = $request->validate([
-            'employee_id' => ['required', 'integer'],
-            'date' => ['required', 'date'],
-            'purpose' => ['required', 'string'],
-            'remarks' => ['nullable', 'string', 'max:255'],
+            'employee_id' => 'required|integer',
+            'date' => 'required|date',
+            'purpose' => 'required|string',
+            'remarks' => 'nullable|string|max:255',
         ]);
 
-        DBFacade::table($table)->where(function($q) use ($id){ $q->where('id', $id)->orWhere('adhoc_id', $id)->orWhere('application_id', $id); })->update(array_merge($data, ['updated_at' => now()]));
+        DB::table($table)
+            ->when(Schema::hasColumn($table, 'adhoc_id'), fn($q) => $q->where('adhoc_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))
+            ->update(array_merge($data, ['updated_at' => now()]));
 
         return redirect()->route('admin.adhoc')->with('flash_success', 'Adhoc request updated');
     }
 
     public function delete(Request $request, $id)
     {
-        $adminLoggedIn = Session::get('admin_logged_in', false);
-        if (! $adminLoggedIn) {
-            return redirect()->route('admin.login');
+        $table = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
+        if (! $table) {
+            return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc table not found.');
         }
 
-        $table = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
-        if (! $table) return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc requests table not found.');
-
-        DBFacade::table($table)->where(function($q) use ($id){ $q->where('id', $id)->orWhere('adhoc_id', $id)->orWhere('application_id', $id); })->delete();
+        DB::table($table)
+            ->when(Schema::hasColumn($table, 'adhoc_id'), fn($q) => $q->where('adhoc_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))
+            ->delete();
 
         return redirect()->route('admin.adhoc')->with('flash_success', 'Adhoc request deleted');
     }
