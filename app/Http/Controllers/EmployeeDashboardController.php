@@ -566,13 +566,31 @@ class EmployeeDashboardController extends Controller
         if ($table) {
             $cols = Schema::getColumnListing($table);
             $q = DB::table($table);
-            if ($employeeId && in_array('employee_id', $cols, true)) {
-                $q->where('employee_id', $employeeId);
-            } elseif (! empty($employee['eid']) && in_array('eid', $cols, true)) {
-                $q->where('eid', $employee['eid']);
-            } elseif (in_array('user_id', $cols, true)) {
-                $q->where('user_id', $user->id);
-            }
+            // Match any identifier present in the adhoc table so the
+            // employee sees their requests regardless of which column was used
+            // when the request was created (employee_id, eid, or user_id).
+            $q->where(function ($sub) use ($cols, $employeeId, $employee, $user) {
+                $matched = false;
+                if (! empty($employeeId) && in_array('employee_id', $cols, true)) {
+                    $sub->where('employee_id', $employeeId);
+                    $matched = true;
+                }
+                if (! empty($employee['eid']) && in_array('eid', $cols, true)) {
+                    if ($matched) {
+                        $sub->orWhere('eid', $employee['eid']);
+                    } else {
+                        $sub->where('eid', $employee['eid']);
+                        $matched = true;
+                    }
+                }
+                if (in_array('user_id', $cols, true)) {
+                    if ($matched) {
+                        $sub->orWhere('user_id', $user->id);
+                    } else {
+                        $sub->where('user_id', $user->id);
+                    }
+                }
+            });
 
             if (in_array('created_at', $cols, true)) {
                 $q->orderByDesc('created_at');
