@@ -21,29 +21,6 @@ class AdminAdhocController extends Controller
         // determine which adhoc table actually exists (prefer the one with rows)
         // Prefer the singular legacy table first since some installs use `adhoc_request`.
         $table = $this->detectAdhocTable();
-        $table = null;
-        foreach ($candidates as $cand) {
-            if (! Schema::hasTable($cand)) {
-                continue;
-            }
-
-            // prefer a table that already contains rows so admin sees existing data
-            try {
-                $cnt = DB::table($cand)->limit(1)->count();
-            } catch (\Throwable $e) {
-                $cnt = 0;
-            }
-
-            if ($cnt > 0) {
-                $table = $cand;
-                break;
-            }
-
-            // remember the first existing table as a fallback
-            if ($table === null) {
-                $table = $cand;
-            }
-        }
 
         $rows = [];
         if ($table && Schema::hasTable($table)) {
