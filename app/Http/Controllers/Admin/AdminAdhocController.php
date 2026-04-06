@@ -85,7 +85,7 @@ class AdminAdhocController extends Controller
                 $q->leftJoin('department as d', 'e.department_id', '=', 'd.department_id');
             }
 
-            $select = [$table . '.*'];
+            $select = ['a.*'];
             if ($hasEmployees) {
                 $select[] = DB::raw("COALESCE(e.employee_name, e.name, e.eid, '-') as employee_name");
                 if ($hasDepartment) {
