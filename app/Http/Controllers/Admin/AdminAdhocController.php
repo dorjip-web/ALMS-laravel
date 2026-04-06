@@ -34,16 +34,33 @@ class AdminAdhocController extends Controller
 
             $q = DB::table($table . ' as a');
 
+            // Join to employee source (prefer `employees`, fall back to `tab1`).
             if ($hasEmployees) {
-                if (Schema::hasTable('employees')) {
-                    $q->join('employees as e', 'a.employee_id', '=', 'e.employee_id');
-                } else {
-                    $q->join('tab1 as e', 'a.employee_id', '=', 'e.employee_id');
-                }
-            }
+                $employeeTable = Schema::hasTable('employees') ? 'employees' : 'tab1';
+                $employeeCols = Schema::getColumnListing($employeeTable);
+                $adhocCols = Schema::getColumnListing($table);
 
-            if ($dept && $hasEmployees) {
-                $q->where('e.department_id', $dept);
+                $q->leftJoin($employeeTable . ' as e', function ($join) use ($adhocCols, $employeeCols) {
+                    // prefer matching employee_id
+                    if (in_array('employee_id', $adhocCols, true) && in_array('employee_id', $employeeCols, true)) {
+                        $join->on('a.employee_id', '=', 'e.employee_id');
+                    }
+
+                    // match on eid if present
+                    if (in_array('eid', $adhocCols, true) && in_array('eid', $employeeCols, true)) {
+                        $join->orOn('a.eid', '=', 'e.eid');
+                    }
+
+                    // match on user_id if present
+                    if (in_array('user_id', $adhocCols, true) && in_array('user_id', $employeeCols, true)) {
+                        $join->orOn('a.user_id', '=', 'e.user_id');
+                    }
+                });
+
+                // apply department filter if requested
+                if ($dept) {
+                    $q->where('e.department_id', $dept);
+                }
             }
 
             // Add department name if available
