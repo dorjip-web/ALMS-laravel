@@ -87,9 +87,9 @@ class AdminOnTourController extends Controller
             return redirect()->route('admin.on_tour')->with('flash_error', 'Tour records not available.');
         }
 
-        // Fallback to using employee_id as identifier when numeric primary key 'id' is not present.
+        // Prefer `tour_id`, then `id`, then `employee_id` when locating the record.
         $record = DB::table('tour_records')
-            ->when(Schema::hasColumn('tour_records', 'id'), fn($q) => $q->where('id', $id), fn($q) => $q->where('employee_id', $id))
+            ->when(Schema::hasColumn('tour_records', 'tour_id'), fn($q) => $q->where('tour_id', $id), fn($q) => $q->when(Schema::hasColumn('tour_records', 'id'), fn($qq) => $qq->where('id', $id), fn($qq) => $qq->where('employee_id', $id)))
             ->first();
         if (! $record) {
             return redirect()->route('admin.on_tour')->with('flash_error', 'Record not found');
@@ -116,7 +116,7 @@ class AdminOnTourController extends Controller
         ]);
 
         DB::table('tour_records')
-            ->when(Schema::hasColumn('tour_records', 'id'), fn($q) => $q->where('id', $id), fn($q) => $q->where('employee_id', $id))
+            ->when(Schema::hasColumn('tour_records', 'tour_id'), fn($q) => $q->where('tour_id', $id), fn($q) => $q->when(Schema::hasColumn('tour_records', 'id'), fn($qq) => $qq->where('id', $id), fn($qq) => $qq->where('employee_id', $id)))
             ->update(array_merge($data, ['updated_at' => now()]));
 
         return redirect()->route('admin.on_tour')->with('flash_success', 'Tour record updated');
@@ -125,7 +125,7 @@ class AdminOnTourController extends Controller
     public function delete(Request $request, $id)
     {
         DB::table('tour_records')
-            ->when(Schema::hasColumn('tour_records', 'id'), fn($q) => $q->where('id', $id), fn($q) => $q->where('employee_id', $id))
+            ->when(Schema::hasColumn('tour_records', 'tour_id'), fn($q) => $q->where('tour_id', $id), fn($q) => $q->when(Schema::hasColumn('tour_records', 'id'), fn($qq) => $qq->where('id', $id), fn($qq) => $qq->where('employee_id', $id)))
             ->delete();
         return redirect()->route('admin.on_tour')->with('flash_success', 'Tour record deleted');
     }
