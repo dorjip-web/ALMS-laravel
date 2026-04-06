@@ -60,6 +60,17 @@ class AdminAdhocController extends Controller
                     $select[] = DB::raw("'-' as employee_name");
                 }
 
+                // Add designation: prefer adhoc table column, then employee table column, else '-'
+                if (! empty($employeeCols) && in_array('designation', $employeeCols, true) && in_array('designation', $adhocCols, true)) {
+                    $select[] = DB::raw("COALESCE(a.designation, e.designation, '-') as designation");
+                } elseif (! empty($employeeCols) && in_array('designation', $employeeCols, true)) {
+                    $select[] = DB::raw("COALESCE(e.designation, '-') as designation");
+                } elseif (in_array('designation', $adhocCols, true)) {
+                    $select[] = 'a.designation as designation';
+                } else {
+                    $select[] = DB::raw("'-' as designation");
+                }
+
                 // department select handled below if department table exists
 
                 $q->leftJoin($employeeTable . ' as e', function ($join) use ($adhocCols, $employeeCols) {
