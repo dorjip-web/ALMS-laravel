@@ -20,7 +20,7 @@ class AdminAdhocController extends Controller
 
         // determine which adhoc table actually exists (prefer the one with rows)
         // Prefer the singular legacy table first since some installs use `adhoc_request`.
-        $candidates = ['adhoc_request', 'adhoc_requests'];
+        $table = $this->detectAdhocTable();
         $table = null;
         foreach ($candidates as $cand) {
             if (! Schema::hasTable($cand)) {
@@ -256,6 +256,21 @@ class AdminAdhocController extends Controller
         ]);
     }
 
+    /**
+     * Return the adhoc table name to use for admin operations.
+     * Prefer the legacy singular `adhoc_request` when present, otherwise use `adhoc_requests`.
+     */
+    private function detectAdhocTable(): ?string
+    {
+        if (Schema::hasTable('adhoc_request')) {
+            return 'adhoc_request';
+        }
+        if (Schema::hasTable('adhoc_requests')) {
+            return 'adhoc_requests';
+        }
+        return null;
+    }
+
     public function edit(Request $request, $id)
     {
         $adminLoggedIn = Session::get('admin_logged_in', false);
@@ -263,7 +278,7 @@ class AdminAdhocController extends Controller
             return redirect()->route('admin.login');
         }
 
-        $table = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
+        $table = $this->detectAdhocTable();
         if (! $table) {
             return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc table not found.');
         }
@@ -291,7 +306,7 @@ class AdminAdhocController extends Controller
 
     public function update(Request $request, $id)
     {
-        $table = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
+        $table = $this->detectAdhocTable();
         if (! $table) {
             return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc table not found.');
         }
@@ -312,7 +327,7 @@ class AdminAdhocController extends Controller
 
     public function delete(Request $request, $id)
     {
-        $table = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
+        $table = $this->detectAdhocTable();
         if (! $table) {
             return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc table not found.');
         }
