@@ -20,8 +20,6 @@
         </header>
 
         <div class="container">
-            <header><h1>Staff On Tour</h1></header>
-
             <section class="panel">
                 <h2>Staff Currently On Tour</h2>
                 <div style="margin:12px 0 18px 0;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
@@ -56,17 +54,18 @@
                                 <label style="display:block;margin-bottom:6px">Purpose</label>
                                 <textarea name="purpose" rows="2" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px"></textarea>
                             </div>
-                            <div>
-                                <button class="btn" type="submit">Add Tour</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div style="min-width:240px">
-                        <form method="GET" action="{{ route('ms.on_tour') }}" style="display:flex;gap:8px;align-items:center">
-                            <label style="font-weight:700">Department:</label>
-                            <select name="department_id" style="padding:8px;border:1px solid #e6eef8;border-radius:6px">
-                                <option value="">All</option>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Designation</th>
+                                <th>Department</th>
+                                <th>Place</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Total Days</th>
+                                <th>Purpose</th>
+                                <th>Office Order</th>
+                                <th>Actions</th>
+                            </tr>
                                 @foreach($departments as $d)
                                     <option value="{{ $d->department_id }}" @if((string)($dept ?? '') === (string)$d->department_id) selected @endif>{{ $d->department_name }}</option>
                                 @endforeach
@@ -97,7 +96,7 @@
                         @foreach($onTourStaff as $tour)
                             <tr>
                                 <td>{{ $tour['department_name'] ?? '-' }}</td>
-                                <td>{{ $tour['department_name'] ?? '-' }}</td>
+                                <td>{{ $tour['designation'] ?? '-' }}</td>
                                 <td>{{ $tour['place'] ?? '-' }}</td>
                                 <td>{{ ! empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date'])->format('d M Y') : '-' }}</td>
                                 <td>{{ ! empty($tour['end_date']) ? \Illuminate\Support\Carbon::parse($tour['end_date'])->format('d M Y') : '-' }}</td>

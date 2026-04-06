@@ -66,21 +66,46 @@ class AuthenticatedSessionController extends Controller
             ]
         );
 
-        // Device binding: determine the correct employee id field and ensure we don't insert invalid FK values
+        // Device binding: determine employee identifier and enforce device ownership.
         $employeeId = $legacyUser->employee_id ?? $legacyUser->eid ?? $legacyUser->employeeId ?? null;
         if ($employeeId !== null && Schema::hasTable('device_bindings')) {
-            // verify parent exists in legacy table that the FK references
-            $parentExists = DB::table('tab1')->where('employee_id', $employeeId)->exists();
+            // If the browser already has a device token, check whether that token
+            // is bound to a different employee. If so, refuse login (prevent
+            // multiple employees using the same physical device).
+            $incomingToken = $request->cookie('device_token');
+            if ($incomingToken) {
+                $existingByToken = DB::table('device_bindings')->where('device_token', $incomingToken)->first();
+                if ($existingByToken && (string) $existingByToken->employee_id !== (string) $employeeId) {
+                    return back()->withErrors([
+                        'username' => 'This device is already bound to another user. Contact administrator to rebind.'
+                    ])->onlyInput('username');
+                }
+            }
 
-            $binding = DB::table('device_bindings')->where('employee_id', $employeeId)->first();
+            // Normalize parent lookup across possible legacy column names to
+            // avoid inserting an employee_id value that doesn't actually exist
+            // in the `tab1` table (which can trigger FK constraint failures).
+            $parentRow = DB::table('tab1')
+                ->where('employee_id', $employeeId)
+                ->orWhere('eid', $employeeId)
+                ->orWhere('employeeId', $employeeId)
+                ->first();
+
+            $binding = null;
+            if ($parentRow) {
+                // Use the canonical FK value present in the parent row if available.
+                $fkValue = $parentRow->employee_id ?? $parentRow->eid ?? $parentRow->employeeId ?? $employeeId;
+                $binding = DB::table('device_bindings')->where('employee_id', $fkValue)->first();
+            }
 
             if (! $binding) {
-                if ($parentExists) {
-                    // First time login from any device: create binding and issue token cookie
+                // Only insert a new binding if the parent row actually exists
+                // (prevents FK violations) and no other device token blocks us.
+                if ($parentRow) {
                     $deviceToken = (string) Str::uuid();
 
                     DB::table('device_bindings')->insert([
-                        'employee_id' => $employeeId,
+                        'employee_id' => $fkValue,
                         'device_token' => $deviceToken,
                         'bind_date' => now(),
                         'created_at' => now(),
@@ -98,7 +123,6 @@ class AuthenticatedSessionController extends Controller
                         true // httpOnly
                     ));
                 } else {
-                    // Parent does not exist — avoid inserting invalid FK; allow login but warn
                     $request->session()->flash('device_binding_warning', 'Device binding skipped: legacy employee record not found. Contact admin.');
                 }
             } else {

@@ -152,6 +152,7 @@ class MsDashboardController extends Controller
             $tourSelect = [
                 'tr.employee_id',
                 'e.employee_name',
+                'e.designation',
                 'tr.place',
                 'tr.start_date',
                 'tr.end_date',
@@ -401,7 +402,10 @@ class MsDashboardController extends Controller
             return redirect()->back()->with('flash_error', 'Tour records not available.');
         }
 
-        $record = DB::table('tour_records')->where('id', $id)->first();
+        // Use `tour_id` when present, otherwise fall back to `id` or `employee_id`.
+        $record = DB::table('tour_records')
+            ->when(Schema::hasColumn('tour_records', 'tour_id'), fn($q) => $q->where('tour_id', $id), fn($q) => $q->when(Schema::hasColumn('tour_records', 'id'), fn($qq) => $qq->where('id', $id), fn($qq) => $qq->where('employee_id', $id)))
+            ->first();
         if (! $record) {
             return redirect()->route('ms.on_tour')->with('flash_error', 'Record not found');
         }
@@ -429,7 +433,9 @@ class MsDashboardController extends Controller
             'purpose' => 'nullable|string',
         ]);
 
-        DB::table('tour_records')->where('id', $id)->update($data + ['updated_at' => now()]);
+        DB::table('tour_records')
+            ->when(Schema::hasColumn('tour_records', 'tour_id'), fn($q) => $q->where('tour_id', $id), fn($q) => $q->when(Schema::hasColumn('tour_records', 'id'), fn($qq) => $qq->where('id', $id), fn($qq) => $qq->where('employee_id', $id)))
+            ->update($data + ['updated_at' => now()]);
 
         return redirect()->route('ms.on_tour')->with('flash_success', 'Tour record updated');
     }
@@ -442,7 +448,9 @@ class MsDashboardController extends Controller
             return redirect(route('dashboard'))->with('flash_error', 'Access denied.');
         }
 
-        DB::table('tour_records')->where('id', $id)->delete();
+        DB::table('tour_records')
+            ->when(Schema::hasColumn('tour_records', 'tour_id'), fn($q) => $q->where('tour_id', $id), fn($q) => $q->when(Schema::hasColumn('tour_records', 'id'), fn($qq) => $qq->where('id', $id), fn($qq) => $qq->where('employee_id', $id)))
+            ->delete();
         return redirect()->route('ms.on_tour')->with('flash_success', 'Tour record deleted');
     }
 

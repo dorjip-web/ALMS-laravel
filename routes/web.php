@@ -99,6 +99,11 @@ Route::middleware('guest')->group(function () {
 // Admin Dashboard Routes
 Route::get('/admin-dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 Route::post('/admin-logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
+// Admin: Staff On Tour (admin-facing list)
+Route::get('/admin/on-tour', [App\Http\Controllers\Admin\AdminOnTourController::class, 'index'])->name('admin.on_tour');
+Route::get('/admin/on-tour/edit/{id}', [App\Http\Controllers\Admin\AdminOnTourController::class, 'edit'])->name('admin.on_tour.edit');
+Route::post('/admin/on-tour/update/{id}', [App\Http\Controllers\Admin\AdminOnTourController::class, 'update'])->name('admin.on_tour.update');
+Route::post('/admin/on-tour/delete/{id}', [App\Http\Controllers\Admin\AdminOnTourController::class, 'delete'])->name('admin.on_tour.delete');
 
 
 // Admin User Management
