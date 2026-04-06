@@ -23,23 +23,25 @@
             @if (! $tableExists)
                 <div class="summary-empty">Adhoc requests table not found.</div>
             @else
-                @if (empty($rows))
-                    <div class="summary-empty">No adhoc requests found.</div>
-                @else
-                    <div class="leave-history" style="margin-top:8px;">
-                        <div class="table-wrap">
-                            <table class="users">
-                                <thead>
+                <div class="leave-history" style="margin-top:8px;">
+                    <div class="table-wrap">
+                        <table class="users">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Purpose</th>
+                                    <th>Remarks</th>
+                                    <th>Employee</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (empty($rows))
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Purpose</th>
-                                        <th>Remarks</th>
-                                        <th>Employee</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
+                                        <td colspan="6" style="text-align:left;padding:14px 10px;color:#444;">No adhoc requests found.</td>
                                     </tr>
-                                </thead>
-                                <tbody>
+                                @else
                                     @foreach($rows as $r)
                                         <tr>
                                             <td>{{ $r['date'] ?? '-' }}</td>
@@ -57,11 +59,11 @@
                                             </td>
                                         </tr>
                                     @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                @endif
+                            </tbody>
+                        </table>
                     </div>
-                @endif
+                </div>
             @endif
 
         </section>
