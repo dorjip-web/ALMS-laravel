@@ -19,7 +19,8 @@ class AdminAdhocController extends Controller
         $dept = $request->input('department_id', '');
 
         // determine which adhoc table actually exists (prefer the one with rows)
-        $candidates = ['adhoc_requests', 'adhoc_request'];
+        // Prefer the singular legacy table first since some installs use `adhoc_request`.
+        $candidates = ['adhoc_request', 'adhoc_requests'];
         $table = null;
         foreach ($candidates as $cand) {
             if (! Schema::hasTable($cand)) {
