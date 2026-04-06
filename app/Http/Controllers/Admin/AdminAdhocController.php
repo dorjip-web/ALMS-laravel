@@ -125,6 +125,7 @@ class AdminAdhocController extends Controller
 
         return view('admin_adhoc_requests', [
             'tableExists' => (bool) $table,
+            'tableName' => $table,
             'rows' => $rows,
             'username' => Session::get('admin_name') ?? Session::get('admin_user'),
             'departments' => $departments,
