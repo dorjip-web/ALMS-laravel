@@ -18,13 +18,29 @@ class AdminAdhocController extends Controller
         }
         $dept = $request->input('department_id', '');
 
-        // determine which adhoc table actually exists (prefer plural)
+        // determine which adhoc table actually exists (prefer the one with rows)
         $candidates = ['adhoc_requests', 'adhoc_request'];
         $table = null;
         foreach ($candidates as $cand) {
-            if (Schema::hasTable($cand)) {
+            if (! Schema::hasTable($cand)) {
+                continue;
+            }
+
+            // prefer a table that already contains rows so admin sees existing data
+            try {
+                $cnt = DB::table($cand)->limit(1)->count();
+            } catch (\Throwable $e) {
+                $cnt = 0;
+            }
+
+            if ($cnt > 0) {
                 $table = $cand;
                 break;
+            }
+
+            // remember the first existing table as a fallback
+            if ($table === null) {
+                $table = $cand;
             }
         }
 
