@@ -607,6 +607,10 @@ class EmployeeDashboardController extends Controller
 
             // Diagnostic logging to help debug empty results in HTTP context
             try {
+                // Runtime DB name and full table count (HTTP context)
+                $dbInfo = DB::select('select database() as db');
+                $runtimeCount = DB::table($table)->count();
+
                 $sql = (string) $q->toSql();
                 $bindings = $q->getBindings();
                 logger()->debug('EmployeeDashboardController adhoc debug', [
@@ -618,9 +622,11 @@ class EmployeeDashboardController extends Controller
                     'sql' => $sql,
                     'bindings' => $bindings,
                     'rows_count' => count($rows),
+                    'runtime_table_count' => $runtimeCount,
+                    'runtime_database' => $dbInfo[0]->db ?? null,
                 ]);
             } catch (\Throwable $e) {
-                // ignore logging errors
+                logger()->warning('EmployeeDashboardController adhoc logging failed', ['error' => $e->getMessage()]);
             }
         }
 
