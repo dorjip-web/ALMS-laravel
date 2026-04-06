@@ -49,12 +49,39 @@ class AdminAdhocController extends Controller
             $hasEmployees = Schema::hasTable('employees') || Schema::hasTable('tab1');
 
             $q = DB::table($table . ' as a');
+            $hasDepartment = Schema::hasTable('department');
+            $select = ['a.*'];
 
             // Join to employee source (prefer `employees`, fall back to `tab1`).
             if ($hasEmployees) {
                 $employeeTable = Schema::hasTable('employees') ? 'employees' : 'tab1';
                 $employeeCols = Schema::getColumnListing($employeeTable);
                 $adhocCols = Schema::getColumnListing($table);
+                $hasDepartment = Schema::hasTable('department');
+
+                // build select list (use alias `a.*` to avoid alias/table.* issues)
+                $select = ['a.*'];
+                // add employee display fallback columns
+                $employeeDisplayParts = [];
+                if (! empty($employeeCols) && in_array('employee_name', $employeeCols, true)) {
+                    $employeeDisplayParts[] = 'e.employee_name';
+                }
+                if (! empty($employeeCols) && in_array('name', $employeeCols, true)) {
+                    $employeeDisplayParts[] = 'e.name';
+                }
+                if (! empty($employeeCols) && in_array('eid', $employeeCols, true)) {
+                    $employeeDisplayParts[] = 'e.eid';
+                }
+                if (! empty($employeeCols) && in_array('employee_id', $employeeCols, true)) {
+                    $employeeDisplayParts[] = 'e.employee_id';
+                }
+                if (! empty($employeeDisplayParts)) {
+                    $select[] = DB::raw('COALESCE(' . implode(', ', $employeeDisplayParts) . ", '-') as employee_name");
+                } else {
+                    $select[] = DB::raw("'-' as employee_name");
+                }
+
+                // department select handled below if department table exists
 
                 $q->leftJoin($employeeTable . ' as e', function ($join) use ($adhocCols, $employeeCols) {
                     // prefer matching employee_id
@@ -119,15 +146,7 @@ class AdminAdhocController extends Controller
                     }
                 }
 
-                if ($hasDepartment) {
-                    // use department_name if available
-                    $deptCols = Schema::getColumnListing('department');
-                    if (in_array('department_name', $deptCols, true)) {
-                        $select[] = DB::raw("COALESCE(d.department_name, '-') as department_name");
-                    } else {
-                        $select[] = DB::raw("'-' as department_name");
-                    }
-                }
+                // department select will be appended after join block below
             }
 
             try {
