@@ -580,7 +580,30 @@ class EmployeeDashboardController extends Controller
                 $q->orderByDesc('id');
             }
 
-            $rows = $q->limit(200)->get()->map(fn($r) => (array) $r)->toArray();
+            try {
+                $rows = $q->limit(200)->get()->map(fn($r) => (array) $r)->toArray();
+            } catch (\Throwable $e) {
+                logger()->error('EmployeeDashboardController adhoc query failed', ['error' => $e->getMessage(), 'table' => $table]);
+                $rows = [];
+            }
+
+            // Diagnostic logging to help debug empty results in HTTP context
+            try {
+                $sql = (string) $q->toSql();
+                $bindings = $q->getBindings();
+                logger()->debug('EmployeeDashboardController adhoc debug', [
+                    'table' => $table,
+                    'cols' => $cols,
+                    'employeeId' => $employeeId,
+                    'employee_eid' => $employee['eid'] ?? null,
+                    'user_id' => $user->id,
+                    'sql' => $sql,
+                    'bindings' => $bindings,
+                    'rows_count' => count($rows),
+                ]);
+            } catch (\Throwable $e) {
+                // ignore logging errors
+            }
         }
 
         return view('adhoc_requests', [
