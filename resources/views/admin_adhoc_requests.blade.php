@@ -10,7 +10,7 @@
             @if(config('app.debug'))
                 <div style="margin-bottom:8px;color:#666;font-size:14px">
                     <strong>DEBUG:</strong>
-                    tableExists={{ $tableExists ? 'yes' : 'no' }}, rows={{ is_array($rows) ? count($rows) : 'n/a' }}
+                    tableExists={{ $tableExists ? 'yes' : 'no' }}, tableName={{ $tableName ?? 'null' }}, rows={{ is_array($rows) ? count($rows) : 'n/a' }}
                 </div>
             @endif
             <div style="display:flex;gap:18px;align-items:center;margin-bottom:12px">
