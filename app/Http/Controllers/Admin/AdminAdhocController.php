@@ -135,13 +135,6 @@ class AdminAdhocController extends Controller
                     $q->orderByDesc($table . '.id');
                 }
 
-                // Debug: log the SQL and bindings for the admin query
-                try {
-                    logger()->debug('AdminAdhocController prepared query', ['sql' => $q->toSql(), 'bindings' => $q->getBindings(), 'select' => $select]);
-                } catch (\Throwable $e) {
-                    // ignore
-                }
-
                 $rows = $q->select($select)->get()->map(fn($r) => (array) $r)->toArray();
 
                 // If no rows found via join (or join caused mismatches), attempt a raw fallback
@@ -156,14 +149,10 @@ class AdminAdhocController extends Controller
                         } elseif (Schema::hasColumn($table, 'id')) {
                             $rawQ->orderByDesc('id');
                         }
-                        // Debug: log raw fallback SQL
-                        try {
-                            logger()->debug('AdminAdhocController raw fallback prepared', ['sql' => $rawQ->toSql(), 'bindings' => $rawQ->getBindings()]);
-                        } catch (\Throwable $e) {
-                        }
+                        // raw fallback prepared (no debug logging)
                         $rows = $rawQ->select($table . '.*')->limit(200)->get()->map(fn($r) => (array) $r)->toArray();
                     } catch (\Throwable $e) {
-                        logger()->debug('AdminAdhocController raw fallback failed', ['error' => $e->getMessage()]);
+                        logger()->warning('AdminAdhocController raw fallback failed', ['error' => $e->getMessage()]);
                     }
                 }
 
@@ -189,19 +178,7 @@ class AdminAdhocController extends Controller
                     }
                 }
                 unset($row);
-                // Log admin debug: chosen table, row counts and runtime DB info
-                try {
-                    $dbInfo = DB::select('select database() as db');
-                    $runtimeCount = DB::table($table)->count();
-                    logger()->debug('AdminAdhocController debug', [
-                        'table' => $table,
-                        'rows_count' => count($rows),
-                        'runtime_table_count' => $runtimeCount,
-                        'runtime_database' => $dbInfo[0]->db ?? null,
-                    ]);
-                } catch (\Throwable $e) {
-                    logger()->warning('AdminAdhocController debug logging failed', ['error' => $e->getMessage()]);
-                }
+                // (debug logging removed)
             } catch (\Throwable $e) {
                 // If something went wrong querying the table (missing table, permissions),
                 // avoid blowing up the admin page — fall back to empty list and log.

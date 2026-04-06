@@ -7,12 +7,7 @@
         <section class="panel">
             <h2>Adhoc Requests</h2>
 
-            @if(config('app.debug'))
-                <div style="margin-bottom:8px;color:#666;font-size:14px">
-                    <strong>DEBUG:</strong>
-                    tableExists={{ $tableExists ? 'yes' : 'no' }}, tableName={{ $tableName ?? 'null' }}, rows={{ is_array($rows) ? count($rows) : 'n/a' }}
-                </div>
-            @endif
+            {{-- debug info removed --}}
             <div style="display:flex;gap:18px;align-items:center;margin-bottom:12px">
                 <form method="GET" action="{{ route('admin.adhoc') }}" style="display:flex;gap:8px;align-items:center">
                     <label style="font-weight:700">Department:</label>
