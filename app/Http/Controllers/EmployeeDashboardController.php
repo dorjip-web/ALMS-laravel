@@ -554,13 +554,8 @@ class EmployeeDashboardController extends Controller
         $employee = $this->resolveEmployee($request, $user->id, $user->name, $user->email);
         $employeeId = $employee['employee_id'] ?? $user->id;
 
-        // detect adhoc table name
-        $table = null;
-        if (Schema::hasTable('adhoc_requests')) {
-            $table = 'adhoc_requests';
-        } elseif (Schema::hasTable('adhoc_request')) {
-            $table = 'adhoc_request';
-        }
+        // detect adhoc table name (prefer the non-empty table when both exist)
+        $table = $this->detectAdhocTable();
 
         $rows = [];
         if ($table) {
@@ -637,13 +632,40 @@ class EmployeeDashboardController extends Controller
         ]);
     }
 
-    public function submitAdhocRequest(Request $request): RedirectResponse
+    /**
+     * Detect which adhoc table to use. Prefer the non-empty table when both exist.
+     */
+    private function detectAdhocTable(): ?string
     {
-        if (! Schema::hasTable('adhoc_request') && ! Schema::hasTable('adhoc_requests')) {
-            return back()->with('flash_error', 'Adhoc requests table not found.');
+        $t1 = 'adhoc_requests';
+        $t2 = 'adhoc_request';
+
+        $has1 = Schema::hasTable($t1);
+        $has2 = Schema::hasTable($t2);
+
+        if (! $has1 && ! $has2) {
+            return null;
         }
 
-        $table = Schema::hasTable('adhoc_request') ? 'adhoc_request' : 'adhoc_requests';
+        if ($has1 && $has2) {
+            try {
+                $c1 = DB::table($t1)->count();
+                $c2 = DB::table($t2)->count();
+                return $c1 >= $c2 ? $t1 : $t2;
+            } catch (\Throwable $e) {
+                return $has1 ? $t1 : $t2;
+            }
+        }
+
+        return $has1 ? $t1 : $t2;
+    }
+
+    public function submitAdhocRequest(Request $request): RedirectResponse
+    {
+        $table = $this->detectAdhocTable();
+        if (! $table) {
+            return back()->with('flash_error', 'Adhoc requests table not found.');
+        }
 
         $payload = $request->validate([
             'date' => ['required', 'date', 'after_or_equal:today'],
@@ -946,7 +968,7 @@ class EmployeeDashboardController extends Controller
 
         // Checked-in but no checkout => look for adhoc requests
         if (! empty($hasCheckin) && empty($hasCheckout)) {
-            $adhocTable = Schema::hasTable('adhoc_requests') ? 'adhoc_requests' : (Schema::hasTable('adhoc_request') ? 'adhoc_request' : null);
+            $adhocTable = $this->detectAdhocTable();
             if ($adhocTable) {
                 $adhocQuery = DB::table($adhocTable)
                     ->where(function ($q) use ($employeeId, $rowDate) {
