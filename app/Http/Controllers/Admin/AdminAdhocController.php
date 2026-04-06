@@ -84,8 +84,25 @@ class AdminAdhocController extends Controller
                 } elseif (Schema::hasColumn($table, 'id')) {
                     $q->orderByDesc($table . '.id');
                 }
-
                 $rows = $q->select($select)->get()->map(fn($r) => (array) $r)->toArray();
+
+                // If no rows found via join (or join caused mismatches), attempt a raw fallback
+                if (empty($rows)) {
+                    try {
+                        $rawQ = DB::table($table);
+                        // choose a safe ordering column
+                        if (Schema::hasColumn($table, 'date')) {
+                            $rawQ->orderByDesc('date');
+                        } elseif (Schema::hasColumn($table, 'created_at')) {
+                            $rawQ->orderByDesc('created_at');
+                        } elseif (Schema::hasColumn($table, 'id')) {
+                            $rawQ->orderByDesc('id');
+                        }
+                        $rows = $rawQ->select($table . '.*')->limit(200)->get()->map(fn($r) => (array) $r)->toArray();
+                    } catch (\Throwable $e) {
+                        logger()->debug('AdminAdhocController raw fallback failed', ['error' => $e->getMessage()]);
+                    }
+                }
             } catch (\Throwable $e) {
                 // If something went wrong querying the table (missing table, permissions),
                 // avoid blowing up the admin page — fall back to empty list and log.
