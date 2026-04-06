@@ -188,6 +188,16 @@ class AdminAdhocController extends Controller
                     }
                 }
 
+                // Build department map for lookups (used when raw rows don't include joined department_name)
+                $deptMap = [];
+                if (Schema::hasTable('department')) {
+                    try {
+                        $deptMap = DB::table('department')->pluck('department_name', 'department_id')->toArray();
+                    } catch (\Throwable $e) {
+                        logger()->warning('AdminAdhocController failed to build department map', ['error' => $e->getMessage()]);
+                    }
+                }
+
                 // Normalize row keys so views and routes can rely on common names
                 foreach ($rows as &$row) {
                     // Normalize primary id: prefer known column names used across installs
@@ -206,6 +216,15 @@ class AdminAdhocController extends Controller
                             $row['employee_name'] = $row['eid'];
                         } elseif (! empty($row['employee_id'])) {
                             $row['employee_name'] = (string) $row['employee_id'];
+                        }
+                    }
+
+                    // Ensure department_name exists: prefer existing value, else lookup by department_id
+                    if (empty($row['department_name'])) {
+                        if (! empty($row['department_id']) && isset($deptMap[$row['department_id']])) {
+                            $row['department_name'] = $deptMap[$row['department_id']];
+                        } else {
+                            $row['department_name'] = $row['department_name'] ?? '-';
                         }
                     }
                 }
