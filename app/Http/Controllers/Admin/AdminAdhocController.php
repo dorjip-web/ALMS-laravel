@@ -90,6 +90,26 @@ class AdminAdhocController extends Controller
                     }
                 });
 
+                // Join to department table (if present) and select department_name
+                if (Schema::hasTable('department')) {
+                    $deptCols = Schema::getColumnListing('department');
+                    if (! empty($deptCols) && in_array('department_name', $deptCols, true)) {
+                        $select[] = DB::raw("COALESCE(d.department_name, '-') as department_name");
+                    } else {
+                        $select[] = DB::raw("'-' as department_name");
+                    }
+
+                    $q->leftJoin('department as d', function ($join) use ($adhocCols, $employeeCols, $deptCols) {
+                        if (in_array('department_id', $employeeCols, true) && in_array('department_id', $deptCols, true)) {
+                            $join->on('e.department_id', '=', 'd.department_id');
+                        } elseif (in_array('department_id', $adhocCols, true) && in_array('department_id', $deptCols, true)) {
+                            $join->on('a.department_id', '=', 'd.department_id');
+                        }
+                    });
+                } else {
+                    $select[] = DB::raw("'-' as department_name");
+                }
+
                 // apply department filter if requested
                 try {
                     // prefer created_at ordering where present
