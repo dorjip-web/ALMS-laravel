@@ -107,6 +107,10 @@ Route::post('/admin/on-tour/delete/{id}', [App\Http\Controllers\Admin\AdminOnTou
 
 // Admin: Adhoc requests (read-only admin listing)
 Route::get('/admin/adhoc', [App\Http\Controllers\Admin\AdminAdhocController::class, 'index'])->name('admin.adhoc');
+Route::post('/admin/adhoc/store', [App\Http\Controllers\Admin\AdminAdhocController::class, 'store'])->name('admin.adhoc.store');
+Route::get('/admin/adhoc/edit/{id}', [App\Http\Controllers\Admin\AdminAdhocController::class, 'edit'])->name('admin.adhoc.edit');
+Route::post('/admin/adhoc/update/{id}', [App\Http\Controllers\Admin\AdminAdhocController::class, 'update'])->name('admin.adhoc.update');
+Route::post('/admin/adhoc/delete/{id}', [App\Http\Controllers\Admin\AdminAdhocController::class, 'delete'])->name('admin.adhoc.delete');
 
 
 // Admin User Management
