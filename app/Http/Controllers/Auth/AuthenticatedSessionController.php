@@ -67,7 +67,7 @@ class AuthenticatedSessionController extends Controller
         );
 
         // Device binding: determine employee identifier and enforce device ownership.
-        $employeeId = $legacyUser->employee_id ?? $legacyUser->eid ?? $legacyUser->employeeId ?? null;
+        $employeeId = $legacyUser->employee_id ?? $legacyUser->eid ?? null;
         if ($employeeId !== null && Schema::hasTable('device_bindings')) {
             // If the browser already has a device token, check whether that token
             // is bound to a different employee. If so, refuse login (prevent
@@ -86,15 +86,16 @@ class AuthenticatedSessionController extends Controller
             // avoid inserting an employee_id value that doesn't actually exist
             // in the `tab1` table (which can trigger FK constraint failures).
             $parentRow = DB::table('tab1')
-                ->where('employee_id', $employeeId)
-                ->orWhere('eid', $employeeId)
-                ->orWhere('employeeId', $employeeId)
+                ->where(function ($q) use ($employeeId) {
+                    $q->where('employee_id', $employeeId)
+                      ->orWhere('eid', $employeeId);
+                })
                 ->first();
 
             $binding = null;
             if ($parentRow) {
                 // Use the canonical FK value present in the parent row if available.
-                $fkValue = $parentRow->employee_id ?? $parentRow->eid ?? $parentRow->employeeId ?? $employeeId;
+                $fkValue = $parentRow->employee_id ?? $parentRow->eid ?? $employeeId;
                 $binding = DB::table('device_bindings')->where('employee_id', $fkValue)->first();
             }
 
