@@ -32,7 +32,8 @@ class AdminAdhocController extends Controller
 
             // Join to employee source (prefer `employees`, fall back to `tab1`).
             if ($hasEmployees) {
-                $employeeTable = Schema::hasTable('employees') ? 'employees' : 'tab1';
+                // prefer `tab1` (legacy main employee table) then fall back to `employees`
+                $employeeTable = Schema::hasTable('tab1') ? 'tab1' : 'employees';
                 $employeeCols = Schema::getColumnListing($employeeTable);
                 $adhocCols = Schema::getColumnListing($table);
                 $hasDepartment = Schema::hasTable('department');
