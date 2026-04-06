@@ -74,37 +74,49 @@ class AdminAdhocController extends Controller
                 });
 
                 // apply department filter if requested
-                if ($dept) {
-                    $q->where('e.department_id', $dept);
-                }
-            }
+                try {
+                    // prefer created_at ordering where present
+                    if (Schema::hasColumn($table, 'created_at')) {
+                        $q->orderByDesc($table . '.created_at');
+                    } elseif (Schema::hasColumn($table, 'id')) {
+                        $q->orderByDesc($table . '.id');
+                    }
+                    $rows = $q->select($select)->get()->map(fn($r) => (array) $r)->toArray();
 
-            // Add department name if available
-            $hasDepartment = Schema::hasTable('department');
-            if ($hasDepartment) {
-                $q->leftJoin('department as d', 'e.department_id', '=', 'd.department_id');
-            }
-
-            $select = ['a.*'];
-            if ($hasEmployees) {
-                $employeeDisplayParts = [];
-                if (! empty($employeeCols) && in_array('employee_name', $employeeCols, true)) {
-                    $employeeDisplayParts[] = 'e.employee_name';
-                }
-                if (! empty($employeeCols) && in_array('name', $employeeCols, true)) {
-                    $employeeDisplayParts[] = 'e.name';
-                }
-                if (! empty($employeeCols) && in_array('eid', $employeeCols, true)) {
-                    $employeeDisplayParts[] = 'e.eid';
-                }
-                if (! empty($employeeCols) && in_array('employee_id', $employeeCols, true)) {
-                    $employeeDisplayParts[] = 'e.employee_id';
-                }
-
-                if (! empty($employeeDisplayParts)) {
-                    $select[] = DB::raw('COALESCE(' . implode(', ', $employeeDisplayParts) . ", '-') as employee_name");
-                } else {
-                    $select[] = DB::raw("'-' as employee_name");
+                    // If no rows found via join, attempt a raw fallback (no joins)
+                    if (empty($rows)) {
+                        try {
+                            $rawQ = DB::table($table);
+                            // choose a safe ordering column
+                            if (Schema::hasColumn($table, 'date')) {
+                                $rawQ->orderByDesc('date');
+                            } elseif (Schema::hasColumn($table, 'created_at')) {
+                                $rawQ->orderByDesc('created_at');
+                            } elseif (Schema::hasColumn($table, 'id')) {
+                                $rawQ->orderByDesc('id');
+                            }
+                            $rows = $rawQ->select($table . '.*')->limit(200)->get()->map(fn($r) => (array) $r)->toArray();
+                        } catch (\Throwable $e) {
+                            logger()->debug('AdminAdhocController raw fallback failed', ['error' => $e->getMessage()]);
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    // Try raw fallback when the joined query throws (e.g., collation or join errors)
+                    logger()->warning('AdminAdhocController join query failed, attempting raw fallback', ['error' => $e->getMessage()]);
+                    try {
+                        $rawQ = DB::table($table);
+                        if (Schema::hasColumn($table, 'date')) {
+                            $rawQ->orderByDesc('date');
+                        } elseif (Schema::hasColumn($table, 'created_at')) {
+                            $rawQ->orderByDesc('created_at');
+                        } elseif (Schema::hasColumn($table, 'id')) {
+                            $rawQ->orderByDesc('id');
+                        }
+                        $rows = $rawQ->select($table . '.*')->limit(200)->get()->map(fn($r) => (array) $r)->toArray();
+                    } catch (\Throwable $e2) {
+                        logger()->error('AdminAdhocController raw fallback also failed', ['error' => $e2->getMessage()]);
+                        $rows = [];
+                    }
                 }
 
                 if ($hasDepartment) {
@@ -167,6 +179,19 @@ class AdminAdhocController extends Controller
                     }
                 }
                 unset($row);
+                // Log admin debug: chosen table, row counts and runtime DB info
+                try {
+                    $dbInfo = DB::select('select database() as db');
+                    $runtimeCount = DB::table($table)->count();
+                    logger()->debug('AdminAdhocController debug', [
+                        'table' => $table,
+                        'rows_count' => count($rows),
+                        'runtime_table_count' => $runtimeCount,
+                        'runtime_database' => $dbInfo[0]->db ?? null,
+                    ]);
+                } catch (\Throwable $e) {
+                    logger()->warning('AdminAdhocController debug logging failed', ['error' => $e->getMessage()]);
+                }
             } catch (\Throwable $e) {
                 // If something went wrong querying the table (missing table, permissions),
                 // avoid blowing up the admin page — fall back to empty list and log.
