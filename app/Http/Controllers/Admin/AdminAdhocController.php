@@ -238,7 +238,7 @@ class AdminAdhocController extends Controller
         }
 
         $record = DB::table($table)
-            ->when(Schema::hasColumn($table, 'adhoc_id'), fn($q) => $q->where('adhoc_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))
+            ->when(Schema::hasColumn($table, 'adhoc_request_id'), fn($q) => $q->where('adhoc_request_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'adhoc_id'), fn($q2) => $q2->where('adhoc_id', $id), fn($q2) => $q2->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))))
             ->first();
 
         if (! $record) {
@@ -273,7 +273,7 @@ class AdminAdhocController extends Controller
         ]);
 
         DB::table($table)
-            ->when(Schema::hasColumn($table, 'adhoc_id'), fn($q) => $q->where('adhoc_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))
+            ->when(Schema::hasColumn($table, 'adhoc_request_id'), fn($q) => $q->where('adhoc_request_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'adhoc_id'), fn($q2) => $q2->where('adhoc_id', $id), fn($q2) => $q2->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))))
             ->update(array_merge($data, ['updated_at' => now()]));
 
         return redirect()->route('admin.adhoc')->with('flash_success', 'Adhoc request updated');
@@ -287,7 +287,7 @@ class AdminAdhocController extends Controller
         }
 
         DB::table($table)
-            ->when(Schema::hasColumn($table, 'adhoc_id'), fn($q) => $q->where('adhoc_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))
+            ->when(Schema::hasColumn($table, 'adhoc_request_id'), fn($q) => $q->where('adhoc_request_id', $id), fn($q) => $q->when(Schema::hasColumn($table, 'adhoc_id'), fn($q2) => $q2->where('adhoc_id', $id), fn($q2) => $q2->when(Schema::hasColumn($table, 'application_id'), fn($qq) => $qq->where('application_id', $id), fn($qq) => $qq->when(Schema::hasColumn($table, 'id'), fn($qqq) => $qqq->where('id', $id), fn($qqq) => $qqq->where('employee_id', $id))))))
             ->delete();
 
         return redirect()->route('admin.adhoc')->with('flash_success', 'Adhoc request deleted');

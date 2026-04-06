@@ -51,9 +51,9 @@
                                             <td>{{ $r['employee_name'] ?? $r['eid'] ?? ($r['employee_id'] ?? '-') }}</td>
                                             <td>{{ $r['created_at'] ?? '-' }}</td>
                                             <td style="white-space:nowrap">
-                                                <a class="action-link" href="{{ route('admin.adhoc.edit', $r['id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '') }}">Edit</a>
+                                                <a class="action-link" href="{{ route('admin.adhoc.edit', $r['id'] ?? $r['adhoc_request_id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '') }}">Edit</a>
                                                 |
-                                                <form method="POST" action="{{ route('admin.adhoc.delete', $r['id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '') }}" style="display:inline" onsubmit="return confirm('Delete this adhoc request?');">
+                                                <form method="POST" action="{{ route('admin.adhoc.delete', $r['id'] ?? $r['adhoc_request_id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '') }}" style="display:inline" onsubmit="return confirm('Delete this adhoc request?');">
                                                     @csrf
                                                     <button type="submit" style="background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;padding:0;margin-left:6px">Delete</button>
                                                 </form>
