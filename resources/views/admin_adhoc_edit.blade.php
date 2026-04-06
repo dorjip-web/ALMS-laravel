@@ -35,6 +35,10 @@
                     <label style="display:block;margin-bottom:6px">Remarks</label>
                     <input type="text" name="remarks" value="{{ $record['remarks'] ?? '' }}" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
                 </div>
+                <div style="margin-bottom:8px">
+                    <label style="display:block;margin-bottom:6px">Designation</label>
+                    <input type="text" name="designation" value="{{ $record['designation'] ?? '' }}" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
+                </div>
                 <div>
                     <button class="btn" type="submit">Save Changes</button>
                     <a href="{{ route('admin.adhoc') }}" class="btn btn-secondary" style="margin-left:8px">Cancel</a>

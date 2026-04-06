@@ -260,9 +260,15 @@ class AdminAdhocController extends Controller
 
         $employees = [];
         if (Schema::hasTable('tab1')) {
-            $employees = DB::table('tab1')->select('employee_id','employee_name')->orderBy('employee_name')->get();
+            $hasDesignation = Schema::hasColumn('tab1', 'designation');
+            $employees = $hasDesignation
+                ? DB::table('tab1')->select('employee_id','employee_name','designation')->orderBy('employee_name')->get()
+                : DB::table('tab1')->select('employee_id','employee_name')->orderBy('employee_name')->get();
         } elseif (Schema::hasTable('employees')) {
-            $employees = DB::table('employees')->select('employee_id','name as employee_name')->orderBy('name')->get();
+            $hasDesignation = Schema::hasColumn('employees', 'designation');
+            $employees = $hasDesignation
+                ? DB::table('employees')->select('employee_id','name as employee_name','designation')->orderBy('name')->get()
+                : DB::table('employees')->select('employee_id','name as employee_name')->orderBy('name')->get();
         }
 
         return view('admin_adhoc_edit', [
@@ -283,11 +289,18 @@ class AdminAdhocController extends Controller
             'date' => 'required|date',
             'purpose' => 'required|string',
             'remarks' => 'nullable|string|max:255',
+            'designation' => 'nullable|string|max:255',
         ]);
+
+        // Only include designation in the update if the adhoc table actually has the column
+        $updateData = array_merge($data, ['updated_at' => now()]);
+        if (! Schema::hasColumn($table, 'designation')) {
+            unset($updateData['designation']);
+        }
 
         $pk = $this->findAdhocPkColumn($table);
         if ($pk) {
-            DB::table($table)->where($pk, $id)->update(array_merge($data, ['updated_at' => now()]));
+            DB::table($table)->where($pk, $id)->update($updateData);
         }
 
         return redirect()->route('admin.adhoc')->with('flash_success', 'Adhoc request updated');

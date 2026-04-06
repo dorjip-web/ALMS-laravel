@@ -33,6 +33,7 @@
                                     <th>Purpose</th>
                                     <th>Remarks</th>
                                     <th>Employee</th>
+                                    <th>Designation</th>
                                     <th>Created</th>
                                     <th>Actions</th>
                                 </tr>
@@ -40,7 +41,7 @@
                             <tbody>
                                 @if (empty($rows))
                                     <tr>
-                                        <td colspan="6" style="text-align:left;padding:14px 10px;color:#444;">No adhoc requests found.</td>
+                                        <td colspan="7" style="text-align:left;padding:14px 10px;color:#444;">No adhoc requests found.</td>
                                     </tr>
                                 @else
                                     @foreach($rows as $r)
@@ -49,6 +50,7 @@
                                             <td>{{ ucfirst($r['purpose'] ?? '-') }}</td>
                                             <td>{{ $r['remarks'] ?? '-' }}</td>
                                             <td>{{ $r['employee_name'] ?? $r['eid'] ?? ($r['employee_id'] ?? '-') }}</td>
+                                            <td>{{ $r['designation'] ?? '-' }}</td>
                                             <td>{{ $r['created_at'] ?? '-' }}</td>
                                             <td style="white-space:nowrap">
                                                 <a class="action-link" href="{{ route('admin.adhoc.edit', $r['id'] ?? $r['adhoc_request_id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '') }}">Edit</a>
