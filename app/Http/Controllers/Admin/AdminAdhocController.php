@@ -82,9 +82,9 @@ class AdminAdhocController extends Controller
                 try {
                     // prefer created_at ordering where present
                     if (Schema::hasColumn($table, 'created_at')) {
-                        $q->orderByDesc($table . '.created_at');
+                        $q->orderByDesc('a.created_at');
                     } elseif (Schema::hasColumn($table, 'id')) {
-                        $q->orderByDesc($table . '.id');
+                        $q->orderByDesc('a.id');
                     }
                     $rows = $q->select($select)->get()->map(fn($r) => (array) $r)->toArray();
 
@@ -128,11 +128,11 @@ class AdminAdhocController extends Controller
             }
 
             try {
-                // prefer created_at ordering where present
+                // prefer created_at ordering where present (use alias `a`)
                 if (Schema::hasColumn($table, 'created_at')) {
-                    $q->orderByDesc($table . '.created_at');
+                    $q->orderByDesc('a.created_at');
                 } elseif (Schema::hasColumn($table, 'id')) {
-                    $q->orderByDesc($table . '.id');
+                    $q->orderByDesc('a.id');
                 }
 
                 $rows = $q->select($select)->get()->map(fn($r) => (array) $r)->toArray();
