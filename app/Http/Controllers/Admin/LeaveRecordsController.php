@@ -126,14 +126,14 @@ class LeaveRecordsController extends Controller
                 fputcsv($out, [
                     $r->employee_name,
                     $r->type,
-                    !empty($r->from_date) ? \Illuminate\Support\Carbon::parse($r->from_date)->format('d/m/Y') : '',
-                    !empty($r->to_date) ? \Illuminate\Support\Carbon::parse($r->to_date)->format('d/m/Y') : '',
+                    $r->from_date,
+                    $r->to_date,
                     $r->days,
                     $r->reason,
                     $r->HoD_status,
                     $r->medical_superintendent_status,
                     $r->department_name,
-                    !empty($r->applied_at) ? \Illuminate\Support\Carbon::parse($r->applied_at)->format('d/m/Y') : '',
+                    $r->applied_at,
                 ]);
             }
             fclose($out);

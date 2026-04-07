@@ -40,7 +40,7 @@
                             <td>{{ $r['employee_eid'] ?? '-' }}</td>
                             <td>{{ $r['employee_name'] ?? '-' }}</td>
                             <td style="font-family:monospace">{{ $r['device_token'] ?? '-' }}</td>
-                            <td>{{ !empty($r['bind_date']) ? \Illuminate\Support\Carbon::parse($r['bind_date'])->format('d/m/Y') : (!empty($r['created_at']) ? \Illuminate\Support\Carbon::parse($r['created_at'])->format('d/m/Y') : '-') }}</td>
+                            <td>{{ $r['bind_date'] ?? ($r['created_at'] ?? '-') }}</td>
                             <td>
                                 @if(!empty($r['multiple_devices'])) <span class="flag">Multiple Devices</span><br>@endif
                                 @if(!empty($r['token_shared'])) <span class="flag">Shared Token</span><br>@endif

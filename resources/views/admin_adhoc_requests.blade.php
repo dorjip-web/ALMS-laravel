@@ -48,13 +48,13 @@
                                 @else
                                     @foreach($rows as $r)
                                         <tr>
-                                            <td>{{ !empty($r['date']) ? \Illuminate\Support\Carbon::parse($r['date'])->format('d/m/Y') : '-' }}</td>
+                                            <td>{{ $r['date'] ?? '-' }}</td>
                                             <td>{{ ucfirst($r['purpose'] ?? '-') }}</td>
                                             <td>{{ $r['remarks'] ?? '-' }}</td>
                                             <td>{{ $r['department_name'] ?? '-' }}</td>
                                             <td>{{ $r['employee_name'] ?? $r['eid'] ?? ($r['employee_id'] ?? '-') }}</td>
                                             <td>{{ $r['designation'] ?? '-' }}</td>
-                                            <td>{{ !empty($r['created_at']) ? \Illuminate\Support\Carbon::parse($r['created_at'])->format('d/m/Y') : '-' }}</td>
+                                            <td>{{ $r['created_at'] ?? '-' }}</td>
                                             <td style="white-space:nowrap">
                                                 <a class="action-link" href="{{ route('admin.adhoc.edit', $r['id'] ?? $r['adhoc_request_id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '') }}">Edit</a>
                                                 |

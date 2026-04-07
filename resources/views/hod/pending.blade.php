@@ -51,8 +51,8 @@
                             <tr>
                                 <td>{{ $req['employee_name'] }}</td>
                                 <td>{{ $req['leave_name'] }}</td>
-                                <td>{{ \Illuminate\Support\Carbon::parse($req['from_date'])->format('d/m/Y') }}</td>
-                                <td>{{ \Illuminate\Support\Carbon::parse($req['to_date'])->format('d/m/Y') }}</td>
+                                <td>{{ \Illuminate\Support\Carbon::parse($req['from_date'])->format('d M') }}</td>
+                                <td>{{ \Illuminate\Support\Carbon::parse($req['to_date'])->format('d M') }}</td>
                                 <td>{{ $req['total_days'] }}</td>
                                 <td>{{ $req['reason'] }}</td>
                                 <td class="actions">

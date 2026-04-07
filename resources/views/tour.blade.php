@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Tour Records</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -50,25 +49,25 @@
                         </div>
                         <div class="col">
                             <label>Start</label>
-                            <input type="text" name="start_date" value="{{ old('start_date') }}" placeholder="DD/MM/YY" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                            <input type="date" name="start_date" value="{{ old('start_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
                         </div>
                         <div class="col">
                             <label>End</label>
-                            <input type="text" name="end_date" value="{{ old('end_date') }}" placeholder="DD/MM/YY" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                            <input type="date" name="end_date" value="{{ old('end_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
                         </div>
                         <div class="col">
                             <label>Total Days</label>
                             <input type="text" id="tour-total-days" value="-" readonly>
                         </div>
                     </div>
-                        <div class="col">
-                            <label>Start</label>
-                            <input type="text" name="start_date" placeholder="DD/MM/YY" value="{{ old('start_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
-                        </div>
-                        <div class="col">
-                            <label>End</label>
-                            <input type="text" name="end_date" placeholder="DD/MM/YY" value="{{ old('end_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
-                        </div>
+                    <div class="row">
+                        <label>Purpose</label>
+                        <input type="text" name="purpose" value="{{ old('purpose') }}" placeholder="Purpose of tour" required>
+                    </div>
+                    <div class="row">
+                        <label>Office Order (PDF)</label>
+                        <input type="file" name="office_order_pdf" accept="application/pdf">
+                    </div>
                     <div class="row">
                         <button class="btn" type="submit">Save Tour Record</button>
                     </div>
@@ -85,8 +84,8 @@
                             <tbody>
                                 @forelse ($tourRecords ?? [] as $tour)
                                     <tr>
-                                        <td>{{ !empty($tour['date']) ? \Illuminate\Support\Carbon::parse($tour['date'])->format('d/m/Y') : '-' }}</td>
-                                        <td>{{ !empty($tour['to_date']) ? \Illuminate\Support\Carbon::parse($tour['to_date'])->format('d/m/Y') : '-' }}</td>
+                                        <td>{{ $tour['date'] ?? '-' }}</td>
+                                        <td>{{ $tour['to_date'] ?? '-' }}</td>
                                         <td>{{ $tour['total_days'] ?? '-' }}</td>
                                         <td>{{ $tour['destination'] ?? '-' }}</td>
                                         <td>{{ $tour['purpose'] ?? '-' }}</td>
@@ -145,24 +144,5 @@
         updateTotalDays();
     })();
 </script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>
-        (function(){
-            try {
-                flatpickr("input[name='start_date'], input[name='end_date']", {
-                    altInput: true,
-                    altFormat: 'd/m/Y',
-                    dateFormat: 'Y-m-d',
-                    allowInput: true,
-                    onReady: function(selectedDates, dateStr, instance) {
-                        try { if (instance.altInput) instance.altInput.placeholder = 'DD/MM/YY'; } catch(e){}
-                    },
-                    onChange: function(selectedDates, dateStr, instance) {
-                        try { if (instance.input) instance.input.dispatchEvent(new Event('change')); } catch(e){}
-                    }
-                });
-            } catch (e) { console.warn('flatpickr init failed', e); }
-        })();
-    </script>
 </body>
 </html>

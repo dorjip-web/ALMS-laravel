@@ -46,7 +46,7 @@
                                         <tr>
                                             <td>{{ $req->name }}</td>
                                             <td>{{ $req->department ?? $req->department_id ?? '' }}</td>
-                                            <td>{{ !empty($req->date) ? \Illuminate\Support\Carbon::parse($req->date)->format('d/m/Y') : '-' }}</td>
+                                            <td>{{ $req->date }}</td>
                                             <td>{{ ucfirst($req->purpose) }}</td>
                                             <td>{{ $req->remarks }}</td>
                                         </tr>

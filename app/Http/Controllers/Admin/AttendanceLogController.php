@@ -396,7 +396,7 @@ class AttendanceLogController extends Controller
                     $row->employee_name ?? '',
                     $row->designation ?? '',
                     $row->department_name ?? '',
-                    !empty($row->attendance_date) ? \Illuminate\Support\Carbon::parse($row->attendance_date)->format('d/m/Y') : '',
+                    $row->attendance_date ?? '',
                     $row->shift_type ?? '',
                     $row->checkin ?? '',
                     $row->checkin_address ?? '',

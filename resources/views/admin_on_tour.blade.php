@@ -47,8 +47,8 @@
                             <td>{{ $tour['designation'] ?? '-' }}</td>
                             <td>{{ $tour['department_name'] ?? '-' }}</td>
                             <td>{{ $tour['place'] ?? '-' }}</td>
-                            <td>{{ ! empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date'])->format('d/m/Y') : '-' }}</td>
-                            <td>{{ ! empty($tour['end_date']) ? \Illuminate\Support\Carbon::parse($tour['end_date'])->format('d/m/Y') : '-' }}</td>
+                            <td>{{ ! empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date'])->format('d M Y') : '-' }}</td>
+                            <td>{{ ! empty($tour['end_date']) ? \Illuminate\Support\Carbon::parse($tour['end_date'])->format('d M Y') : '-' }}</td>
                             <td>
                                 @php
                                     $from = !empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date']) : null;

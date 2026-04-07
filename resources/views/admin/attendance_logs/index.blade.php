@@ -88,7 +88,7 @@
                         <td>{{ $row->employee_name }}</td>
                         <td>{{ $row->designation ?? '-' }}</td>
                         <td>{{ $row->department_name ?? '-' }}</td>
-                        <td>{{ !empty($row->attendance_date) ? \Illuminate\Support\Carbon::parse($row->attendance_date)->format('d/m/Y') : '-' }}</td>
+                        <td>{{ $row->attendance_date }}</td>
                         <td>{{ $row->shift_type ?? '-' }}</td>
                         <td>{{ $row->checkin ?? '-' }}</td>
                         <td>{{ $row->checkin_address ?? '-' }}</td>
