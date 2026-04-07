@@ -27,7 +27,7 @@
                     <a class="btn" href="{{ url('admin/users/users.php') }}">Manage Users</a>
                     <a class="btn" href="{{ url('admin/manage_departments.php') }}">Manage Departments</a>
                     <a class="btn" href="{{ url('manage_leave_types.php') }}">Leave Types</a>
-                    <a class="btn" href="{{ route('admin.reports') }}">Reports</a>
+                    {{-- Reports quick-action removed per request --}}
                     <a class="btn" href="{{ url('attendanceleave/attendance_logs.php') }}">Attendance Log</a>
                     <a class="btn" href="{{ url('settings.php') }}">Settings</a>
                 </div>
