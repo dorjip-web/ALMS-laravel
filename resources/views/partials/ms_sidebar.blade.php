@@ -3,10 +3,7 @@
         $msAuthorized = $authorized ?? false;
         $msUsername = $username ?? auth()->user()->name;
     @endphp
-    <div class="profile">
-        <div class="avatar">{{ $msAuthorized ? 'MS' : strtoupper(substr($msUsername, 0, 1) ?? 'M') }}</div>
-        <div class="username">{{ $msUsername }}</div>
-    </div>
+    @include('partials.sidebar_profile', ['sidebarName' => ($username ?? $msUsername ?? 'MS')])
 
     <nav class="menu">
         <a href="{{ route('dashboard') }}" @class(['active' => request()->routeIs('dashboard')])>Back to Dashboard</a>

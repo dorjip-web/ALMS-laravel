@@ -1,8 +1,5 @@
 <aside class="sidebar">
-    <div class="profile">
-        <div class="avatar">H</div>
-        <div class="username">HoD</div>
-    </div>
+    @include('partials.sidebar_profile', ['sidebarName' => ($username ?? 'HoD')])
 
     <nav class="menu">
         <a href="{{ route('dashboard') }}" @class(['active' => request()->routeIs('dashboard')])>Back to Dashboard</a>

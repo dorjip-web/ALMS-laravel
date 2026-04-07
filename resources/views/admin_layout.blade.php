@@ -19,16 +19,7 @@
 @endphp
 <div class="app">
     <aside class="sidebar">
-        <div class="profile">
-            <div class="avatar">
-                @if ($adminLogo)
-                    <img src="{{ $adminLogo }}" alt="NTMH logo">
-                @else
-                    {{ $avatar ?? 'AD' }}
-                @endif
-            </div>
-            <div class="username">{{ $username ?? 'Admin' }}</div>
-        </div>
+        @include('partials.sidebar_profile')
         <nav class="menu">
             <a href="{{ route('admin.dashboard') }}" @class(['active' => ($activeNav ?? '') === 'dashboard'])>Admin Dashboard</a>
             <a href="{{ route('admin.users.index') }}" @class(['active' => ($activeNav ?? '') === 'users'])>User Management</a>
@@ -65,6 +56,31 @@
 </div>
 
 @yield('scripts')
+
+<script>
+(() => {
+    const links = document.querySelectorAll('.sidebar .menu a');
+    function normalize(path) { return path.replace(/\/+$/,''); }
+    const loc = normalize(location.pathname || '/');
+    links.forEach(a => {
+        const href = a.getAttribute('href') || '';
+        try {
+            const p = new URL(href, location.origin).pathname;
+            if (normalize(p) === loc || (loc.startsWith(normalize(p)) && normalize(p) !== '')) {
+                a.classList.add('active');
+            } else {
+                a.classList.remove('active');
+            }
+        } catch (e) {
+            // ignore invalid hrefs
+        }
+        a.addEventListener('click', function () {
+            links.forEach(x => x.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+})();
+</script>
 
 </body>
 </html>
