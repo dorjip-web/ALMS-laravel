@@ -67,11 +67,11 @@
 
                         <div class="col">
                             <label>Start</label>
-                            <input type="date" name="from_date" placeholder="dd/mm/yyyy" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('from_date') }}">
+                            <input type="date" name="from_date" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('from_date') }}">
                         </div>
                         <div class="col">
                             <label>End</label>
-                            <input type="date" name="to_date" placeholder="dd/mm/yyyy" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('to_date') }}">
+                            <input type="date" name="to_date" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('to_date') }}">
                         </div>
                         <div class="col">
                             <label>Total Days</label>

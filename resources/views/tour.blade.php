@@ -49,11 +49,11 @@
                         </div>
                         <div class="col">
                             <label>Start</label>
-                            <input type="date" name="start_date" placeholder="dd/mm/yyyy" value="{{ old('start_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                            <input type="date" name="start_date" value="{{ old('start_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
                         </div>
                         <div class="col">
                             <label>End</label>
-                            <input type="date" name="end_date" placeholder="dd/mm/yyyy" value="{{ old('end_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                            <input type="date" name="end_date" value="{{ old('end_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
                         </div>
                         <div class="col">
                             <label>Total Days</label>
