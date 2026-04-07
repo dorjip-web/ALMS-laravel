@@ -68,11 +68,11 @@
 
                         <div class="col">
                             <label>Start</label>
-                            <input type="text" name="from_date" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('from_date') }}">
+                            <input type="text" name="from_date" placeholder="DD/MM/YY" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('from_date') }}">
                         </div>
                         <div class="col">
                             <label>End</label>
-                            <input type="text" name="to_date" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('to_date') }}">
+                            <input type="text" name="to_date" placeholder="DD/MM/YY" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('to_date') }}">
                         </div>
                         <div class="col">
                             <label>Total Days</label>
@@ -145,12 +145,18 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     (function(){
-        try {
+            try {
             flatpickr("input[name='from_date'], input[name='to_date']", {
                 altInput: true,
                 altFormat: 'd/m/Y',
                 dateFormat: 'Y-m-d',
-                allowInput: true
+                allowInput: true,
+                onReady: function(selectedDates, dateStr, instance) {
+                    try { if (instance.altInput) instance.altInput.placeholder = 'DD/MM/YY'; } catch(e){}
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    try { if (instance.input) instance.input.dispatchEvent(new Event('change')); } catch(e){}
+                }
             });
         } catch (e) { console.warn('flatpickr init failed', e); }
     })();

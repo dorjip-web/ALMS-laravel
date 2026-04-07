@@ -50,25 +50,25 @@
                         </div>
                         <div class="col">
                             <label>Start</label>
-                            <input type="text" name="start_date" value="{{ old('start_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                            <input type="text" name="start_date" value="{{ old('start_date') }}" placeholder="DD/MM/YY" required min="{{ now('Asia/Thimphu')->toDateString() }}">
                         </div>
                         <div class="col">
                             <label>End</label>
-                            <input type="text" name="end_date" value="{{ old('end_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                            <input type="text" name="end_date" value="{{ old('end_date') }}" placeholder="DD/MM/YY" required min="{{ now('Asia/Thimphu')->toDateString() }}">
                         </div>
                         <div class="col">
                             <label>Total Days</label>
                             <input type="text" id="tour-total-days" value="-" readonly>
                         </div>
                     </div>
-                    <div class="row">
-                        <label>Purpose</label>
-                        <input type="text" name="purpose" value="{{ old('purpose') }}" placeholder="Purpose of tour" required>
-                    </div>
-                    <div class="row">
-                        <label>Office Order (PDF)</label>
-                        <input type="file" name="office_order_pdf" accept="application/pdf">
-                    </div>
+                        <div class="col">
+                            <label>Start</label>
+                            <input type="text" name="start_date" placeholder="DD/MM/YY" value="{{ old('start_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                        </div>
+                        <div class="col">
+                            <label>End</label>
+                            <input type="text" name="end_date" placeholder="DD/MM/YY" value="{{ old('end_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                        </div>
                     <div class="row">
                         <button class="btn" type="submit">Save Tour Record</button>
                     </div>
@@ -153,7 +153,13 @@
                     altInput: true,
                     altFormat: 'd/m/Y',
                     dateFormat: 'Y-m-d',
-                    allowInput: true
+                    allowInput: true,
+                    onReady: function(selectedDates, dateStr, instance) {
+                        try { if (instance.altInput) instance.altInput.placeholder = 'DD/MM/YY'; } catch(e){}
+                    },
+                    onChange: function(selectedDates, dateStr, instance) {
+                        try { if (instance.input) instance.input.dispatchEvent(new Event('change')); } catch(e){}
+                    }
                 });
             } catch (e) { console.warn('flatpickr init failed', e); }
         })();
