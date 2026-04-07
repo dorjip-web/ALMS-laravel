@@ -102,8 +102,8 @@
                                 @forelse ($leaveApplications as $lv)
                                     <tr>
                                         <td>{{ $lv['type'] ?? '-' }}</td>
-                                        <td>{{ $lv['start_date'] ?? '-' }}</td>
-                                        <td>{{ $lv['end_date'] ?? '-' }}</td>
+                                        <td>{{ !empty($lv['start_date']) ? \Illuminate\Support\Carbon::parse($lv['start_date'])->format('d/m/Y') : '-' }}</td>
+                                        <td>{{ !empty($lv['end_date']) ? \Illuminate\Support\Carbon::parse($lv['end_date'])->format('d/m/Y') : '-' }}</td>
                                         <td>{{ $lv['reason'] ?? '-' }}</td>
                                         <td>{{ $lv['days'] ?? '-' }}</td>
                                         <td>{{ empty($lv['hod_status']) ? '' : 'HoD' }}</td>
