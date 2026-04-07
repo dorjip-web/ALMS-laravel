@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Tour Records</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -49,11 +50,11 @@
                         </div>
                         <div class="col">
                             <label>Start</label>
-                            <input type="date" name="start_date" value="{{ old('start_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                            <input type="text" name="start_date" value="{{ old('start_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
                         </div>
                         <div class="col">
                             <label>End</label>
-                            <input type="date" name="end_date" value="{{ old('end_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
+                            <input type="text" name="end_date" value="{{ old('end_date') }}" required min="{{ now('Asia/Thimphu')->toDateString() }}">
                         </div>
                         <div class="col">
                             <label>Total Days</label>
@@ -144,5 +145,18 @@
         updateTotalDays();
     })();
 </script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        (function(){
+            try {
+                flatpickr("input[name='start_date'], input[name='end_date']", {
+                    altInput: true,
+                    altFormat: 'd/m/Y',
+                    dateFormat: 'Y-m-d',
+                    allowInput: true
+                });
+            } catch (e) { console.warn('flatpickr init failed', e); }
+        })();
+    </script>
 </body>
 </html>

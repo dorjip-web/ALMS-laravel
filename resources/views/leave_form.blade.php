@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Leave Request</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         .leave-form .row-grid-3 .col input, .leave-form .row-grid-3 .col select{min-height:44px}
@@ -67,11 +68,11 @@
 
                         <div class="col">
                             <label>Start</label>
-                            <input type="date" name="from_date" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('from_date') }}">
+                            <input type="text" name="from_date" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('from_date') }}">
                         </div>
                         <div class="col">
                             <label>End</label>
-                            <input type="date" name="to_date" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('to_date') }}">
+                            <input type="text" name="to_date" required min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control" value="{{ old('to_date') }}">
                         </div>
                         <div class="col">
                             <label>Total Days</label>
@@ -139,6 +140,19 @@
                 update();
             }
         } catch (e) { console.warn('leaveBalances init failed', e); }
+    })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    (function(){
+        try {
+            flatpickr("input[name='from_date'], input[name='to_date']", {
+                altInput: true,
+                altFormat: 'd/m/Y',
+                dateFormat: 'Y-m-d',
+                allowInput: true
+            });
+        } catch (e) { console.warn('flatpickr init failed', e); }
     })();
 </script>
 </body>
