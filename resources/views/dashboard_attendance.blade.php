@@ -36,8 +36,8 @@
                             </thead>
                             <tbody>
                                 @foreach($rows as $r)
-                                    <tr>
-                                        <td>{{ $r['attendance_date'] ?? '-' }}</td>
+                                        <tr>
+                                        <td>{{ !empty($r['attendance_date']) ? \Illuminate\Support\Carbon::parse($r['attendance_date'])->format('d/m/Y') : '-' }}</td>
                                         @if($showShift)
                                             <td>{{ $r['shift_type'] ?? '-' }}</td>
                                         @endif
@@ -126,7 +126,7 @@
                                 <tbody>
                                     @foreach($rows as $r)
                                         <tr>
-                                            <td>{{ $r['attendance_date'] ?? '-' }}</td>
+                                            <td>{{ !empty($r['attendance_date']) ? \Illuminate\Support\Carbon::parse($r['attendance_date'])->format('d/m/Y') : '-' }}</td>
                                             @if($showShift)
                                                 <td>{{ $r['shift_type'] ?? '-' }}</td>
                                             @endif
