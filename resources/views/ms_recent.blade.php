@@ -51,7 +51,7 @@
                                         {{ $r['medical_superintendent_status'] }}
                                     @endif
                                 </td>
-                                <td>{{ ! empty($r['medical_superintendent_action_at']) ? \Illuminate\Support\Carbon::parse($r['medical_superintendent_action_at'])->format('d M') : '-' }}</td>
+                                <td>{{ ! empty($r['medical_superintendent_action_at']) ? \Illuminate\Support\Carbon::parse($r['medical_superintendent_action_at'])->format('d/m/Y') : '-' }}</td>
                             </tr>
                         @endforeach
                     @endif

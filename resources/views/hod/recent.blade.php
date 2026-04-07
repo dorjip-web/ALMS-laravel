@@ -58,7 +58,7 @@
                                         {{ $r['action'] }}
                                     @endif
                                 </td>
-                                <td>{{ ! empty($r['action_at']) ? \Illuminate\Support\Carbon::parse($r['action_at'])->format('d M') : '-' }}</td>
+                                <td>{{ ! empty($r['action_at']) ? \Illuminate\Support\Carbon::parse($r['action_at'])->format('d/m/Y') : '-' }}</td>
                             </tr>
                         @endforeach
                     @endif
