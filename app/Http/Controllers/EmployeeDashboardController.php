@@ -767,7 +767,8 @@ class EmployeeDashboardController extends Controller
 
         $submitTo = strtolower((string) $payload['submit_to']);
         $hodStatus = $submitTo === 'hod' ? 'pending' : null;
-        $msStatus = 'pending';
+        // Only set MS status when the leave is submitted directly to MS.
+        $msStatus = $submitTo === 'ms' ? 'pending' : null;
 
         $insert = [
             'employee_id' => $employeeId,

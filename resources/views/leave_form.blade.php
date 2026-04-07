@@ -95,8 +95,8 @@
                         <table class="users">
                             <thead>
                                 <tr>
-                                    <th>Type</th><th>S.date</th><th>E.date</th><th>Reason</th><th>Days</th><th>HoD</th><th>MS</th><th>HoD Status</th><th>MS Status</th>
-                                </tr>
+                                        <th>Type</th><th>S.date</th><th>E.date</th><th>Reason</th><th>Days</th><th>HoD</th><th>HoD Status</th><th>MS</th><th>MS Status</th>
+                                    </tr>
                             </thead>
                             <tbody>
                                 @forelse ($leaveApplications as $lv)
@@ -107,8 +107,8 @@
                                         <td>{{ $lv['reason'] ?? '-' }}</td>
                                         <td>{{ $lv['days'] ?? '-' }}</td>
                                         <td>{{ empty($lv['hod_status']) ? '' : 'HoD' }}</td>
-                                        <td>{{ empty($lv['ms_status']) ? '' : 'MS' }}</td>
                                         <td>@if (! empty($lv['hod_status'])) <span class="leave-status-badge status-{{ strtolower($lv['hod_status']) }}">{{ ucfirst($lv['hod_status']) }}</span>@endif</td>
+                                        <td>{{ empty($lv['ms_status']) ? '' : 'MS' }}</td>
                                         <td>@if (! empty($lv['ms_status'])) <span class="leave-status-badge status-{{ strtolower($lv['ms_status']) }}">{{ ucfirst($lv['ms_status']) }}</span>@endif</td>
                                     </tr>
                                 @empty

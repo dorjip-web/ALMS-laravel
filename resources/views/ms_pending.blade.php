@@ -32,7 +32,7 @@
                         <th>From</th>
                         <th>To</th>
                         <th>Days</th>
-                        <th>HoD Note</th>
+                        <th>Reason</th>
                         <th>Action</th>
                     </tr>
                     </thead>
@@ -47,7 +47,7 @@
                                 <td>{{ \Illuminate\Support\Carbon::parse($req['from_date'])->format('d M') }}</td>
                                 <td>{{ \Illuminate\Support\Carbon::parse($req['to_date'])->format('d M') }}</td>
                                 <td>{{ $req['total_days'] }}</td>
-                                <td>{{ $req['hod_note'] ?? '-' }}</td>
+                                <td>{{ $req['reason'] ?? '-' }}</td>
                                 <td class="actions">
                                     <form method="POST" action="{{ route('ms.dashboard.action') }}" class="inline-form">@csrf
                                         <input type="hidden" name="request_id" value="{{ $req['application_id'] }}">
@@ -68,7 +68,7 @@
                     <thead>
                     <tr>
                         <th>Employee</th>
-                        <th>Leave</th>
+                        <th>Leave Type</th>
                         <th>From</th>
                         <th>To</th>
                         <th>Days</th>

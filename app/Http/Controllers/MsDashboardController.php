@@ -73,6 +73,7 @@ class MsDashboardController extends Controller
                     'la.to_date',
                     'la.total_days',
                     'la.hod_note',
+                    'la.reason',
                 ])
                 ->get()
                 ->map(fn ($r) => (array) $r)
@@ -279,6 +280,7 @@ class MsDashboardController extends Controller
                     'la.to_date',
                     'la.total_days',
                     'la.hod_note',
+                    'la.reason',
                 ])
                 ->get()
                 ->map(fn ($r) => (array) $r)
