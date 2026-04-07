@@ -84,8 +84,8 @@
                             <tbody>
                                 @forelse ($tourRecords ?? [] as $tour)
                                     <tr>
-                                        <td>{{ $tour['date'] ?? '-' }}</td>
-                                        <td>{{ $tour['to_date'] ?? '-' }}</td>
+                                        <td>{{ !empty($tour['date']) ? \Illuminate\Support\Carbon::parse($tour['date'])->format('d/m/Y') : '-' }}</td>
+                                        <td>{{ !empty($tour['to_date']) ? \Illuminate\Support\Carbon::parse($tour['to_date'])->format('d/m/Y') : '-' }}</td>
                                         <td>{{ $tour['total_days'] ?? '-' }}</td>
                                         <td>{{ $tour['destination'] ?? '-' }}</td>
                                         <td>{{ $tour['purpose'] ?? '-' }}</td>

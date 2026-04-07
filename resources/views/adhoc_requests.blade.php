@@ -98,10 +98,10 @@
                                     <tbody>
                                         @foreach($rows as $r)
                                             <tr>
-                                                <td>{{ $r['date'] ?? '-' }}</td>
+                                                <td>{{ !empty($r['date']) ? \Illuminate\Support\Carbon::parse($r['date'])->format('d/m/Y') : '-' }}</td>
                                                 <td>{{ ucfirst($r['purpose'] ?? '-') }}</td>
                                                 <td>{{ $r['remarks'] ?? '-' }}</td>
-                                                <td>{{ $r['created_at'] ?? '-' }}</td>
+                                                <td>{{ !empty($r['created_at']) ? \Illuminate\Support\Carbon::parse($r['created_at'])->format('d/m/Y') : '-' }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

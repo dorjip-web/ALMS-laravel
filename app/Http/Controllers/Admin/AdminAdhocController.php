@@ -464,13 +464,13 @@ class AdminAdhocController extends Controller
             $departmentName = $departmentName ?? '-';
 
             $rows[] = [
-                $r['date'] ?? '',
+                !empty($r['date']) ? \Illuminate\Support\Carbon::parse($r['date'])->format('d/m/Y') : '',
                 $r['purpose'] ?? '',
                 $r['remarks'] ?? '',
                 $departmentName,
                 $employeeName,
                 $designation ?? '',
-                $r['created_at'] ?? '',
+                !empty($r['created_at']) ? \Illuminate\Support\Carbon::parse($r['created_at'])->format('d/m/Y') : '',
             ];
         }
 

@@ -200,6 +200,8 @@ class AdminOnTourController extends Controller
             foreach ($onTourStaff as $t) {
                 $from = $t->start_date ?? '';
                 $to = $t->end_date ?? '';
+                $fromFmt = !empty($from) ? \Illuminate\Support\Carbon::parse($from)->format('d/m/Y') : '';
+                $toFmt = !empty($to) ? \Illuminate\Support\Carbon::parse($to)->format('d/m/Y') : '';
                 $total = '';
                 if (!empty($from) && !empty($to)) {
                     try {
@@ -217,8 +219,8 @@ class AdminOnTourController extends Controller
                     $t->designation ?? '',
                     $t->department_name ?? '',
                     $t->place ?? '',
-                    $from,
-                    $to,
+                    $fromFmt,
+                    $toFmt,
                     $total,
                     $t->purpose ?? '',
                     $t->office_order_pdf ?? '',

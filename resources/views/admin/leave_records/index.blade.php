@@ -50,14 +50,14 @@
                     <tr>
                         <td>{{ $r->employee_name }}</td>
                         <td>{{ $r->type }}</td>
-                        <td>{{ $r->from_date }}</td>
-                        <td>{{ $r->to_date }}</td>
+                        <td>{{ !empty($r->from_date) ? \Illuminate\Support\Carbon::parse($r->from_date)->format('d/m/Y') : '-' }}</td>
+                        <td>{{ !empty($r->to_date) ? \Illuminate\Support\Carbon::parse($r->to_date)->format('d/m/Y') : '-' }}</td>
                         <td>{{ $r->days }}</td>
                         <td>{{ $r->reason }}</td>
                         <td>{{ $r->HoD_status }}</td>
                         <td>{{ $r->medical_superintendent_status }}</td>
                         <td>{{ $r->department_name }}</td>
-                        <td>{{ $r->applied_at }}</td>
+                        <td>{{ !empty($r->applied_at) ? \Illuminate\Support\Carbon::parse($r->applied_at)->format('d/m/Y') : '-' }}</td>
                     </tr>
                 @empty
                     <tr><td colspan="10">No leave records</td></tr>
