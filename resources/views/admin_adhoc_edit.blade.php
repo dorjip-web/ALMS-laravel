@@ -9,35 +9,46 @@
 
             <form method="POST" action="{{ route('admin.adhoc.update', $record['id'] ?? $record['adhoc_request_id'] ?? $record['adhoc_id'] ?? $record['application_id'] ?? $record['employee_id'] ?? 0) }}">
                 @csrf
-                <div style="margin-bottom:8px">
-                    <label style="display:block;margin-bottom:6px">Employee</label>
-                    <select name="employee_id" required style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
-                        <option value="">-- Select Employee --</option>
-                        @foreach($employees as $emp)
-                            <option value="{{ $emp->employee_id }}" @if((string)($record['employee_id'] ?? '') === (string)$emp->employee_id) selected @endif>{{ $emp->employee_name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div style="display:flex;gap:8px;margin-bottom:8px">
-                    <div style="flex:1">
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+                    <div style="flex:2;min-width:220px">
+                        <label style="display:block;margin-bottom:6px">Employee</label>
+                        <select name="employee_id" required style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
+                            <option value="">-- Select Employee --</option>
+                            @foreach($employees as $emp)
+                                <option value="{{ $emp->employee_id }}" @if((string)($record['employee_id'] ?? '') === (string)$emp->employee_id) selected @endif>{{ $emp->employee_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div style="flex:1;min-width:140px">
                         <label style="display:block;margin-bottom:6px">Date</label>
                         <input type="date" name="date" value="{{ $record['date'] ?? '' }}" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
                     </div>
-                    <div style="flex:1">
+                    <div style="flex:1;min-width:140px">
                         <label style="display:block;margin-bottom:6px">Purpose</label>
                         <select name="purpose" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
                             <option value="meeting" @if(($record['purpose'] ?? '') === 'meeting') selected @endif>Meeting</option>
                             <option value="emergency" @if(($record['purpose'] ?? '') === 'emergency') selected @endif>Emergency</option>
                         </select>
                     </div>
+                    <div style="flex:1;min-width:140px">
+                        <label style="display:block;margin-bottom:6px">Designation</label>
+                        <input type="text" name="designation" value="{{ $record['designation'] ?? '' }}" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
+                    </div>
+                    <div style="flex:1;min-width:140px">
+                        <label style="display:block;margin-bottom:6px">Department</label>
+                        <select name="department_id" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
+                            <option value="">-- Select Department --</option>
+                            @if(!empty($departments))
+                                @foreach($departments as $d)
+                                    <option value="{{ $d->department_id }}" @if((string)($record['department_id'] ?? '') === (string)$d->department_id) selected @endif>{{ $d->department_name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
                 </div>
                 <div style="margin-bottom:8px">
                     <label style="display:block;margin-bottom:6px">Remarks</label>
                     <input type="text" name="remarks" value="{{ $record['remarks'] ?? '' }}" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
-                </div>
-                <div style="margin-bottom:8px">
-                    <label style="display:block;margin-bottom:6px">Designation</label>
-                    <input type="text" name="designation" value="{{ $record['designation'] ?? '' }}" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
                 </div>
                 <div>
                     <button class="btn" type="submit">Save Changes</button>

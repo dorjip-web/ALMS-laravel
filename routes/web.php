@@ -18,6 +18,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('leave-balances/adjust', [LeaveBalanceController::class, 'adjustBalance'])->name('leave_balances.adjust');
     Route::post('leave-balances/reset', [LeaveBalanceController::class, 'resetYear'])->name('leave_balances.reset');
     Route::get('attendance-logs', [AttendanceLogController::class, 'index'])->name('attendance_logs.index');
+    Route::get('attendance-logs/export', [AttendanceLogController::class, 'export'])->name('attendance_logs.export');
     // Leave Types management (Add / Edit / Delete / Toggle)
     Route::get('leave-types', [App\Http\Controllers\Admin\LeaveTypeController::class, 'index'])->name('leave_types.index');
     Route::get('leave-types/create', [App\Http\Controllers\Admin\LeaveTypeController::class, 'create'])->name('leave_types.create');
@@ -101,12 +102,14 @@ Route::get('/admin-dashboard', [AdminDashboardController::class, 'index'])->name
 Route::post('/admin-logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
 // Admin: Staff On Tour (admin-facing list)
 Route::get('/admin/on-tour', [App\Http\Controllers\Admin\AdminOnTourController::class, 'index'])->name('admin.on_tour');
+Route::get('/admin/on-tour/export', [App\Http\Controllers\Admin\AdminOnTourController::class, 'export'])->name('admin.on_tour.export');
 Route::get('/admin/on-tour/edit/{id}', [App\Http\Controllers\Admin\AdminOnTourController::class, 'edit'])->name('admin.on_tour.edit');
 Route::post('/admin/on-tour/update/{id}', [App\Http\Controllers\Admin\AdminOnTourController::class, 'update'])->name('admin.on_tour.update');
 Route::post('/admin/on-tour/delete/{id}', [App\Http\Controllers\Admin\AdminOnTourController::class, 'delete'])->name('admin.on_tour.delete');
 
 // Admin: Adhoc requests (read-only admin listing)
 Route::get('/admin/adhoc', [App\Http\Controllers\Admin\AdminAdhocController::class, 'index'])->name('admin.adhoc');
+Route::get('/admin/adhoc/export', [App\Http\Controllers\Admin\AdminAdhocController::class, 'export'])->name('admin.adhoc.export');
 Route::get('/admin/adhoc/edit/{id}', [App\Http\Controllers\Admin\AdminAdhocController::class, 'edit'])->name('admin.adhoc.edit');
 Route::post('/admin/adhoc/update/{id}', [App\Http\Controllers\Admin\AdminAdhocController::class, 'update'])->name('admin.adhoc.update');
 Route::post('/admin/adhoc/delete/{id}', [App\Http\Controllers\Admin\AdminAdhocController::class, 'delete'])->name('admin.adhoc.delete');
@@ -114,6 +117,11 @@ Route::post('/admin/adhoc/delete/{id}', [App\Http\Controllers\Admin\AdminAdhocCo
 
 // Admin User Management
 Route::get('/admin/users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('admin.users.index');
+
+// Admin: Device Bindings (fraud & compliance checks)
+Route::get('/admin/device-bindings', [App\Http\Controllers\Admin\AdminDeviceBindingController::class, 'index'])->name('admin.device_bindings');
+Route::post('/admin/device-bindings/unbind/{id}', [App\Http\Controllers\Admin\AdminDeviceBindingController::class, 'unbind'])->name('admin.device_bindings.unbind');
+Route::post('/admin/device-bindings/rebind/{id}', [App\Http\Controllers\Admin\AdminDeviceBindingController::class, 'rebind'])->name('admin.device_bindings.rebind');
 Route::get('/admin/users/edit/{id}', [App\Http\Controllers\Admin\UserEditController::class, 'edit'])->name('admin.users.edit');
 Route::post('/admin/users/edit/{id}', [App\Http\Controllers\Admin\UserEditController::class, 'update'])->name('admin.users.edit.update');
 

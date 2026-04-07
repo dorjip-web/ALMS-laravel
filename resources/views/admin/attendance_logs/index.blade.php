@@ -51,6 +51,7 @@
                 <input type="date" name="from_date" value="{{ $from_date ?? '' }}">
                 <input type="date" name="date" value="{{ $date }}">
             <button type="submit" class="btn">Apply</button>
+            <a href="{{ route('admin.attendance_logs.export') }}?{{ http_build_query(request()->except('_token')) }}" class="btn" style="background:#10b981;">Export CSV</a>
         </form>
     </div>
     <div class="leave-history">

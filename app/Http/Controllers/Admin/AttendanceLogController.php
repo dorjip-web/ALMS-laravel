@@ -284,6 +284,139 @@ class AttendanceLogController extends Controller
         return view('admin.attendance_logs.index', compact('present', 'missing', 'late', 'absent', 'logs', 'filter', 'date', 'from_date', 'dept', 'departments', 'attendancePercent', 'total', 'onTime', 'totalStaff'));
     }
 
+    /**
+     * Export attendance logs as CSV using same filters as index.
+     */
+    public function export(Request $request)
+    {
+        $filter = $request->input('filter', '');
+        $date = $request->input('date', '');
+        $fromDate = $request->input('from_date', '');
+        $dept = $request->input('department_id', '');
+
+        $isRange = $fromDate && $date;
+
+        if ($filter === 'absent') {
+            $query = DB::table('tab1 as t')
+                ->leftJoin('attendance as a', function ($join) use ($isRange, $fromDate, $date) {
+                    $join->on('t.employee_id', '=', 'a.employee_id');
+                    if ($isRange) {
+                        $join->whereBetween('a.attendance_date', [$fromDate, $date]);
+                    } else {
+                        $join->where('a.attendance_date', $date ?: now()->toDateString());
+                    }
+                })
+                ->leftJoin('department as d', 'd.department_id', '=', 't.department_id')
+                ->select(
+                    't.employee_id',
+                    't.employee_name',
+                    't.designation',
+                    't.department_id',
+                    'd.department_name',
+                    DB::raw('NULL as attendance_date'),
+                    'a.shift_type',
+                    'a.checkin',
+                    'a.checkin_address',
+                    'a.checkin_status',
+                    'a.checkout',
+                    'a.checkout_address',
+                    'a.checkout_status',
+                    'a.remarks'
+                );
+
+            if ($dept) {
+                $query->where('t.department_id', $dept);
+            }
+
+            $query->where(function ($q) {
+                $q->whereNull('a.employee_id')
+                  ->orWhere(function ($q2) {
+                      $q2->whereNull('a.checkin')->whereNull('a.checkout');
+                  });
+            });
+
+            $logs = $query->orderBy('t.employee_name')->get();
+        } else {
+            $query = DB::table('attendance as a')
+                ->join('tab1 as t', 't.employee_id', '=', 'a.employee_id')
+                ->leftJoin('department as d', 'd.department_id', '=', 't.department_id')
+                ->select(
+                    't.employee_id',
+                    't.employee_name',
+                    't.designation',
+                    't.department_id',
+                    'd.department_name',
+                    'a.attendance_date',
+                    'a.shift_type',
+                    'a.checkin',
+                    'a.checkin_address',
+                    'a.checkin_status',
+                    'a.checkout',
+                    'a.checkout_address',
+                    'a.checkout_status',
+                    'a.remarks'
+                );
+
+            if ($isRange) {
+                $query->whereBetween('a.attendance_date', [$fromDate, $date]);
+            } else {
+                $query->where('a.attendance_date', $date ?: now()->toDateString());
+            }
+
+            if ($dept) {
+                $query->where('t.department_id', $dept);
+            }
+
+            if ($filter == 'late') {
+                $query->where('a.checkin_status', 'Late');
+            }
+            if ($filter == 'on_time') {
+                $query->where('a.checkin_status', 'On Time');
+            }
+            if ($filter == 'missing_checkout') {
+                $query->where('a.checkout_status', 'Missing');
+            }
+            if ($filter == 'present') {
+                $query->whereNotNull('a.checkin')->whereNotNull('a.checkout');
+            }
+
+            $logs = $query->orderByDesc('a.attendance_date')->get();
+        }
+
+        // Prepare CSV
+        $filename = 'attendance_logs_' . date('Ymd_His') . '.csv';
+        $columns = ['Employee ID','Name','Designation','Department','Date','Shift Type','Check-in','Check-in Address','Check-in Status','Check-out','Check-out Address','Check-out Status','Remarks'];
+
+        $callback = function() use ($logs, $columns) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, $columns);
+            foreach ($logs as $row) {
+                $line = [
+                    $row->employee_id ?? '',
+                    $row->employee_name ?? '',
+                    $row->designation ?? '',
+                    $row->department_name ?? '',
+                    $row->attendance_date ?? '',
+                    $row->shift_type ?? '',
+                    $row->checkin ?? '',
+                    $row->checkin_address ?? '',
+                    $row->checkin_status ?? '',
+                    $row->checkout ?? '',
+                    $row->checkout_address ?? '',
+                    $row->checkout_status ?? '',
+                    $row->remarks ?? '',
+                ];
+                fputcsv($out, $line);
+            }
+            fclose($out);
+        };
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
     private function reverseGeocode($lat, $lon): string
     {
         if (! is_numeric($lat) || ! is_numeric($lon)) {

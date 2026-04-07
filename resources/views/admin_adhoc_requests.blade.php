@@ -18,6 +18,7 @@
                         @endforeach
                     </select>
                     <button class="btn" type="submit">Filter</button>
+                    <a href="{{ route('admin.adhoc.export') }}?{{ http_build_query(request()->except('_token')) }}" class="btn" style="background:#10b981;margin-left:6px">Export CSV</a>
                 </form>
             </div>
 

@@ -322,9 +322,15 @@ class AdminAdhocController extends Controller
                 : DB::table('employees')->select('employee_id','name as employee_name')->orderBy('name')->get();
         }
 
+        $departments = [];
+        if (Schema::hasTable('department')) {
+            $departments = DB::table('department')->select('department_id','department_name')->orderBy('department_name')->get();
+        }
+
         return view('admin_adhoc_edit', [
             'record' => (array) $record,
             'employees' => $employees,
+            'departments' => $departments,
         ]);
     }
 
@@ -341,12 +347,16 @@ class AdminAdhocController extends Controller
             'purpose' => 'required|string',
             'remarks' => 'nullable|string|max:255',
             'designation' => 'nullable|string|max:255',
+            'department_id' => 'nullable|integer',
         ]);
 
         // Only include designation in the update if the adhoc table actually has the column
         $updateData = array_merge($data, ['updated_at' => now()]);
         if (! Schema::hasColumn($table, 'designation')) {
             unset($updateData['designation']);
+        }
+        if (! Schema::hasColumn($table, 'department_id')) {
+            unset($updateData['department_id']);
         }
 
         $pk = $this->findAdhocPkColumn($table);
@@ -370,5 +380,113 @@ class AdminAdhocController extends Controller
         }
 
         return redirect()->route('admin.adhoc')->with('flash_success', 'Adhoc request deleted');
+    }
+
+    /**
+     * Export adhoc requests as CSV (honours department filter).
+     */
+    public function export(Request $request)
+    {
+        $table = $this->detectAdhocTable();
+        if (! $table || ! Schema::hasTable($table)) {
+            return redirect()->route('admin.adhoc')->with('flash_error', 'Adhoc table not found.');
+        }
+
+        $dept = $request->input('department_id', '');
+
+        // Fetch raw rows from adhoc table (limit to reasonable size)
+        $rawRows = DB::table($table)->orderByDesc('created_at')->limit(10000)->get()->map(fn($r) => (array) $r)->toArray();
+
+        // Build employee map
+        $employeeMap = [];
+        if (Schema::hasTable('tab1')) {
+            $emps = DB::table('tab1')->select('employee_id','employee_name','designation','department_id')->get();
+            foreach ($emps as $e) {
+                $employeeMap[$e->employee_id] = (array) $e;
+            }
+        } elseif (Schema::hasTable('employees')) {
+            $emps = DB::table('employees')->select('employee_id','name as employee_name','designation','department_id')->get();
+            foreach ($emps as $e) {
+                $employeeMap[$e->employee_id] = (array) $e;
+            }
+        }
+
+        // Build department map
+        $deptMap = [];
+        if (Schema::hasTable('department')) {
+            $deptMap = DB::table('department')->pluck('department_name', 'department_id')->toArray();
+        }
+
+        // Prepare CSV rows matching the admin table columns
+        $columns = ['Date','Purpose','Remarks','Department','Employee','Designation','Created'];
+
+        $rows = [];
+        foreach ($rawRows as $r) {
+            // apply department filter if present
+            $rowDeptId = $r['department_id'] ?? null;
+            if (! empty($dept) && (string)$dept !== (string)($rowDeptId ?? '')) {
+                // if not matching, also check employee's department
+                $empDept = null;
+                if (! empty($r['employee_id']) && isset($employeeMap[$r['employee_id']])) {
+                    $empDept = $employeeMap[$r['employee_id']]['department_id'] ?? null;
+                }
+                if ((string)$dept !== (string)($empDept ?? '')) {
+                    continue;
+                }
+            }
+
+            // employee name resolution
+            $employeeName = $r['employee_name'] ?? null;
+            if (empty($employeeName) && ! empty($r['employee_id']) && isset($employeeMap[$r['employee_id']])) {
+                $employeeName = $employeeMap[$r['employee_id']]['employee_name'] ?? null;
+            }
+            if (empty($employeeName)) {
+                $employeeName = $r['eid'] ?? ($r['employee_id'] ?? '-');
+            }
+
+            // designation resolution
+            $designation = $r['designation'] ?? null;
+            if (empty($designation) && ! empty($r['employee_id']) && isset($employeeMap[$r['employee_id']])) {
+                $designation = $employeeMap[$r['employee_id']]['designation'] ?? '';
+            }
+
+            // department name resolution
+            $departmentName = $r['department_name'] ?? null;
+            if (empty($departmentName)) {
+                $deptId = $r['department_id'] ?? null;
+                if (empty($deptId) && ! empty($r['employee_id']) && isset($employeeMap[$r['employee_id']])) {
+                    $deptId = $employeeMap[$r['employee_id']]['department_id'] ?? null;
+                }
+                if (! empty($deptId) && isset($deptMap[$deptId])) {
+                    $departmentName = $deptMap[$deptId];
+                }
+            }
+            $departmentName = $departmentName ?? '-';
+
+            $rows[] = [
+                $r['date'] ?? '',
+                $r['purpose'] ?? '',
+                $r['remarks'] ?? '',
+                $departmentName,
+                $employeeName,
+                $designation ?? '',
+                $r['created_at'] ?? '',
+            ];
+        }
+
+        $filename = 'adhoc_requests_' . date('Ymd_His') . '.csv';
+        $callback = function() use ($columns, $rows) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, $columns);
+            foreach ($rows as $r) {
+                fputcsv($out, $r);
+            }
+            fclose($out);
+        };
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
     }
 }

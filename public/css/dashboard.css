@@ -119,9 +119,43 @@ body{margin:0;background:var(--light)}
 	border-top:1px solid var(--orange);
 }
 
+/* Make Employee Name column narrower and use ellipsis for long names */
+.leave-history table.users th:nth-child(4),
+.leave-history table.users td:nth-child(4) {
+	max-width:160px;
+	width:160px;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+
 /* Action links in user management: make Edit / Toggle Status orange */
 .leave-history table.users td a.action-orange{color:var(--orange);font-weight:600;text-decoration:none}
 .leave-history table.users td a.action-orange:hover{text-decoration:underline}
+
+/* Style action-orange when used on buttons (forms that submit) */
+.leave-history table.users td button.action-orange{
+	color:var(--orange);
+	font-weight:600;
+	background:none;
+	border:none;
+	padding:0;
+	margin:0;
+	text-decoration:underline;
+	cursor:pointer;
+.leave-history table.users td select{
+	padding:8px;
+	border:1px solid #cfd8db;
+	border-radius:6px;
+	min-width:90px; /* reduced per UI request */
+	max-width:220px;
+}
+/* Ensure selects in action cells match admin selects */
+.leave-history table.users td select{
+	padding:8px;
+	border:1px solid #cfd8db;
+	border-radius:6px;
+}
 
 .leave-history .leave-status-badge{
 	display:inline-block;
