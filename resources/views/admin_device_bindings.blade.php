@@ -48,7 +48,7 @@
                             </td>
                             <td>
                                 @if(! empty($r['id']))
-                                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;white-space:nowrap">
+                                    <div class="bind-controls">
                                         <form method="POST" action="{{ route('admin.device_bindings.unbind', ['id' => $r['id']]) }}" style="display:inline">
                                             @csrf
                                             <button type="submit" class="action-orange" onclick="return confirm('Unbind this device?')">Unbind</button>
@@ -56,7 +56,7 @@
 
                                         <form method="POST" action="{{ route('admin.device_bindings.rebind', ['id' => $r['id']]) }}" style="display:inline;">
                                             @csrf
-                                            <select name="employee_id" required style="padding:8px;border:1px solid #cfd8db;border-radius:6px;min-width:90px;max-width:180px;box-sizing:border-box">
+                                            <select name="employee_id" required class="bind-select">
                                                 <option value="">--select employee--</option>
                                                 @if(!empty($employees))
                                                     @foreach($employees as $emp)
@@ -64,7 +64,7 @@
                                                     @endforeach
                                                 @endif
                                             </select>
-                                            <button type="submit" class="action-orange" style="margin-left:8px">Rebind</button>
+                                            <button type="submit" class="action-orange bind-btn">Rebind</button>
                                         </form>
                                     </div>
                                 @else
