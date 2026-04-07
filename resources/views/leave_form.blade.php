@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        .leave-form .row-grid-3 .col input, .leave-form .row-grid-3 .col select{min-height:44px}
+        .leave-form .row-grid-3 .col input, .leave-form .row-grid-3 .col select{min-height:38px}
         /* Style logout button in topbar to match other pages */
         .topbar .logout form button{
             background:#fff;
