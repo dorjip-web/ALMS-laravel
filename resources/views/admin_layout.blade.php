@@ -41,7 +41,7 @@
             <a href="{{ route('admin.leave_types.index') }}" @class(['active' => ($activeNav ?? '') === 'leave_types'])>Leave Management</a>
             <a href="{{ route('admin.attendance_logs.index') }}" @class(['active' => ($activeNav ?? '') === 'attendance_logs'])>Attendance Logs</a>
             <a href="{{ route('admin.leave_records.index') }}" @class(['active' => ($activeNav ?? '') === 'leave_records'])>Leave Records</a>
-            <a href="{{ url('reports.php') }}" @class(['active' => ($activeNav ?? '') === 'reports'])>Reports</a>
+            <a href="{{ route('admin.reports') }}" @class(['active' => ($activeNav ?? '') === 'reports'])>Reports</a>
             <a href="{{ url('settings.php') }}" @class(['active' => ($activeNav ?? '') === 'settings'])>Settings</a>
         </nav>
     </aside>

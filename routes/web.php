@@ -118,6 +118,10 @@ Route::post('/admin/adhoc/delete/{id}', [App\Http\Controllers\Admin\AdminAdhocCo
 // Admin User Management
 Route::get('/admin/users', [App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('admin.users.index');
 
+// Admin Reports (scaffolded)
+Route::get('/admin/reports', [App\Http\Controllers\Admin\AdminReportController::class, 'index'])->name('admin.reports');
+Route::get('/admin/reports/export', [App\Http\Controllers\Admin\AdminReportController::class, 'export'])->name('admin.reports.export');
+
 // Admin: Device Bindings (fraud & compliance checks)
 Route::get('/admin/device-bindings', [App\Http\Controllers\Admin\AdminDeviceBindingController::class, 'index'])->name('admin.device_bindings');
 Route::post('/admin/device-bindings/unbind/{id}', [App\Http\Controllers\Admin\AdminDeviceBindingController::class, 'unbind'])->name('admin.device_bindings.unbind');

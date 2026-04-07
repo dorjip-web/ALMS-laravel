@@ -204,9 +204,3 @@ body{margin:0;background:var(--light)}
 
 /* Inline form styling */
 .inline{display:inline}
-
-/* Device binding controls (Unbind / Rebind) */
-.bind-controls{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;white-space:nowrap}
-.bind-controls .bind-select{padding:8px;border:1px solid #cfd8db;border-radius:6px;min-width:90px;max-width:180px;box-sizing:border-box;background:#fff}
-.bind-controls .bind-btn{margin-left:8px}
-.bind-controls form{display:inline}
