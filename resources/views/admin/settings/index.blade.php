@@ -77,7 +77,9 @@
                                             @endif
                                         </td>
                                         <td style="white-space:nowrap">
-                                            <a href="#" class="action-orange edit-link">Edit</a>
+                                            <a href="#" class="action-orange edit-link">Edit</a> |
+                                            <a href="#" class="action-orange change-pass-link">Change Password</a> |
+                                            <a href="#" class="action-orange toggle-link">Toggle</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -133,6 +135,38 @@
                     // focus the name field and scroll to the form
                     try { nameField.focus(); panel.scrollIntoView({behavior:'smooth'}); } catch(e){}
                 });
+
+                // change password link (table row)
+                const changeLink = r.querySelector('.change-pass-link');
+                if (changeLink) {
+                    changeLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (panel && list) {
+                            try { list.parentNode.insertBefore(panel, list.nextSibling); } catch(err) {}
+                            panel.style.display = 'block';
+                            panel.style.width = '100%';
+                            if (grid) grid.style.gridTemplateColumns = '1fr';
+                            try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin='0 0 12px 0'; inner.style.width='100%'; } } catch(e){}
+                        }
+                        idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
+                        form.action = '/admin/settings/manage/' + idField.value;
+                        passField.focus();
+                    });
+                }
+
+                // toggle link (table row)
+                const toggleLink = r.querySelector('.toggle-link');
+                if (toggleLink) {
+                    toggleLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const aid = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
+                        if (!aid) return;
+                        if (!confirm('Toggle admin status?')) return;
+                        fetch('/admin/settings/toggle/' + aid, {method:'POST', headers: {'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
+                            .then(()=> location.reload())
+                            .catch(()=> alert('Failed'));
+                    });
+                }
                 // table-level change-password and toggle links removed; keep form buttons
             });
 
