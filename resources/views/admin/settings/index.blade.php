@@ -39,8 +39,6 @@
 
                     <div style="display:flex;gap:8px;align-items:center">
                         <button class="btn" type="submit">Save Admin</button>
-                        <button id="changePasswordBtn" type="button" class="btn" style="background:#6c757d">Change Password</button>
-                        <button id="toggleBtn" type="button" class="btn btn-secondary" style="margin-left:auto">Toggle Status</button>
                     </div>
                 </form>
             </div>
@@ -110,8 +108,7 @@
             const userField = document.getElementById('admin_username');
             const passField = document.getElementById('admin_password');
             const activeField = document.getElementById('admin_active');
-            const changeBtn = document.getElementById('changePasswordBtn');
-            const toggleBtn = document.getElementById('toggleBtn');
+            // change/toggle buttons removed from form intentionally
 
             function clearForm(){ idField.value=''; nameField.value=''; userField.value=''; passField.value=''; activeField.value='1'; form.action='/admin/settings/manage'; }
 
@@ -156,20 +153,7 @@
                 });
             }
 
-            changeBtn.addEventListener('click', ()=>{
-                if (!idField.value) { alert('Select an admin to change password'); return; }
-                if (!passField.value) { alert('Enter new password'); return; }
-                form.submit();
-            });
-
-            toggleBtn.addEventListener('click', ()=>{
-                const aid = idField.value;
-                if (!aid) { alert('Select an admin to toggle'); return; }
-                if (!confirm('Toggle admin status?')) return;
-                fetch('/admin/settings/toggle/' + aid, {method:'POST', headers: {'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
-                    .then(()=> location.reload())
-                    .catch(()=> alert('Failed'));
-            });
+            // form-level change/toggle actions removed; use main table actions instead
 
             // init empty
             clearForm();
