@@ -11,9 +11,7 @@
         <!-- Left: Single form (create/edit/change password) - hidden until used -->
         <div id="adminPanel" style="display:none">
             <div class="panel" style="padding:16px;border-radius:8px">
-                <div style="text-align:right;margin-bottom:6px">
-                    <a href="#" id="closePanel" style="color:#666;text-decoration:none">Close</a>
-                </div>
+                <!-- top Close removed; Cancel button will be next to Save Admin -->
                 <form id="adminForm" method="POST" action="/admin/settings/manage">
                     @csrf
                     <input type="hidden" name="_id" id="admin_id" value="">
@@ -39,6 +37,7 @@
 
                     <div style="display:flex;gap:8px;align-items:center">
                         <button class="btn" type="submit">Save Admin</button>
+                        <button id="cancelBtn" type="button" class="btn" style="background:#fff;border:1px solid #cfd8db;color:#333">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -172,16 +171,16 @@
 
             // Note: New Admin link navigates to the manage route; panel only shows on Edit
 
-            // Close button restores list view
-            const closeBtn = document.getElementById('closePanel');
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function(e){
+            // Cancel button next to Save Admin restores list view
+            const cancelBtn = document.getElementById('cancelBtn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function(e){
                     e.preventDefault();
                     if (panel) panel.style.display = 'none';
                     if (grid) grid.style.gridTemplateColumns = '1fr';
                     if (list) list.style.display = '';
                     // restore panel back to its original DOM position
-                    try { if (panel && panelOriginalParent) panelOriginalParent.insertBefore(panel, panelOriginalNext); } catch(err) {}
+                    try { if (panel && panelOriginalParent) panelOriginalParent.insertBefore(panel, panelOriginalNext); } catch(err){}
                     try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin=''; inner.style.width=''; } } catch(e){}
                     clearForm();
                 });
