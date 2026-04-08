@@ -54,22 +54,15 @@
                                 <label style="display:block;margin-bottom:6px">Purpose</label>
                                 <textarea name="purpose" rows="2" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px"></textarea>
                             </div>
-                            <tr>
-                                <th>Employee</th>
-                                <th>Designation</th>
-                                <th>Department</th>
-                                <th>Place</th>
-                                <th>From</th>
-                                <th>To</th>
-                                <th>Total Days</th>
-                                <th>Purpose</th>
-                                <th>Office Order</th>
-                                <th>Actions</th>
-                            </tr>
-                                @foreach($departments as $d)
-                                    <option value="{{ $d->department_id }}" @if((string)($dept ?? '') === (string)$d->department_id) selected @endif>{{ $d->department_name }}</option>
-                                @endforeach
-                            </select>
+                            <div style="margin-bottom:8px">
+                                <label style="display:block;margin-bottom:6px">Department</label>
+                                <select name="department" style="padding:8px;width:100%;border:1px solid #e6eef8;border-radius:6px">
+                                    <option value="">-- All Departments --</option>
+                                    @foreach($departments as $d)
+                                        <option value="{{ $d->department_id }}" @if((string)($dept ?? '') === (string)$d->department_id) selected @endif>{{ $d->department_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <button class="btn" type="submit">Filter</button>
                         </form>
                     </div>
@@ -90,8 +83,8 @@
                     </tr>
                     </thead>
                     <tbody>
+                    @if(empty($onTourStaff) || count($onTourStaff) === 0)
                         <tr><td colspan="9" class="empty">No staff on tour right now</td></tr>
-                        <tr><td colspan="8" class="empty">No staff on tour right now</td></tr>
                     @else
                         @foreach($onTourStaff as $tour)
                             <tr>
