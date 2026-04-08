@@ -13,6 +13,26 @@ class AdminSettingsController extends Controller
         return view('admin.settings.add-admin');
     }
 
+    public function index()
+    {
+        // Try to load admin accounts from common locations
+        $admins = [];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $admins = \Illuminate\Support\Facades\DB::table('admins')->get()->map(fn($r)=> (array) $r)->toArray();
+            } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+                if (in_array('is_admin', $cols, true)) {
+                    $admins = \Illuminate\Support\Facades\DB::table('users')->where('is_admin', 1)->get()->map(fn($r)=> (array) $r)->toArray();
+                }
+            }
+        } catch (\Throwable $e) {
+            $admins = [];
+        }
+
+        return view('admin.settings.index', ['admins' => $admins, 'activeNav' => 'settings']);
+    }
+
     public function store(Request $request)
     {
         // TODO: implement admin creation

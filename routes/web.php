@@ -151,8 +151,8 @@ Route::get('/admin/settings/toggle-admin', [App\Http\Controllers\Admin\AdminSett
 
 // Backwards-compatibility: redirect legacy settings.php to admin settings
 Route::get('/settings.php', function () { return redirect()->route('admin.settings.index'); });
-// Admin settings index (redirects to add-admin for now)
-Route::get('/admin/settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'create'])->name('admin.settings.index');
+// Admin settings index (list admins)
+Route::get('/admin/settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'index'])->name('admin.settings.index');
 
 // Legacy admin PHP page bridges (for old .php URL compatibility)
 Route::get('/admin_dashboard.php', function () {
