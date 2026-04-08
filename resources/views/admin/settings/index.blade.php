@@ -99,6 +99,9 @@
             const panel = document.getElementById('adminPanel');
             const grid = document.getElementById('settingsGrid');
             const list = document.getElementById('adminList');
+            // remember original panel location so we can restore it
+            const panelOriginalParent = panel ? panel.parentNode : null;
+            const panelOriginalNext = panel ? panel.nextSibling : null;
             if (panel) panel.style.display = 'none';
             if (grid) grid.style.gridTemplateColumns = '1fr';
             if (list) list.style.display = '';
@@ -118,26 +121,32 @@
                 const admin = JSON.parse(r.getAttribute('data-admin'));
                 r.querySelector('.edit-link').addEventListener('click', (e)=>{
                     e.preventDefault();
-                    // show narrow left panel alongside the list
-                    if (panel) panel.style.display = 'block';
-                    if (grid) grid.style.gridTemplateColumns = '360px 1fr';
-                    if (list) list.style.display = '';
-                    try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin=''; inner.style.width=''; } } catch(e){}
+                    // move panel to sit immediately below the table and show full-width
+                    if (panel && list) {
+                        try { list.parentNode.insertBefore(panel, list.nextSibling); } catch(err) {}
+                        panel.style.display = 'block';
+                        panel.style.width = '100%';
+                        if (grid) grid.style.gridTemplateColumns = '1fr';
+                        try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin='0 0 12px 0'; inner.style.width='100%'; } } catch(e){}
+                    }
                     idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                     nameField.value = admin.name ?? admin.admin_name ?? '';
                     userField.value = admin.username ?? admin.email ?? '';
                     activeField.value = (admin.active ?? admin.is_active ?? 1) ? '1' : '0';
                     passField.value = '';
                     form.action = '/admin/settings/manage/' + idField.value;
-                    // focus and scroll
+                    // focus the name field and scroll to the form
                     try { nameField.focus(); panel.scrollIntoView({behavior:'smooth'}); } catch(e){}
                 });
                 r.querySelector('.change-pass-link').addEventListener('click', (e)=>{
                     e.preventDefault();
-                    if (panel) panel.style.display = 'block';
-                    if (grid) grid.style.gridTemplateColumns = '360px 1fr';
-                    if (list) list.style.display = '';
-                    try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin=''; inner.style.width=''; } } catch(e){}
+                    if (panel && list) {
+                        try { list.parentNode.insertBefore(panel, list.nextSibling); } catch(err) {}
+                        panel.style.display = 'block';
+                        panel.style.width = '100%';
+                        if (grid) grid.style.gridTemplateColumns = '1fr';
+                        try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin='0 0 12px 0'; inner.style.width='100%'; } } catch(e){}
+                    }
                     idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                     form.action = '/admin/settings/manage/' + idField.value;
                     passField.focus();
@@ -163,6 +172,8 @@
                     if (panel) panel.style.display = 'none';
                     if (grid) grid.style.gridTemplateColumns = '1fr';
                     if (list) list.style.display = '';
+                    // restore panel back to its original DOM position
+                    try { if (panel && panelOriginalParent) panelOriginalParent.insertBefore(panel, panelOriginalNext); } catch(err) {}
                     try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin=''; inner.style.width=''; } } catch(e){}
                     clearForm();
                 });
