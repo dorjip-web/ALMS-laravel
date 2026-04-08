@@ -35,7 +35,7 @@ class AttendanceLogController extends Controller
         if ($isRange) {
             $attendanceBase->whereBetween('a.attendance_date', [$fromDate, $date]);
         } else {
-            $targetDate = $date ?: now()->toDateString();
+            $targetDate = $date ?: now('Asia/Thimphu')->toDateString();
             $attendanceBase->where('a.attendance_date', $targetDate);
         }
 
@@ -87,7 +87,7 @@ class AttendanceLogController extends Controller
                     if ($isRange) {
                         $join->whereBetween('a.attendance_date', [$fromDate, $date]);
                     } else {
-                        $join->where('a.attendance_date', $date ?: now()->toDateString());
+                        $join->where('a.attendance_date', $date ?: now('Asia/Thimphu')->toDateString());
                     }
                 })
                 ->leftJoin('department as d', 'd.department_id', '=', 't.department_id')
@@ -303,7 +303,7 @@ class AttendanceLogController extends Controller
                     if ($isRange) {
                         $join->whereBetween('a.attendance_date', [$fromDate, $date]);
                     } else {
-                        $join->where('a.attendance_date', $date ?: now()->toDateString());
+                        $join->where('a.attendance_date', $date ?: now('Asia/Thimphu')->toDateString());
                     }
                 })
                 ->leftJoin('department as d', 'd.department_id', '=', 't.department_id')
@@ -360,7 +360,7 @@ class AttendanceLogController extends Controller
             if ($isRange) {
                 $query->whereBetween('a.attendance_date', [$fromDate, $date]);
             } else {
-                $query->where('a.attendance_date', $date ?: now()->toDateString());
+                $query->where('a.attendance_date', $date ?: now('Asia/Thimphu')->toDateString());
             }
 
             if ($dept) {
