@@ -1,5 +1,5 @@
 @php
-    // Determine a consistent sidebar display name for all sidebars
+    // Determine the display name for the sidebar (prefer passed value, then username, then authenticated user)
     $sidebarName = $sidebarName ?? $username ?? (auth()->check() ? auth()->user()->name : null) ?? 'Admin';
     $parts = preg_split('/\s+/', trim($sidebarName));
     $initials = count($parts) > 1
