@@ -16,22 +16,24 @@
     .profile .avatar label { display: block; }
     .profile .camera-badge {
         position: absolute;
-        right: 6px;
-        bottom: 6px;
+        /* place badge overlapping avatar outer edge */
+        right: -8px;
+        bottom: -8px;
         width: 36px;
-        height: 28px;
-        background: transparent;
-        color: inherit;
-        border-radius: 0;
+        height: 36px;
+        background: #ff7a00;
+        color: #fff;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 14px;
-        box-shadow: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         opacity: 0;
         transform: translateY(6px) scale(0.95);
         transition: opacity .14s ease, transform .14s ease;
         pointer-events: none;
+        border: 3px solid rgba(255,255,255,0.95); /* thin white ring to sit on outer avatar edge */
     }
     .profile .avatar:hover .camera-badge { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
 </style>
@@ -48,8 +50,8 @@
                         {{ $initials }}
                     @endif
                     <span class="camera-badge" aria-hidden="true">
-                        <svg width="22" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-                            <path d="M21 7h-3.2l-1.7-2.4A1 1 0 0015.6 4H8.4a1 1 0 00-.5.6L6.2 7H3a1 1 0 00-1 1v10a1 1 0 001 1h18a1 1 0 001-1V8a1 1 0 00-1-1zM12 17a4 4 0 110-8 4 4 0 010 8z" fill="#ff7a00"/>
+                        <svg width="18" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <path d="M21 7h-3.2l-1.7-2.4A1 1 0 0015.6 4H8.4a1 1 0 00-.5.6L6.2 7H3a1 1 0 00-1 1v10a1 1 0 001 1h18a1 1 0 001-1V8a1 1 0 00-1-1zM12 17a4 4 0 110-8 4 4 0 010 8z" fill="#fff"/>
                         </svg>
                     </span>
                 </label>
