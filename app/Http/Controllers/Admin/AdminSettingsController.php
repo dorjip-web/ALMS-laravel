@@ -8,36 +8,6 @@ use Illuminate\Support\Facades\Redirect;
 
 class AdminSettingsController extends Controller
 {
-    /**
-     * Detect table/column names for admin records.
-     * Returns array: [table, pk, name_col, username_col, active_col, has_password]
-     */
-    private function detectAdminSchema(): array
-    {
-        // prefer `admins` table
-        if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
-            $cols = \Illuminate\Support\Facades\Schema::getColumnListing('admins');
-            $pk = in_array('admin_id', $cols, true) ? 'admin_id' : (in_array('id', $cols, true) ? 'id' : $cols[0] ?? 'id');
-            $name = in_array('name', $cols, true) ? 'name' : (in_array('admin_name', $cols, true) ? 'admin_name' : ($cols[1] ?? 'name'));
-            $username = in_array('username', $cols, true) ? 'username' : (in_array('email', $cols, true) ? 'email' : $name);
-            $active = in_array('active', $cols, true) ? 'active' : (in_array('is_active', $cols, true) ? 'is_active' : null);
-            $hasPassword = in_array('password', $cols, true);
-            return ['table' => 'admins', 'pk' => $pk, 'name' => $name, 'username' => $username, 'active' => $active, 'has_password' => $hasPassword];
-        }
-
-        // fallback to users table
-        if (\Illuminate\Support\Facades\Schema::hasTable('users')) {
-            $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
-            $pk = in_array('id', $cols, true) ? 'id' : ($cols[0] ?? 'id');
-            $name = in_array('name', $cols, true) ? 'name' : ($cols[1] ?? 'name');
-            $username = in_array('email', $cols, true) ? 'email' : (in_array('username', $cols, true) ? 'username' : $name);
-            $active = in_array('is_active', $cols, true) ? 'is_active' : (in_array('active', $cols, true) ? 'active' : null);
-            $hasPassword = in_array('password', $cols, true);
-            return ['table' => 'users', 'pk' => $pk, 'name' => $name, 'username' => $username, 'active' => $active, 'has_password' => $hasPassword];
-        }
-
-        return ['table' => null, 'pk' => 'id', 'name' => 'name', 'username' => 'username', 'active' => null, 'has_password' => false];
-    }
     public function create()
     {
         return view('admin.settings.add-admin');
@@ -45,19 +15,16 @@ class AdminSettingsController extends Controller
 
     public function index()
     {
-        // Load admin accounts from detected admin/users table
+        // Load admin accounts from `admins` table (prefer) or fallback to `users`
         $admins = [];
         try {
-            $schema = $this->detectAdminSchema();
-            if ($schema['table']) {
-                $q = \Illuminate\Support\Facades\DB::table($schema['table']);
-                // if using users table, filter by is_admin when present
-                if ($schema['table'] === 'users') {
-                    $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
-                    if (in_array('is_admin', $cols, true)) { $q = $q->where('is_admin', 1); }
+            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $admins = \Illuminate\Support\Facades\DB::table('admins')->orderBy('admin_id')->get()->map(fn($r) => (array) $r)->toArray();
+            } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+                if (in_array('is_admin', $cols, true)) {
+                    $admins = \Illuminate\Support\Facades\DB::table('users')->where('is_admin',1)->orderBy('id')->get()->map(fn($r)=> (array) $r)->toArray();
                 }
-                $rows = $q->orderBy($schema['pk'])->get()->map(fn($r)=> (array) $r)->toArray();
-                $admins = $rows;
             }
         } catch (\Throwable $e) {
             $admins = [];
@@ -97,18 +64,36 @@ class AdminSettingsController extends Controller
     public function toggle(Request $request, $id)
     {
         try {
-            $schema = $this->detectAdminSchema();
-            if ($schema['table']) {
-                $row = \Illuminate\Support\Facades\DB::table($schema['table'])->where($schema['pk'], $id)->first();
-                if ($row && $schema['active']) {
-                    $current = $row->{$schema['active']} ?? 0;
+            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('admins');
+                // prefer admin_id as PK
+                $pk = in_array('admin_id', $cols, true) ? 'admin_id' : (in_array('id', $cols, true) ? 'id' : null);
+                if ($pk === null) { throw new \Exception('No primary key found for admins table'); }
+                // determine active column
+                $activeCol = in_array('active', $cols, true) ? 'active' : (in_array('is_active', $cols, true) ? 'is_active' : null);
+                if ($activeCol === null) { throw new \Exception('No active column on admins table'); }
+                $row = \Illuminate\Support\Facades\DB::table('admins')->where($pk, $id)->first();
+                if ($row) {
+                    $current = $row->{$activeCol} ?? 0;
                     $new = $current ? 0 : 1;
-                    \Illuminate\Support\Facades\DB::table($schema['table'])->where($schema['pk'], $id)->update([$schema['active'] => $new, 'updated_at' => now()]);
+                    \Illuminate\Support\Facades\DB::table('admins')->where($pk, $id)->update([$activeCol => $new, 'updated_at' => now()]);
+                }
+            } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+                if (in_array('is_active', $cols, true) || in_array('active', $cols, true)) {
+                    $activeCol = in_array('is_active', $cols, true) ? 'is_active' : 'active';
+                    $row = \Illuminate\Support\Facades\DB::table('users')->where('id', $id)->first();
+                    if ($row) {
+                        $current = $row->{$activeCol} ?? 0; $new = $current ? 0 : 1;
+                        \Illuminate\Support\Facades\DB::table('users')->where('id', $id)->update([$activeCol => $new, 'updated_at' => now()]);
+                    }
+                } else {
+                    throw new \Exception('No active column on users table');
                 }
             }
         } catch (\Throwable $e) {
             logger()->error('Failed toggling admin', ['error' => $e->getMessage(), 'id' => $id]);
-            return redirect()->back()->with('flash_error', 'Failed to toggle admin');
+            return redirect()->back()->with('flash_error', 'Failed to toggle admin: ' . $e->getMessage());
         }
 
         return redirect()->route('admin.settings.index')->with('flash_success', 'Admin status updated');
@@ -122,14 +107,10 @@ class AdminSettingsController extends Controller
         $admin = [];
         try {
             if ($id) {
-                $schema = $this->detectAdminSchema();
-                if ($schema['table']) {
-                    $q = \Illuminate\Support\Facades\DB::table($schema['table'])->where($schema['pk'], $id);
-                    if ($schema['table'] === 'users') {
-                        $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
-                        if (in_array('is_admin', $cols, true)) { $q = $q->where('is_admin', 1); }
-                    }
-                    $admin = (array) ($q->first() ?? []);
+                if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                    $admin = (array) (\Illuminate\Support\Facades\DB::table('admins')->where('admin_id', $id)->first() ?? []);
+                } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+                    $admin = (array) (\Illuminate\Support\Facades\DB::table('users')->where('id', $id)->where('is_admin',1)->first() ?? []);
                 }
             }
         } catch (\Throwable $e) {
@@ -148,36 +129,36 @@ class AdminSettingsController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255',
             'password' => 'nullable|string|min:6',
-            'active' => 'required|in:0,1',
         ]);
 
         try {
-            $schema = $this->detectAdminSchema();
-            if ($schema['table'] === 'admins') {
+            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('admins');
                 $payload = [];
-                $payload[$schema['name']] = $data['name'];
-                $payload[$schema['username']] = $data['username'];
-                if ($schema['active'] !== null) { $payload[$schema['active']] = (int)$data['active']; }
+                $payload['admin_name'] = $data['name'];
+                $payload['username'] = $data['username'];
+                if (in_array('password', $cols, true) && !empty($data['password'])) { $payload['password'] = bcrypt($data['password']); }
                 $payload['updated_at'] = now();
-                if (!empty($data['password']) && $schema['has_password']) { $payload['password'] = bcrypt($data['password']); }
 
                 if ($id) {
-                    \Illuminate\Support\Facades\DB::table($schema['table'])->where($schema['pk'],$id)->update($payload);
+                    \Illuminate\Support\Facades\DB::table('admins')->where('admin_id',$id)->update($payload);
                 } else {
                     $payload['created_at'] = now();
-                    \Illuminate\Support\Facades\DB::table($schema['table'])->insert($payload);
+                    \Illuminate\Support\Facades\DB::table('admins')->insert($payload);
                 }
-            } elseif ($schema['table'] === 'users') {
+            } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
                 $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
-                $payload = [];
-                $payload[$schema['name']] = $data['name'];
-                $payload[$schema['username']] = $data['username'];
-                if (in_array('is_admin', $cols, true)) { $payload['is_admin'] = 1; }
-                $payload['updated_at'] = now();
-                if (!empty($data['password']) && in_array('password', $cols, true)) { $payload['password'] = bcrypt($data['password']); }
-
+                $payload = [
+                    'name' => $data['name'],
+                    'email' => $data['username'],
+                    'is_admin' => 1,
+                    'updated_at' => now(),
+                ];
+                if (in_array('password', $cols, true) && !empty($data['password'])) {
+                    $payload['password'] = bcrypt($data['password']);
+                }
                 if ($id) {
-                    \Illuminate\Support\Facades\DB::table('users')->where($schema['pk'],$id)->update($payload);
+                    \Illuminate\Support\Facades\DB::table('users')->where('id',$id)->update($payload);
                 } else {
                     if (in_array('created_at', $cols, true)) { $payload['created_at'] = now(); }
                     \Illuminate\Support\Facades\DB::table('users')->insert($payload);
