@@ -149,6 +149,10 @@ Route::get('/admin/settings/edit-admin', [App\Http\Controllers\Admin\AdminSettin
 Route::post('/admin/settings/edit-admin', [App\Http\Controllers\Admin\AdminSettingsController::class, 'update'])->name('admin.settings.edit_admin.update');
 Route::get('/admin/settings/toggle-admin', [App\Http\Controllers\Admin\AdminSettingsController::class, 'toggle'])->name('admin.settings.toggle');
 
+// Single-form manage routes (create/edit)
+Route::get('/admin/settings/manage/{id?}', [App\Http\Controllers\Admin\AdminSettingsController::class, 'manage'])->name('admin.settings.manage');
+Route::post('/admin/settings/manage/{id?}', [App\Http\Controllers\Admin\AdminSettingsController::class, 'save'])->name('admin.settings.manage.save');
+
 // Backwards-compatibility: redirect legacy settings.php to admin settings
 Route::get('/settings.php', function () { return redirect()->route('admin.settings.index'); });
 // Admin settings index (list admins)
