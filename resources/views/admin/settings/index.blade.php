@@ -119,6 +119,11 @@
                     if (panel) panel.style.display = 'block';
                     if (grid) grid.style.gridTemplateColumns = '1fr';
                     if (list) list.style.display = 'none';
+                    // widen and center the inner panel for full-page form
+                    try {
+                        const inner = panel.querySelector('.panel');
+                        if (inner) { inner.style.maxWidth = '900px'; inner.style.margin = '0 auto'; width:inner.style.width='100%'; }
+                    } catch(e){}
                     idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                     nameField.value = admin.name ?? admin.admin_name ?? '';
                     userField.value = admin.username ?? admin.email ?? '';
@@ -133,6 +138,10 @@
                     if (panel) panel.style.display = 'block';
                     if (grid) grid.style.gridTemplateColumns = '1fr';
                     if (list) list.style.display = 'none';
+                    try {
+                        const inner = panel.querySelector('.panel');
+                        if (inner) { inner.style.maxWidth = '900px'; inner.style.margin = '0 auto'; inner.style.width='100%'; }
+                    } catch(e){}
                     idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                     form.action = '/admin/settings/manage/' + idField.value;
                     passField.focus();
@@ -158,6 +167,7 @@
                     if (panel) panel.style.display = 'none';
                     if (grid) grid.style.gridTemplateColumns = '360px 1fr';
                     if (list) list.style.display = '';
+                    try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin=''; inner.style.width=''; } } catch(e){}
                     clearForm();
                 });
             }
