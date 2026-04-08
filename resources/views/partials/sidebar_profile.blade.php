@@ -1,14 +1,23 @@
 @php
-    // Show organisation short name only on admin dashboard/pages, otherwise show the employee name
-    // Match admin routes: named admin.* OR specific admin-dashboard path
+    // Show organisation short name on admin pages, show "HoD" only on HoD dashboard/pages,
+    // otherwise show the employee name
     $isAdminArea = (
-        (request()->routeIs('admin.*')) ||
+        request()->routeIs('admin.*') ||
         request()->routeIs('admin.dashboard') ||
         request()->is('admin-dashboard') ||
         ($isAdmin ?? false)
     );
 
-    if ($isAdminArea) {
+    $isHodArea = (
+        request()->routeIs('hod.*') ||
+        request()->routeIs('hod.dashboard') ||
+        request()->is('hod-dashboard') ||
+        ($isHod ?? false)
+    );
+
+    if ($isHodArea) {
+        $sidebarName = 'HoD';
+    } elseif ($isAdminArea) {
         $sidebarName = 'NTMH';
     } else {
         $sidebarName = $sidebarName ?? $username ?? (auth()->check() ? auth()->user()->name : null) ?? 'Admin';
