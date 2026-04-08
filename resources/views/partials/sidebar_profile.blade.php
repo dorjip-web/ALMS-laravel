@@ -1,6 +1,11 @@
 @php
-    // Determine the display name for the sidebar (prefer passed value, then username, then authenticated user)
-    $sidebarName = $sidebarName ?? $username ?? (auth()->check() ? auth()->user()->name : null) ?? 'Admin';
+    // Show organisation short name on admin pages, otherwise show the employee name
+    $isAdminArea = request()->is('admin/*') || ($isAdmin ?? false);
+    if ($isAdminArea) {
+        $sidebarName = 'NTMH';
+    } else {
+        $sidebarName = $sidebarName ?? $username ?? (auth()->check() ? auth()->user()->name : null) ?? 'Admin';
+    }
     $parts = preg_split('/\s+/', trim($sidebarName));
     $initials = count($parts) > 1
         ? strtoupper(substr($parts[0], 0, 1) . substr($parts[1], 0, 1))
