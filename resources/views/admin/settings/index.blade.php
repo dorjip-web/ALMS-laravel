@@ -69,7 +69,16 @@
                                         <td>{{ $a['name'] ?? ($a['admin_name'] ?? ($a['username'] ?? '-')) }}</td>
                                         <td>{{ $a['username'] ?? $a['email'] ?? '-' }}</td>
                                         <td>
-                                            @if (!empty($a['active']) || !empty($a['is_active']) || (!empty($a['is_admin']) && $a['is_admin'] == 1))
+                                            @php
+                                                $isActive = false;
+                                                if (!empty($a['active']) || !empty($a['is_active'])) { $isActive = true; }
+                                                if (!empty($a['is_admin']) && $a['is_admin'] == 1) { $isActive = true; }
+                                                if (isset($a['status'])) {
+                                                    $s = strtolower(trim((string)$a['status']));
+                                                    if ($s === 'active' || $s === '1' || $s === 'true') { $isActive = true; }
+                                                }
+                                            @endphp
+                                            @if ($isActive)
                                                 <span class="status-active">Active</span>
                                             @else
                                                 <span class="status-inactive">Inactive</span>
@@ -161,32 +170,59 @@
                         const aid = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                         if (!aid) return;
                         if (!confirm('Toggle admin status?')) return;
-                        fetch('/admin/settings/toggle/' + aid, {method:'POST', headers: {'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
+                        // compute desired state (opposite of current shown state) and send it explicitly
+                        (function(){
+                            let desiredVal = null;
+                            const statusCell = r.querySelector('td:nth-child(3)');
+                            if (statusCell) {
+                                const activeSpan = statusCell.querySelector('.status-active') || statusCell.querySelector('.status-inactive');
+                                if (activeSpan) {
+                                    const cur = activeSpan.textContent.trim().toLowerCase();
+                                    desiredVal = (cur === 'active') ? 'Inactive' : 'Active';
+                                }
+                            }
+
+                            fetch('/admin/settings/toggle/' + aid, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ desired: desiredVal })
+                            })
                             .then((res)=>{
                                 if (!res.ok) throw new Error('Request failed');
-                                // update status cell in this row without full reload
+                                return res.json();
+                            })
+                            .then((data) => {
+                                // update status cell using authoritative server response
                                 try {
                                     const statusCell = r.querySelector('td:nth-child(3)');
-                                    if (statusCell) {
+                                    if (statusCell && data && data.new !== undefined && data.new !== null) {
                                         const activeSpan = statusCell.querySelector('.status-active') || statusCell.querySelector('.status-inactive');
                                         if (activeSpan) {
-                                            if (activeSpan.classList.contains('status-active')) {
-                                                activeSpan.classList.remove('status-active');
-                                                activeSpan.classList.add('status-inactive');
-                                                activeSpan.textContent = 'Inactive';
-                                            } else {
+                                            const newVal = String(data.new).toLowerCase();
+                                            if (newVal === 'active' || newVal === '1' || newVal === 'true') {
                                                 activeSpan.classList.remove('status-inactive');
                                                 activeSpan.classList.add('status-active');
                                                 activeSpan.textContent = 'Active';
+                                            } else {
+                                                activeSpan.classList.remove('status-active');
+                                                activeSpan.classList.add('status-inactive');
+                                                activeSpan.textContent = 'Inactive';
                                             }
                                         }
+                                    } else {
+                                        // fallback to reload if response missing
+                                        location.reload();
                                     }
                                 } catch (err) {
-                                    // fallback to reload if DOM update fails
                                     location.reload();
                                 }
                             })
                             .catch(()=> alert('Failed to toggle admin'));
+                        })();
                     });
                 }
                 // table-level change-password and toggle links removed; keep form buttons

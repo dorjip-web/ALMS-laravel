@@ -71,26 +71,42 @@ class AdminSettingsController extends Controller
             $handled = false;
             $now = now();
 
-            $tryToggle = function($tableName, $pkField, $activeField) use ($id, $now) {
+            // tryToggle now returns the new value string (or numeric) when successful, false otherwise
+            $tryToggle = function($tableName, $pkField, $activeField, $desired = null) use ($id, $now) {
                 $row = \Illuminate\Support\Facades\DB::table($tableName)->where($pkField, $id)->first();
                 if (!$row) return false;
                 $current = $row->{$activeField} ?? null;
-                // Determine new value based on type
-                if (is_numeric($current)) {
-                    $new = ($current ? 0 : 1);
-                } else {
-                    // assume string status
-                    $cur = strtolower(trim((string)$current));
-                    if ($cur === 'active' || $cur === '1' || $cur === 'true') { $new = 'Inactive'; }
-                    else { $new = 'Active'; }
-                }
-                $update = [$activeField => $new];
-                // only add updated_at if column exists
                 $cols = \Illuminate\Support\Facades\Schema::getColumnListing($tableName);
+
+                // If caller provided a desired state, use that (normalized by column type)
+                if ($desired !== null) {
+                    $d = strtolower(trim((string)$desired));
+                    if (is_numeric($current)) {
+                        // numeric columns expect 1/0
+                        if ($d === 'active' || $d === '1' || $d === 'true') { $new = 1; }
+                        else { $new = 0; }
+                    } else {
+                        // use string labels for non-numeric
+                        if ($d === '1' || $d === 'true') { $new = 'Active'; }
+                        elseif ($d === '0') { $new = 'Inactive'; }
+                        else { $new = (strtolower($d) === 'active' ? 'Active' : 'Inactive'); }
+                    }
+                } else {
+                    // Determine new value by inverting current
+                    if (is_numeric($current)) {
+                        $new = ($current ? 0 : 1);
+                    } else {
+                        $cur = strtolower(trim((string)$current));
+                        if ($cur === 'active' || $cur === '1' || $cur === 'true') { $new = 'Inactive'; }
+                        else { $new = 'Active'; }
+                    }
+                }
+
+                $update = [$activeField => $new];
                 if (in_array('updated_at', $cols, true)) { $update['updated_at'] = $now; }
                 \Illuminate\Support\Facades\DB::table($tableName)->where($pkField, $id)->update($update);
                 logger()->info('Toggled admin', ['table' => $tableName, 'pk' => $pkField, 'active' => $activeField, 'id' => $id, 'new' => $new]);
-                return true;
+                return $new;
             };
 
             if ($table) {
@@ -100,7 +116,8 @@ class AdminSettingsController extends Controller
                     // prefer these common active column names
                     foreach (['active','is_active','status','isadmin_active'] as $candidate) {
                         if (in_array($candidate, $cols, true)) {
-                            if ($tryToggle($table, $pk, $candidate)) { $handled = true; break; }
+                            $res = $tryToggle($table, $pk, $candidate, $request->input('desired', null));
+                            if ($res !== false) { $handled = true; $newState = $res; break; }
                         }
                     }
                 }
@@ -111,7 +128,8 @@ class AdminSettingsController extends Controller
                 $pk = 'id';
                 foreach (['is_active','active','status'] as $candidate) {
                     if (in_array($candidate, $cols, true)) {
-                        if ($tryToggle('users', $pk, $candidate)) { $handled = true; break; }
+                        $res = $tryToggle('users', $pk, $candidate, $request->input('desired', null));
+                        if ($res !== false) { $handled = true; $newState = $res; break; }
                     }
                 }
             }
@@ -129,7 +147,7 @@ class AdminSettingsController extends Controller
         }
 
         if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['ok' => true]);
+            return response()->json(['ok' => true, 'new' => $newState ?? null]);
         }
 
         return redirect()->route('admin.settings.index')->with('flash_success', 'Admin status updated');
