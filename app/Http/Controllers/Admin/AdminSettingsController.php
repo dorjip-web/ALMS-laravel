@@ -15,15 +15,16 @@ class AdminSettingsController extends Controller
 
     public function index()
     {
-        // Try to load admin accounts from common locations
+        // Load admin accounts from common tables if available
         $admins = [];
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
-                $admins = \Illuminate\Support\Facades\DB::table('admins')->get()->map(fn($r)=> (array) $r)->toArray();
+                $admins = \Illuminate\Support\Facades\DB::table('admins')->orderBy('id')->get()->map(fn($r)=> (array) $r)->toArray();
             } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+                // assume users table may contain admin flag
                 $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
                 if (in_array('is_admin', $cols, true)) {
-                    $admins = \Illuminate\Support\Facades\DB::table('users')->where('is_admin', 1)->get()->map(fn($r)=> (array) $r)->toArray();
+                    $admins = \Illuminate\Support\Facades\DB::table('users')->where('is_admin',1)->orderBy('id')->get()->map(fn($r)=> (array) $r)->toArray();
                 }
             }
         } catch (\Throwable $e) {
