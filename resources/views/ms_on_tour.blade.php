@@ -33,60 +33,7 @@
                     <div class="flash flash-error">{{ $errors->first() }}</div>
                 @endif
 
-                <div class="row-grid" style="margin-bottom:12px;">
-                    <div class="col">
-                        <form method="POST" action="{{ route('ms.on_tour.store') }}" class="leave-form">
-                            @csrf
-                            <div style="font-weight:700;margin-bottom:8px">Add Tour Record</div>
-
-                            <div class="row-grid">
-                                <div class="col">
-                                    <label>Employee</label>
-                                    <select name="employee_id" required class="form-control">
-                                        <option value="">-- Select Employee --</option>
-                                        @foreach($employees as $emp)
-                                            <option value="{{ $emp->employee_id }}">{{ $emp->employee_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col">
-                                    <label>Department</label>
-                                    <select name="department_id" class="form-control">
-                                        <option value="">-- Select Department --</option>
-                                        @foreach($departments as $d)
-                                            <option value="{{ $d->department_id }}" @if((string)($dept ?? '') === (string)$d->department_id) selected @endif>{{ $d->department_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="row-grid" style="margin-top:12px;">
-                                <div class="col">
-                                    <label>Start Date</label>
-                                    <input type="date" name="start_date" class="form-control">
-                                </div>
-                                <div class="col">
-                                    <label>End Date</label>
-                                    <input type="date" name="end_date" class="form-control">
-                                </div>
-                            </div>
-
-                            <div class="row" style="margin-top:12px">
-                                <label>Place</label>
-                                <input type="text" name="place" class="form-control">
-                            </div>
-
-                            <div class="row" style="margin-top:12px">
-                                <label>Purpose</label>
-                                <textarea name="purpose" rows="2" class="form-control"></textarea>
-                            </div>
-
-                            <div style="margin-top:12px">
-                                <button type="submit" class="btn">Add Tour</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <!-- Add Tour Record form removed per user request -->
 
                 <h4 style="margin-top:18px">Recent Staff On Tour</h4>
                 <div class="leave-history" style="margin-top:8px;">
