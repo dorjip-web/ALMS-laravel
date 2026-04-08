@@ -19,13 +19,12 @@ class AdminSettingsController extends Controller
         $admins = [];
         $source = null;
         $count = 0;
-        $source = null;
-        $count = 0;
         $dbName = null;
         $hasAdmins = false;
-                $rows = \Illuminate\Support\Facades\DB::table('admins')->orderBy('admin_id')->get();
+        try {
             $dbName = \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
             $hasAdmins = \Illuminate\Support\Facades\Schema::hasTable('admins');
+
             if ($hasAdmins) {
                 $rows = \Illuminate\Support\Facades\DB::table('admins')->orderBy('admin_id')->get();
                 $admins = $rows->map(fn($r) => (array) $r)->toArray();
@@ -37,12 +36,11 @@ class AdminSettingsController extends Controller
                 $source = 'users';
                 $count = $rows->count();
             }
-            }
         } catch (\Throwable $e) {
             $admins = [];
         }
+
         return view('admin.settings.index', ['admins' => $admins, 'activeNav' => 'settings', 'source' => $source, 'count' => $count, 'dbName' => $dbName, 'hasAdmins' => $hasAdmins]);
-        return view('admin.settings.index', ['admins' => $admins, 'activeNav' => 'settings', 'source' => $source, 'count' => $count]);
     }
 
     public function store(Request $request)
