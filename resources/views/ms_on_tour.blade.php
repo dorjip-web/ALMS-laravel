@@ -35,54 +35,7 @@
 
                 <!-- Add Tour Record form removed per user request -->
 
-                <h4 style="margin-top:18px">Recent Staff On Tour</h4>
-                <div class="leave-history" style="margin-top:8px;">
-                    <div class="table-wrap">
-                        <table class="users">
-                            <thead>
-                                <tr>
-                                    <th>Employee</th>
-                                    <th>Designation</th>
-                                    <th>Department</th>
-                                    <th>Place</th>
-                                    <th>From</th>
-                                    <th>To</th>
-                                    <th>Total Days</th>
-                                    <th>Purpose</th>
-                                    <th>Office Order</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (empty($onTourStaff))
-                                    <tr><td colspan="10" class="summary-empty">No staff on tour right now</td></tr>
-                                @else
-                                    @foreach($onTourStaff as $tour)
-                                        <tr>
-                                            <td>{{ $tour['employee_name'] ?? ($tour['employee'] ?? '-') }}</td>
-                                            <td>{{ $tour['designation'] ?? '-' }}</td>
-                                            <td>{{ $tour['department_name'] ?? '-' }}</td>
-                                            <td>{{ $tour['place'] ?? '-' }}</td>
-                                            <td>{{ ! empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date'])->format('d M Y') : '-' }}</td>
-                                            <td>{{ ! empty($tour['end_date']) ? \Illuminate\Support\Carbon::parse($tour['end_date'])->format('d M Y') : '-' }}</td>
-                                            <td>{{ (!empty($tour['start_date']) && !empty($tour['end_date'])) ? (\Illuminate\Support\Carbon::parse($tour['start_date'])->diffInDays(\Illuminate\Support\Carbon::parse($tour['end_date'])) + 1) : '-' }}</td>
-                                            <td>{{ $tour['purpose'] ?? '-' }}</td>
-                                            <td>@if(!empty($tour['office_order_pdf'])) <a href="{{ asset('storage/' . $tour['office_order_pdf']) }}" target="_blank" class="btn btn-pdf">View PDF</a> @else - @endif</td>
-                                            <td style="white-space:nowrap">
-                                                <a class="action-link" href="{{ route('ms.on_tour.edit', $tour['id'] ?? $tour['employee_id'] ?? '') }}">Edit</a>
-                                                |
-                                                <form method="POST" action="{{ route('ms.on_tour.delete', $tour['id'] ?? $tour['employee_id'] ?? '') }}" style="display:inline" onsubmit="return confirm('Delete this tour record?');">
-                                                    @csrf
-                                                    <button type="submit" style="background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;padding:0;margin-left:6px">Delete</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <!-- Recent Staff On Tour removed per user request -->
             </div>
         </section>
     </main>
