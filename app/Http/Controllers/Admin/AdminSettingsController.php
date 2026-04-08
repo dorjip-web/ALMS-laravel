@@ -17,20 +17,28 @@ class AdminSettingsController extends Controller
     {
         // Load admin accounts from `admins` table (prefer) or fallback to `users`
         $admins = [];
+        $source = null;
+        $count = 0;
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
-                $admins = \Illuminate\Support\Facades\DB::table('admins')->orderBy('admin_id')->get()->map(fn($r) => (array) $r)->toArray();
+                $rows = \Illuminate\Support\Facades\DB::table('admins')->orderBy('admin_id')->get();
+                $admins = $rows->map(fn($r) => (array) $r)->toArray();
+                $source = 'admins';
+                $count = $rows->count();
             } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
                 $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
                 if (in_array('is_admin', $cols, true)) {
-                    $admins = \Illuminate\Support\Facades\DB::table('users')->where('is_admin',1)->orderBy('id')->get()->map(fn($r)=> (array) $r)->toArray();
+                    $rows = \Illuminate\Support\Facades\DB::table('users')->where('is_admin',1)->orderBy('id')->get();
+                    $admins = $rows->map(fn($r)=> (array) $r)->toArray();
+                    $source = 'users';
+                    $count = $rows->count();
                 }
             }
         } catch (\Throwable $e) {
             $admins = [];
         }
 
-        return view('admin.settings.index', ['admins' => $admins, 'activeNav' => 'settings']);
+        return view('admin.settings.index', ['admins' => $admins, 'activeNav' => 'settings', 'source' => $source, 'count' => $count]);
     }
 
     public function store(Request $request)
