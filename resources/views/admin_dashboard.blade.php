@@ -11,8 +11,41 @@
         .grid > .quick-tiles { grid-column: 1 / -1; }
         @media (max-width: 900px) { .quick-tiles { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 480px) { .quick-tiles { grid-template-columns: 1fr; } }
-        .quick-tiles .card { display: block; width: 100%; border-radius: 8px; overflow: hidden; background: var(--tile-bg); color: #fff; text-decoration: none; }
-        .quick-tiles .card .icon-wrap{width:64px;height:64px;background:rgba(255,255,255,0.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px}
+
+        /* Card: book-fold (folded corner) style */
+        .quick-tiles .card {
+            display: block;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--tile-bg);
+            color: #fff;
+            text-decoration: none;
+            position: relative;
+            box-shadow: 0 8px 18px rgba(14,30,37,0.08);
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+        .quick-tiles .card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(14,30,37,0.12); }
+
+        /* folded-corner using pseudo-element */
+        .quick-tiles .card::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            transform-origin: top right;
+        }
+        .quick-tiles .card .fold-label{
+            position:absolute;right:8px;top:8px;font-size:11px;opacity:0.95;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.06)
+        }
+
+        .quick-tiles .card .icon-wrap{
+            width:64px;height:64px;background:rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px
+        }
     </style>
     <div class="quick-tiles">
         @php
@@ -37,7 +70,8 @@
                     <div class="icon-wrap">{{ $t['icon'] }}</div>
                     <div style="flex:1">
                         <div style="font-size:18px;font-weight:700">{{ $t['label'] }}</div>
-                        <div style="opacity:0.9">Quick access</div>
+                        <div style="opacity:0.9">Quick link</div>
+                        <div class="fold-label">Admin</div>
                     </div>
                 </div>
             </a>
