@@ -1,6 +1,13 @@
 @php
     // Show organisation short name on admin pages, show "HoD" only on HoD dashboard/pages,
-    // otherwise show the employee name
+    // show "Medical Superintendent" only on MS dashboard/pages, otherwise show the employee name
+    $isMsArea = (
+        request()->routeIs('ms.*') ||
+        request()->routeIs('ms.dashboard') ||
+        request()->is('ms-dashboard') ||
+        ($isMs ?? false)
+    );
+
     $isAdminArea = (
         request()->routeIs('admin.*') ||
         request()->routeIs('admin.dashboard') ||
@@ -15,7 +22,9 @@
         ($isHod ?? false)
     );
 
-    if ($isHodArea) {
+    if ($isMsArea) {
+        $sidebarName = 'Medical Superintendent';
+    } elseif ($isHodArea) {
         $sidebarName = 'HoD';
     } elseif ($isAdminArea) {
         $sidebarName = 'NTMH';
