@@ -65,37 +65,71 @@ class AdminSettingsController extends Controller
 
     public function toggle(Request $request, $id)
     {
+        // Improved toggle: handle numeric (0/1) and string status columns ("Active"/"Inactive").
         try {
-            // detect singular/plural admin table
             $table = \Illuminate\Support\Facades\Schema::hasTable('admin') ? 'admin' : (\Illuminate\Support\Facades\Schema::hasTable('admins') ? 'admins' : null);
+            $handled = false;
+            $now = now();
+
+            $tryToggle = function($tableName, $pkField, $activeField) use ($id, $now) {
+                $row = \Illuminate\Support\Facades\DB::table($tableName)->where($pkField, $id)->first();
+                if (!$row) return false;
+                $current = $row->{$activeField} ?? null;
+                // Determine new value based on type
+                if (is_numeric($current)) {
+                    $new = ($current ? 0 : 1);
+                } else {
+                    // assume string status
+                    $cur = strtolower(trim((string)$current));
+                    if ($cur === 'active' || $cur === '1' || $cur === 'true') { $new = 'Inactive'; }
+                    else { $new = 'Active'; }
+                }
+                $update = [$activeField => $new];
+                // only add updated_at if column exists
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing($tableName);
+                if (in_array('updated_at', $cols, true)) { $update['updated_at'] = $now; }
+                \Illuminate\Support\Facades\DB::table($tableName)->where($pkField, $id)->update($update);
+                logger()->info('Toggled admin', ['table' => $tableName, 'pk' => $pkField, 'active' => $activeField, 'id' => $id, 'new' => $new]);
+                return true;
+            };
+
             if ($table) {
                 $cols = \Illuminate\Support\Facades\Schema::getColumnListing($table);
                 $pk = in_array('admin_id', $cols, true) ? 'admin_id' : (in_array('id', $cols, true) ? 'id' : null);
-                if ($pk === null) { throw new \Exception('No primary key found for ' . $table . ' table'); }
-                $activeCol = in_array('active', $cols, true) ? 'active' : (in_array('is_active', $cols, true) ? 'is_active' : null);
-                if ($activeCol === null) { throw new \Exception('No active column on ' . $table . ' table'); }
-                $row = \Illuminate\Support\Facades\DB::table($table)->where($pk, $id)->first();
-                if ($row) {
-                    $current = $row->{$activeCol} ?? 0;
-                    $new = $current ? 0 : 1;
-                    \Illuminate\Support\Facades\DB::table($table)->where($pk, $id)->update([$activeCol => $new, 'updated_at' => now()]);
-                }
-            } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
-                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
-                if (in_array('is_active', $cols, true) || in_array('active', $cols, true)) {
-                    $activeCol = in_array('is_active', $cols, true) ? 'is_active' : 'active';
-                    $row = \Illuminate\Support\Facades\DB::table('users')->where('id', $id)->first();
-                    if ($row) {
-                        $current = $row->{$activeCol} ?? 0; $new = $current ? 0 : 1;
-                        \Illuminate\Support\Facades\DB::table('users')->where('id', $id)->update([$activeCol => $new, 'updated_at' => now()]);
+                if ($pk !== null) {
+                    // prefer these common active column names
+                    foreach (['active','is_active','status','isadmin_active'] as $candidate) {
+                        if (in_array($candidate, $cols, true)) {
+                            if ($tryToggle($table, $pk, $candidate)) { $handled = true; break; }
+                        }
                     }
-                } else {
-                    throw new \Exception('No active column on users table');
                 }
             }
+
+            if (!$handled && \Illuminate\Support\Facades\Schema::hasTable('users')) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+                $pk = 'id';
+                foreach (['is_active','active','status'] as $candidate) {
+                    if (in_array($candidate, $cols, true)) {
+                        if ($tryToggle('users', $pk, $candidate)) { $handled = true; break; }
+                    }
+                }
+            }
+
+            if (!$handled) {
+                throw new \Exception('No suitable active/status column found to toggle');
+            }
+
         } catch (\Throwable $e) {
             logger()->error('Failed toggling admin', ['error' => $e->getMessage(), 'id' => $id]);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
             return redirect()->back()->with('flash_error', 'Failed to toggle admin: ' . $e->getMessage());
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['ok' => true]);
         }
 
         return redirect()->route('admin.settings.index')->with('flash_success', 'Admin status updated');
