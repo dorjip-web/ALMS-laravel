@@ -46,7 +46,7 @@
         <!-- Right: List -->
         <div>
             <div style="margin-bottom:12px">
-                <a href="#" id="newAdminBtn" class="btn" style="font-size:15px;padding:7px 16px;text-decoration:none;">+ New Admin</a>
+                <a href="{{ route('admin.settings.manage') }}" class="btn" style="font-size:15px;padding:7px 16px;text-decoration:none;">+ New Admin</a>
             </div>
 
             <div class="leave-history">
@@ -105,7 +105,7 @@
             const changeBtn = document.getElementById('changePasswordBtn');
             const toggleBtn = document.getElementById('toggleBtn');
 
-            function clearForm(){ idField.value=''; nameField.value=''; userField.value=''; passField.value=''; activeField.value='1'; form.action='/admin/settings/manage'; if (panel) panel.style.display = 'block'; }
+            function clearForm(){ idField.value=''; nameField.value=''; userField.value=''; passField.value=''; activeField.value='1'; form.action='/admin/settings/manage'; }
 
             rows.forEach(r => {
                 const admin = JSON.parse(r.getAttribute('data-admin'));
@@ -137,14 +137,7 @@
                 });
             });
 
-            // New Admin button shows the panel with empty form
-            const newBtn = document.getElementById('newAdminBtn');
-            if (newBtn) {
-                newBtn.addEventListener('click', function(e){
-                    e.preventDefault();
-                    clearForm();
-                });
-            }
+            // Note: New Admin link navigates to the manage route; panel only shows on Edit
 
             changeBtn.addEventListener('click', ()=>{
                 if (!idField.value) { alert('Select an admin to change password'); return; }
