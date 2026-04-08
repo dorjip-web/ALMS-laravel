@@ -152,6 +152,8 @@ Route::get('/admin/settings/toggle-admin', [App\Http\Controllers\Admin\AdminSett
 // Single-form manage routes (create/edit)
 Route::get('/admin/settings/manage/{id?}', [App\Http\Controllers\Admin\AdminSettingsController::class, 'manage'])->name('admin.settings.manage');
 Route::post('/admin/settings/manage/{id?}', [App\Http\Controllers\Admin\AdminSettingsController::class, 'save'])->name('admin.settings.manage.save');
+// Toggle via POST
+Route::post('/admin/settings/toggle/{id}', [App\Http\Controllers\Admin\AdminSettingsController::class, 'toggle'])->name('admin.settings.toggle');
 
 // Backwards-compatibility: redirect legacy settings.php to admin settings
 Route::get('/settings.php', function () { return redirect()->route('admin.settings.index'); });

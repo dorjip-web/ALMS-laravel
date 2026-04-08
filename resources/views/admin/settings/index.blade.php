@@ -4,50 +4,153 @@
 
 @section('content')
 <div style="padding:18px">
-    <h1>Admin Accounts</h1>
-    <div style="margin-bottom:18px;">
-        <a href="{{ route('admin.settings.add_admin') }}" class="btn" style="font-size:15px;padding:7px 16px;text-decoration:none;">+ Add Admin</a>
+    <h1>Admin Settings</h1>
+
+    <div style="display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;">
+        <!-- Left: Single form (create/edit/change password) -->
+        <div>
+            <div class="panel" style="padding:16px;border-radius:8px">
+                <form id="adminForm" method="POST" action="/admin/settings/manage">
+                    @csrf
+                    <input type="hidden" name="_id" id="admin_id" value="">
+                    <div style="margin-bottom:12px">
+                        <label style="font-weight:700">Admin Name</label>
+                        <input id="admin_name" name="name" required style="width:100%;padding:8px;border:1px solid #cfd8db;border-radius:6px">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="font-weight:700">Username / Email</label>
+                        <input id="admin_username" name="username" required style="width:100%;padding:8px;border:1px solid #cfd8db;border-radius:6px">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="font-weight:700">Password</label>
+                        <input id="admin_password" type="password" name="password" placeholder="Leave blank to keep existing" style="width:100%;padding:8px;border:1px solid #cfd8db;border-radius:6px">
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="font-weight:700">Status</label>
+                        <select id="admin_active" name="active" style="width:100%;padding:8px;border:1px solid #cfd8db;border-radius:6px">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <button class="btn" type="submit">Save Admin</button>
+                        <button id="changePasswordBtn" type="button" class="btn" style="background:#6c757d">Change Password</button>
+                        <button id="toggleBtn" type="button" class="btn btn-secondary" style="margin-left:auto">Toggle Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right: List -->
+        <div>
+            <div style="margin-bottom:12px">
+                <a href="{{ route('admin.settings.manage') }}" class="btn" style="font-size:15px;padding:7px 16px;text-decoration:none;">+ New Admin</a>
+            </div>
+
+            <div class="leave-history">
+                <div class="table-wrap">
+                    <table class="users">
+                        <thead>
+                            <tr>
+                                <th>Admin Name</th>
+                                <th>Username / Email</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (empty($admins))
+                                <tr><td colspan="4">No admin accounts found.</td></tr>
+                            @else
+                                @foreach($admins as $a)
+                                    <tr data-admin='@json($a)'>
+                                        <td>{{ $a['name'] ?? ($a['admin_name'] ?? ($a['username'] ?? '-')) }}</td>
+                                        <td>{{ $a['username'] ?? $a['email'] ?? '-' }}</td>
+                                        <td>
+                                            @if (!empty($a['active']) || !empty($a['is_active']) || (!empty($a['is_admin']) && $a['is_admin'] == 1))
+                                                <span class="status-active">Active</span>
+                                            @else
+                                                <span class="status-inactive">Inactive</span>
+                                            @endif
+                                        </td>
+                                        <td style="white-space:nowrap">
+                                            <a href="#" class="action-orange edit-link">Edit</a> |
+                                            <a href="#" class="action-orange change-pass-link">Change Password</a> |
+                                            <a href="#" class="action-orange toggle-link">Toggle</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="leave-history">
-        <div class="table-wrap">
-            <table class="users">
-                <thead>
-                    <tr>
-                        <th>Admin Name</th>
-                        <th>Username / Email</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (empty($admins))
-                        <tr>
-                            <td colspan="4">No admin accounts found.</td>
-                        </tr>
-                    @else
-                        @foreach($admins as $a)
-                            <tr>
-                                <td>{{ $a['name'] ?? ($a['admin_name'] ?? ($a['username'] ?? '-')) }}</td>
-                                <td>{{ $a['username'] ?? $a['email'] ?? '-' }}</td>
-                                <td>
-                                    @if (!empty($a['active']) || !empty($a['is_active']) || (!empty($a['is_admin']) && $a['is_admin'] == 1))
-                                        <span class="status-active">Active</span>
-                                    @else
-                                        <span class="status-inactive">Inactive</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a class="action-orange" href="{{ route('admin.settings.edit_admin') }}">Edit</a> |
-                                    <a class="action-orange" href="{{ route('admin.settings.change_password') }}">Change Password</a> |
-                                    <a class="action-orange" href="{{ route('admin.settings.toggle') }}">Toggle Status</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <script>
+        (function(){
+            const rows = document.querySelectorAll('tr[data-admin]');
+            const form = document.getElementById('adminForm');
+            const idField = document.getElementById('admin_id');
+            const nameField = document.getElementById('admin_name');
+            const userField = document.getElementById('admin_username');
+            const passField = document.getElementById('admin_password');
+            const activeField = document.getElementById('admin_active');
+            const changeBtn = document.getElementById('changePasswordBtn');
+            const toggleBtn = document.getElementById('toggleBtn');
+
+            function clearForm(){ idField.value=''; nameField.value=''; userField.value=''; passField.value=''; activeField.value='1'; form.action='/admin/settings/manage'; }
+
+            rows.forEach(r => {
+                const admin = JSON.parse(r.getAttribute('data-admin'));
+                r.querySelector('.edit-link').addEventListener('click', (e)=>{
+                    e.preventDefault();
+                    idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
+                    nameField.value = admin.name ?? admin.admin_name ?? '';
+                    userField.value = admin.username ?? admin.email ?? '';
+                    activeField.value = (admin.active ?? admin.is_active ?? 1) ? '1' : '0';
+                    passField.value = '';
+                    form.action = '/admin/settings/manage/' + idField.value;
+                });
+                r.querySelector('.change-pass-link').addEventListener('click', (e)=>{
+                    e.preventDefault();
+                    idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
+                    form.action = '/admin/settings/manage/' + idField.value;
+                    passField.focus();
+                });
+                r.querySelector('.toggle-link').addEventListener('click', (e)=>{
+                    e.preventDefault();
+                    const aid = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
+                    if (!aid) return;
+                    if (!confirm('Toggle admin status?')) return;
+                    fetch('/admin/settings/toggle/' + aid, {method:'POST', headers: {'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
+                        .then(()=> location.reload())
+                        .catch(()=> alert('Failed'));
+                });
+            });
+
+            changeBtn.addEventListener('click', ()=>{
+                if (!idField.value) { alert('Select an admin to change password'); return; }
+                if (!passField.value) { alert('Enter new password'); return; }
+                form.submit();
+            });
+
+            toggleBtn.addEventListener('click', ()=>{
+                const aid = idField.value;
+                if (!aid) { alert('Select an admin to toggle'); return; }
+                if (!confirm('Toggle admin status?')) return;
+                fetch('/admin/settings/toggle/' + aid, {method:'POST', headers: {'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
+                    .then(()=> location.reload())
+                    .catch(()=> alert('Failed'));
+            });
+
+            // init empty
+            clearForm();
+        })();
+    </script>
+
 </div>
 @endsection

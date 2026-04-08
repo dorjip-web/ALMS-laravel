@@ -62,10 +62,32 @@ class AdminSettingsController extends Controller
         return redirect()->route('admin.dashboard')->with('flash_success', 'Admin updated (stub)');
     }
 
-    public function toggle()
+    public function toggle(Request $request, $id)
     {
-        // TODO: implement toggle action
-        return redirect()->route('admin.dashboard')->with('flash_success', 'Toggled (stub)');
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $row = \Illuminate\Support\Facades\DB::table('admins')->where('id', $id)->first();
+                if ($row) {
+                    $current = $row->active ?? ($row->is_active ?? 0);
+                    $new = $current ? 0 : 1;
+                    \Illuminate\Support\Facades\DB::table('admins')->where('id', $id)->update(['active' => $new, 'updated_at' => now()]);
+                }
+            } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+                if (in_array('is_active', $cols, true)) {
+                    $row = \Illuminate\Support\Facades\DB::table('users')->where('id', $id)->first();
+                    if ($row) {
+                        $current = $row->is_active ?? 0; $new = $current ? 0 : 1;
+                        \Illuminate\Support\Facades\DB::table('users')->where('id', $id)->update(['is_active' => $new, 'updated_at' => now()]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            logger()->error('Failed toggling admin', ['error' => $e->getMessage(), 'id' => $id]);
+            return redirect()->back()->with('flash_error', 'Failed to toggle admin');
+        }
+
+        return redirect()->route('admin.settings.index')->with('flash_success', 'Admin status updated');
     }
 
     /**
