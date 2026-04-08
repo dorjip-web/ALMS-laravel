@@ -33,7 +33,15 @@
             <a href="{{ route('admin.attendance_logs.index') }}" @class(['active' => ($activeNav ?? '') === 'attendance_logs'])>Attendance Logs</a>
             <a href="{{ route('admin.leave_records.index') }}" @class(['active' => ($activeNav ?? '') === 'leave_records'])>Leave Records</a>
             {{-- Reports link removed per request --}}
-            <a href="{{ url('settings.php') }}" @class(['active' => ($activeNav ?? '') === 'settings'])>Settings</a>
+            <div class="menu-item">
+                <a href="{{ url('settings.php') }}" @class(['active' => ($activeNav ?? '') === 'settings'])>Settings</a>
+                <div class="submenu">
+                    <a href="{{ url('/admin/settings/add-admin') }}">Add New Admin</a>
+                    <a href="{{ url('/admin/settings/change-admin-password') }}">Change Admin Password</a>
+                    <a href="{{ url('/admin/settings/edit-admin') }}">Edit Admin Details</a>
+                    <a href="{{ url('/admin/settings/toggle-admin') }}">Toggle</a>
+                </div>
+            </div>
         </nav>
     </aside>
 

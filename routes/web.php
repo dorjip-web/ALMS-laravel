@@ -140,6 +140,15 @@ Route::post('/admin/roles-permissions/save-assign', [App\Http\Controllers\Admin\
 Route::get('/admin/roles-permissions/toggle-role/{id}', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'toggleRole'])->name('admin.roles_permissions.toggleRole');
 Route::get('/admin/roles-permissions/toggle-perm/{id}', [App\Http\Controllers\Admin\RolePermissionManagementController::class, 'togglePermission'])->name('admin.roles_permissions.togglePerm');
 
+// Admin Settings pages (stubs)
+Route::get('/admin/settings/add-admin', [App\Http\Controllers\Admin\AdminSettingsController::class, 'create'])->name('admin.settings.add_admin');
+Route::post('/admin/settings/add-admin', [App\Http\Controllers\Admin\AdminSettingsController::class, 'store'])->name('admin.settings.add_admin.store');
+Route::get('/admin/settings/change-admin-password', [App\Http\Controllers\Admin\AdminSettingsController::class, 'changePassword'])->name('admin.settings.change_password');
+Route::post('/admin/settings/change-admin-password', [App\Http\Controllers\Admin\AdminSettingsController::class, 'updatePassword'])->name('admin.settings.change_password.update');
+Route::get('/admin/settings/edit-admin', [App\Http\Controllers\Admin\AdminSettingsController::class, 'edit'])->name('admin.settings.edit_admin');
+Route::post('/admin/settings/edit-admin', [App\Http\Controllers\Admin\AdminSettingsController::class, 'update'])->name('admin.settings.edit_admin.update');
+Route::get('/admin/settings/toggle-admin', [App\Http\Controllers\Admin\AdminSettingsController::class, 'toggle'])->name('admin.settings.toggle');
+
 // Legacy admin PHP page bridges (for old .php URL compatibility)
 Route::get('/admin_dashboard.php', function () {
     return redirect()->route('admin.dashboard');

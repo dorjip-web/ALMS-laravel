@@ -30,12 +30,12 @@
                         <table class="users">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Purpose</th>
-                                    <th>Remarks</th>
-                                    <th>Department</th>
                                     <th>Employee</th>
                                     <th>Designation</th>
+                                    <th>Department</th>
+                                    <th>Purpose</th>
+                                    <th>Remarks</th>
+                                    <th>Date</th>
                                     <th>Created</th>
                                     <th>Actions</th>
                                 </tr>
@@ -48,12 +48,12 @@
                                 @else
                                     @foreach($rows as $r)
                                         <tr>
-                                            <td>{{ $r['date'] ?? '-' }}</td>
-                                            <td>{{ ucfirst($r['purpose'] ?? '-') }}</td>
-                                            <td>{{ $r['remarks'] ?? '-' }}</td>
-                                            <td>{{ $r['department_name'] ?? '-' }}</td>
                                             <td>{{ $r['employee_name'] ?? $r['eid'] ?? ($r['employee_id'] ?? '-') }}</td>
                                             <td>{{ $r['designation'] ?? '-' }}</td>
+                                            <td>{{ $r['department_name'] ?? '-' }}</td>
+                                            <td>{{ ucfirst($r['purpose'] ?? '-') }}</td>
+                                            <td>{{ $r['remarks'] ?? '-' }}</td>
+                                            <td>{{ $r['date'] ?? '-' }}</td>
                                             <td>{{ $r['created_at'] ?? '-' }}</td>
                                             <td style="white-space:nowrap">
                                                 <a class="action-link" href="{{ route('admin.adhoc.edit', $r['id'] ?? $r['adhoc_request_id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '') }}">Edit</a>
