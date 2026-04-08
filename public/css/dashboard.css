@@ -120,8 +120,8 @@ body{margin:0;background:var(--light)}
 }
 
 /* Action links in user management: make Edit / Toggle Status orange */
-.leave-history table.users td a.action-orange{color:var(--orange);font-weight:600;text-decoration:none}
-.leave-history table.users td a.action-orange:hover{text-decoration:underline}
+.leave-history table.users td .action-orange{color:var(--orange);font-weight:600;text-decoration:underline;background:none;border:none;padding:0;cursor:pointer}
+.leave-history table.users td .action-orange:hover{text-decoration:underline}
 
 .leave-history .leave-status-badge{
 	display:inline-block;

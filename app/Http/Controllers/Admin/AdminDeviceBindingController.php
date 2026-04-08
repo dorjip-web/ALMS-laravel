@@ -182,7 +182,7 @@ class AdminDeviceBindingController extends Controller
 
         try {
             DB::table('device_bindings')->where($pk, $id)->delete();
-            return redirect()->route('admin.device_bindings')->with('flash_success', 'Binding removed');
+            return redirect()->route('admin.device_bindings');
         } catch (\Throwable $e) {
             logger()->error('Failed to unbind device', ['error' => $e->getMessage()]);
             return redirect()->route('admin.device_bindings')->with('flash_error', 'Failed to remove binding');

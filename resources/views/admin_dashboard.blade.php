@@ -5,7 +5,16 @@
 @section('content')
 <!-- Admin dashboard quick links -->
 <section class="grid">
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
+    <style>
+        .quick-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        /* Ensure quick-tiles span the full .grid container (prevent empty second column) */
+        .grid > .quick-tiles { grid-column: 1 / -1; }
+        @media (max-width: 900px) { .quick-tiles { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .quick-tiles { grid-template-columns: 1fr; } }
+        .quick-tiles .card { display: block; width: 100%; border-radius: 8px; overflow: hidden; background: var(--tile-bg); color: #fff; text-decoration: none; }
+        .quick-tiles .card .icon-wrap{width:64px;height:64px;background:rgba(255,255,255,0.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px}
+    </style>
+    <div class="quick-tiles">
         @php
             $tiles = [
                 ['label' => 'User Management', 'href' => route('admin.users.index'), 'color' => '#5b2a86', 'icon' => '👥'],
@@ -23,9 +32,9 @@
         @endphp
 
         @foreach ($tiles as $t)
-            <a href="{{ $t['href'] }}" class="card" style="background:{{ $t['color'] }};color:#fff;text-decoration:none;">
+            <a href="{{ $t['href'] }}" class="card" style="--tile-bg: {{ $t['color'] }};">
                 <div style="display:flex;align-items:center;gap:16px;padding:18px;">
-                    <div style="width:64px;height:64px;background:rgba(255,255,255,0.06);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px;">{{ $t['icon'] }}</div>
+                    <div class="icon-wrap">{{ $t['icon'] }}</div>
                     <div style="flex:1">
                         <div style="font-size:18px;font-weight:700">{{ $t['label'] }}</div>
                         <div style="opacity:0.9">Quick access</div>

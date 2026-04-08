@@ -53,7 +53,6 @@
         </section>
     </main>
 </div>
-</div>
 
 @yield('scripts')
 
