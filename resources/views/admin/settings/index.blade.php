@@ -7,7 +7,7 @@
     <h1>Admin Settings</h1>
     
 
-    <div id="settingsGrid" style="display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;">
+    <div id="settingsGrid" style="display:grid;grid-template-columns:1fr;gap:18px;align-items:start;">
         <!-- Left: Single form (create/edit/change password) - hidden until used -->
         <div id="adminPanel" style="display:none">
             <div class="panel" style="padding:16px;border-radius:8px">
@@ -100,6 +100,8 @@
             const grid = document.getElementById('settingsGrid');
             const list = document.getElementById('adminList');
             if (panel) panel.style.display = 'none';
+            if (grid) grid.style.gridTemplateColumns = '1fr';
+            if (list) list.style.display = '';
             const rows = document.querySelectorAll('tr[data-admin]');
             const form = document.getElementById('adminForm');
             const idField = document.getElementById('admin_id');
@@ -116,14 +118,11 @@
                 const admin = JSON.parse(r.getAttribute('data-admin'));
                 r.querySelector('.edit-link').addEventListener('click', (e)=>{
                     e.preventDefault();
+                    // show narrow left panel alongside the list
                     if (panel) panel.style.display = 'block';
-                    if (grid) grid.style.gridTemplateColumns = '1fr';
-                    if (list) list.style.display = 'none';
-                    // widen and center the inner panel for full-page form
-                    try {
-                        const inner = panel.querySelector('.panel');
-                        if (inner) { inner.style.maxWidth = '900px'; inner.style.margin = '0 auto'; width:inner.style.width='100%'; }
-                    } catch(e){}
+                    if (grid) grid.style.gridTemplateColumns = '360px 1fr';
+                    if (list) list.style.display = '';
+                    try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin=''; inner.style.width=''; } } catch(e){}
                     idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                     nameField.value = admin.name ?? admin.admin_name ?? '';
                     userField.value = admin.username ?? admin.email ?? '';
@@ -136,12 +135,9 @@
                 r.querySelector('.change-pass-link').addEventListener('click', (e)=>{
                     e.preventDefault();
                     if (panel) panel.style.display = 'block';
-                    if (grid) grid.style.gridTemplateColumns = '1fr';
-                    if (list) list.style.display = 'none';
-                    try {
-                        const inner = panel.querySelector('.panel');
-                        if (inner) { inner.style.maxWidth = '900px'; inner.style.margin = '0 auto'; inner.style.width='100%'; }
-                    } catch(e){}
+                    if (grid) grid.style.gridTemplateColumns = '360px 1fr';
+                    if (list) list.style.display = '';
+                    try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin=''; inner.style.width=''; } } catch(e){}
                     idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                     form.action = '/admin/settings/manage/' + idField.value;
                     passField.focus();
@@ -165,7 +161,7 @@
                 closeBtn.addEventListener('click', function(e){
                     e.preventDefault();
                     if (panel) panel.style.display = 'none';
-                    if (grid) grid.style.gridTemplateColumns = '360px 1fr';
+                    if (grid) grid.style.gridTemplateColumns = '1fr';
                     if (list) list.style.display = '';
                     try { const inner = panel.querySelector('.panel'); if (inner) { inner.style.maxWidth=''; inner.style.margin=''; inner.style.width=''; } } catch(e){}
                     clearForm();
