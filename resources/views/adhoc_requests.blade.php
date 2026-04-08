@@ -59,7 +59,7 @@
                         <div class="row-grid">
                             <div class="col">
                                 <label>Date</label>
-                                <input type="date" name="date" required class="form-control" value="{{ old('date', now()->toDateString()) }}">
+                                <input type="date" name="date" required class="form-control" value="{{ old('date') }}" placeholder="mm/dd/yyyy">
                             </div>
                             <div class="col">
                                 <label>Purpose</label>
