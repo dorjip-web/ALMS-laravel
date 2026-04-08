@@ -354,6 +354,7 @@ class MsDashboardController extends Controller
             $tourSelect = [
                 'tr.employee_id',
                 'e.employee_name',
+                'e.designation',
                 'tr.place',
                 'tr.start_date',
                 'tr.end_date',

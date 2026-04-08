@@ -3,6 +3,11 @@
 @section('pageTitle', 'Staff On Tour')
 
 @section('content')
+    <style>
+        /* Compact PDF link style for office order column */
+        .btn-pdf{display:inline-block;background:var(--orange);color:#fff;padding:6px 8px;border-radius:6px;text-decoration:none;font-weight:700;font-size:13px;line-height:1}
+        .btn-pdf:hover{filter:brightness(0.95)}
+    </style>
     <div class="container">
         <section class="panel">
             <h2>Staff Currently On Tour</h2>
@@ -59,7 +64,7 @@
                             <td>{{ $tour['purpose'] ?? '-' }}</td>
                             <td>
                                 @if (!empty($tour['office_order_pdf']))
-                                    <a href="{{ asset('storage/' . $tour['office_order_pdf']) }}" target="_blank" class="btn btn-pdf">View PDF</a>
+                                    <a href="{{ asset('storage/' . $tour['office_order_pdf']) }}" target="_blank" class="btn-pdf" title="View PDF">PDF</a>
                                 @else
                                     -
                                 @endif

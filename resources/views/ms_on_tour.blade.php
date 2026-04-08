@@ -6,6 +6,32 @@
     <title>Staff On Tour</title>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Style logout button in topbar to match other pages */
+        .topbar .logout form button{
+            background:#fff;
+            padding:8px 12px;
+            border-radius:6px;
+            border:none;
+            color:var(--orange);
+            font-weight:600;
+            cursor:pointer;
+        }
+        .topbar .logout form button:hover{filter:brightness(0.97)}
+        /* Compact PDF link style for office order column */
+        .btn-pdf{
+            display:inline-block;
+            background:var(--orange);
+            color:#fff;
+            padding:6px 8px;
+            border-radius:6px;
+            text-decoration:none;
+            font-weight:700;
+            font-size:13px;
+            line-height:1;
+        }
+        .btn-pdf:hover{filter:brightness(0.95)}
+    </style>
 </head>
 <body>
 <div class="app">
@@ -34,8 +60,44 @@
                 @endif
 
                 <!-- Add Tour Record form removed per user request -->
-
-                <!-- Recent Staff On Tour removed per user request -->
+                <div class="leave-history" style="margin-top:8px;">
+                    <div class="table-wrap">
+                        <table class="users">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Designation</th>
+                                    <th>Department</th>
+                                    <th>Place</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Total Days</th>
+                                    <th>Purpose</th>
+                                    <th>Office Order</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (empty($onTourStaff))
+                                    <tr><td colspan="9" class="summary-empty">No staff on tour right now</td></tr>
+                                @else
+                                    @foreach($onTourStaff as $tour)
+                                        <tr>
+                                            <td>{{ $tour['employee_name'] ?? ($tour['employee'] ?? '-') }}</td>
+                                            <td>{{ $tour['designation'] ?? '-' }}</td>
+                                            <td>{{ $tour['department_name'] ?? '-' }}</td>
+                                            <td>{{ $tour['place'] ?? '-' }}</td>
+                                            <td>{{ ! empty($tour['start_date']) ? \Illuminate\Support\Carbon::parse($tour['start_date'])->format('d M Y') : '-' }}</td>
+                                            <td>{{ ! empty($tour['end_date']) ? \Illuminate\Support\Carbon::parse($tour['end_date'])->format('d M Y') : '-' }}</td>
+                                            <td>{{ (!empty($tour['start_date']) && !empty($tour['end_date'])) ? (\Illuminate\Support\Carbon::parse($tour['start_date'])->diffInDays(\Illuminate\Support\Carbon::parse($tour['end_date'])) + 1) : '-' }}</td>
+                                            <td>{{ $tour['purpose'] ?? '-' }}</td>
+                                            <td>@if(!empty($tour['office_order_pdf'])) <a href="{{ asset('storage/' . $tour['office_order_pdf']) }}" target="_blank" class="btn-pdf" title="View PDF">PDF</a> @else - @endif</td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
