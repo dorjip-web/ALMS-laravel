@@ -1,10 +1,10 @@
 @php
-    // Force a consistent short organization name across all sidebar links
-    $sidebarName = 'NTMH';
+    // Determine a consistent sidebar display name for all sidebars
+    $sidebarName = $sidebarName ?? $username ?? (auth()->check() ? auth()->user()->name : null) ?? 'Admin';
     $parts = preg_split('/\s+/', trim($sidebarName));
     $initials = count($parts) > 1
         ? strtoupper(substr($parts[0], 0, 1) . substr($parts[1], 0, 1))
-        : strtoupper(substr($parts[0] ?? 'N', 0, 2));
+        : strtoupper(substr($parts[0] ?? 'A', 0, 2));
 @endphp
 
 <div class="profile">
