@@ -5,9 +5,13 @@
 @section('content')
 <div style="padding:18px">
     <h1>Admin Settings</h1>
-    @if(isset($source))
-        <p style="color:#666;margin-top:6px">Detected source: <strong>{{ $source }}</strong> — <strong>{{ $count ?? 0 }}</strong> records</p>
-    @endif
+    <div style="color:#666;margin-top:6px">
+        @if(isset($dbName))
+            <div>DB: <strong>{{ $dbName }}</strong></div>
+        @endif
+        <div>Detected source: <strong>{{ $source ?? 'none' }}</strong> — <strong>{{ $count ?? 0 }}</strong> records</div>
+        <div>admins table present: <strong>{{ (isset($hasAdmins) && $hasAdmins) ? 'yes' : 'no' }}</strong></div>
+    </div>
 
     <div style="display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;">
         <!-- Left: Single form (create/edit/change password) -->
