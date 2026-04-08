@@ -7,10 +7,13 @@
     <h1>Admin Settings</h1>
     
 
-    <div style="display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;">
+    <div id="settingsGrid" style="display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;">
         <!-- Left: Single form (create/edit/change password) - hidden until used -->
         <div id="adminPanel" style="display:none">
             <div class="panel" style="padding:16px;border-radius:8px">
+                <div style="text-align:right;margin-bottom:6px">
+                    <a href="#" id="closePanel" style="color:#666;text-decoration:none">Close</a>
+                </div>
                 <form id="adminForm" method="POST" action="/admin/settings/manage">
                     @csrf
                     <input type="hidden" name="_id" id="admin_id" value="">
@@ -44,7 +47,7 @@
         </div>
 
         <!-- Right: List -->
-        <div>
+        <div id="adminList">
             <div style="margin-bottom:12px">
                 <a href="{{ route('admin.settings.manage') }}" class="btn" style="font-size:15px;padding:7px 16px;text-decoration:none;">+ New Admin</a>
             </div>
@@ -94,6 +97,8 @@
     <script>
         (function(){
             const panel = document.getElementById('adminPanel');
+            const grid = document.getElementById('settingsGrid');
+            const list = document.getElementById('adminList');
             if (panel) panel.style.display = 'none';
             const rows = document.querySelectorAll('tr[data-admin]');
             const form = document.getElementById('adminForm');
@@ -112,16 +117,22 @@
                 r.querySelector('.edit-link').addEventListener('click', (e)=>{
                     e.preventDefault();
                     if (panel) panel.style.display = 'block';
+                    if (grid) grid.style.gridTemplateColumns = '1fr';
+                    if (list) list.style.display = 'none';
                     idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                     nameField.value = admin.name ?? admin.admin_name ?? '';
                     userField.value = admin.username ?? admin.email ?? '';
                     activeField.value = (admin.active ?? admin.is_active ?? 1) ? '1' : '0';
                     passField.value = '';
                     form.action = '/admin/settings/manage/' + idField.value;
+                    // focus and scroll
+                    try { nameField.focus(); panel.scrollIntoView({behavior:'smooth'}); } catch(e){}
                 });
                 r.querySelector('.change-pass-link').addEventListener('click', (e)=>{
                     e.preventDefault();
                     if (panel) panel.style.display = 'block';
+                    if (grid) grid.style.gridTemplateColumns = '1fr';
+                    if (list) list.style.display = 'none';
                     idField.value = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                     form.action = '/admin/settings/manage/' + idField.value;
                     passField.focus();
@@ -138,6 +149,18 @@
             });
 
             // Note: New Admin link navigates to the manage route; panel only shows on Edit
+
+            // Close button restores list view
+            const closeBtn = document.getElementById('closePanel');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    if (panel) panel.style.display = 'none';
+                    if (grid) grid.style.gridTemplateColumns = '360px 1fr';
+                    if (list) list.style.display = '';
+                    clearForm();
+                });
+            }
 
             changeBtn.addEventListener('click', ()=>{
                 if (!idField.value) { alert('Select an admin to change password'); return; }
