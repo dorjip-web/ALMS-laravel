@@ -23,12 +23,21 @@ class AdminSettingsController extends Controller
         $hasAdmins = false;
         try {
             $dbName = \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
-            $hasAdmins = \Illuminate\Support\Facades\Schema::hasTable('admins');
+            // support both `admin` and `admins` table names
+            $table = null;
+            if (\Illuminate\Support\Facades\Schema::hasTable('admin')) {
+                $table = 'admin';
+            } elseif (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $table = 'admins';
+            }
+            $hasAdmins = $table !== null;
 
-            if ($hasAdmins) {
-                $rows = \Illuminate\Support\Facades\DB::table('admins')->orderBy('admin_id')->get();
+            if ($hasAdmins && $table) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing($table);
+                $pk = in_array('admin_id', $cols, true) ? 'admin_id' : (in_array('id', $cols, true) ? 'id' : $cols[0] ?? 'id');
+                $rows = \Illuminate\Support\Facades\DB::table($table)->orderBy($pk)->get();
                 $admins = $rows->map(fn($r) => (array) $r)->toArray();
-                $source = 'admins';
+                $source = $table;
                 $count = $rows->count();
             } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
                 $rows = \Illuminate\Support\Facades\DB::table('users')->where('is_admin',1)->orderBy('id')->get();
@@ -74,19 +83,19 @@ class AdminSettingsController extends Controller
     public function toggle(Request $request, $id)
     {
         try {
-            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
-                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('admins');
-                // prefer admin_id as PK
+            // detect singular/plural admin table
+            $table = \Illuminate\Support\Facades\Schema::hasTable('admin') ? 'admin' : (\Illuminate\Support\Facades\Schema::hasTable('admins') ? 'admins' : null);
+            if ($table) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing($table);
                 $pk = in_array('admin_id', $cols, true) ? 'admin_id' : (in_array('id', $cols, true) ? 'id' : null);
-                if ($pk === null) { throw new \Exception('No primary key found for admins table'); }
-                // determine active column
+                if ($pk === null) { throw new \Exception('No primary key found for ' . $table . ' table'); }
                 $activeCol = in_array('active', $cols, true) ? 'active' : (in_array('is_active', $cols, true) ? 'is_active' : null);
-                if ($activeCol === null) { throw new \Exception('No active column on admins table'); }
-                $row = \Illuminate\Support\Facades\DB::table('admins')->where($pk, $id)->first();
+                if ($activeCol === null) { throw new \Exception('No active column on ' . $table . ' table'); }
+                $row = \Illuminate\Support\Facades\DB::table($table)->where($pk, $id)->first();
                 if ($row) {
                     $current = $row->{$activeCol} ?? 0;
                     $new = $current ? 0 : 1;
-                    \Illuminate\Support\Facades\DB::table('admins')->where($pk, $id)->update([$activeCol => $new, 'updated_at' => now()]);
+                    \Illuminate\Support\Facades\DB::table($table)->where($pk, $id)->update([$activeCol => $new, 'updated_at' => now()]);
                 }
             } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
                 $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
@@ -117,8 +126,10 @@ class AdminSettingsController extends Controller
         $admin = [];
         try {
             if ($id) {
-                if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
-                    $admin = (array) (\Illuminate\Support\Facades\DB::table('admins')->where('admin_id', $id)->first() ?? []);
+                $table = \Illuminate\Support\Facades\Schema::hasTable('admin') ? 'admin' : (\Illuminate\Support\Facades\Schema::hasTable('admins') ? 'admins' : null);
+                if ($table) {
+                    $pk = in_array('admin_id', \Illuminate\Support\Facades\Schema::getColumnListing($table), true) ? 'admin_id' : 'id';
+                    $admin = (array) (\Illuminate\Support\Facades\DB::table($table)->where($pk, $id)->first() ?? []);
                 } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
                     $admin = (array) (\Illuminate\Support\Facades\DB::table('users')->where('id', $id)->where('is_admin',1)->first() ?? []);
                 }
@@ -142,19 +153,23 @@ class AdminSettingsController extends Controller
         ]);
 
         try {
-            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
-                $cols = \Illuminate\Support\Facades\Schema::getColumnListing('admins');
+            // support singular `admin` or plural `admins` table
+            $table = \Illuminate\Support\Facades\Schema::hasTable('admin') ? 'admin' : (\Illuminate\Support\Facades\Schema::hasTable('admins') ? 'admins' : null);
+            if ($table) {
+                $cols = \Illuminate\Support\Facades\Schema::getColumnListing($table);
                 $payload = [];
+                // map to admin_name/username as in your DB
                 $payload['admin_name'] = $data['name'];
                 $payload['username'] = $data['username'];
                 if (in_array('password', $cols, true) && !empty($data['password'])) { $payload['password'] = bcrypt($data['password']); }
                 $payload['updated_at'] = now();
 
+                $pk = in_array('admin_id', $cols, true) ? 'admin_id' : (in_array('id', $cols, true) ? 'id' : null);
                 if ($id) {
-                    \Illuminate\Support\Facades\DB::table('admins')->where('admin_id',$id)->update($payload);
+                    \Illuminate\Support\Facades\DB::table($table)->where($pk,$id)->update($payload);
                 } else {
                     $payload['created_at'] = now();
-                    \Illuminate\Support\Facades\DB::table('admins')->insert($payload);
+                    \Illuminate\Support\Facades\DB::table($table)->insert($payload);
                 }
             } elseif (\Illuminate\Support\Facades\Schema::hasTable('users')) {
                 $cols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
