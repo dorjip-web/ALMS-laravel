@@ -18,15 +18,15 @@
         position: absolute;
         right: 6px;
         bottom: 6px;
-        width: 22px;
-        height: 18px;
+        width: 36px;
+        height: 28px;
         background: transparent;
         color: inherit;
         border-radius: 0;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 12px;
+        font-size: 14px;
         box-shadow: none;
         opacity: 0;
         transform: translateY(6px) scale(0.95);
@@ -48,8 +48,8 @@
                         {{ $initials }}
                     @endif
                     <span class="camera-badge" aria-hidden="true">
-                        <svg width="18" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-                            <path d="M21 7h-3.2l-1.7-2.4A1 1 0 0015.6 4H8.4a1 1 0 00-.5.6L6.2 7H3a1 1 0 00-1 1v10a1 1 0 001 1h18a1 1 0 001-1V8a1 1 0 00-1-1zM12 17a4 4 0 110-8 4 4 0 010 8z" fill="#6b6b6b"/>
+                        <svg width="22" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <path d="M21 7h-3.2l-1.7-2.4A1 1 0 0015.6 4H8.4a1 1 0 00-.5.6L6.2 7H3a1 1 0 00-1 1v10a1 1 0 001 1h18a1 1 0 001-1V8a1 1 0 00-1-1zM12 17a4 4 0 110-8 4 4 0 010 8z" fill="#ff7a00"/>
                         </svg>
                     </span>
                 </label>
