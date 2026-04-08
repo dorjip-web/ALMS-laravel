@@ -155,15 +155,38 @@
 
                 // toggle link (table row)
                 const toggleLink = r.querySelector('.toggle-link');
-                if (toggleLink) {
+                    if (toggleLink) {
                     toggleLink.addEventListener('click', (e) => {
                         e.preventDefault();
                         const aid = admin.id ?? admin.admin_id ?? admin.employee_id ?? '';
                         if (!aid) return;
                         if (!confirm('Toggle admin status?')) return;
                         fetch('/admin/settings/toggle/' + aid, {method:'POST', headers: {'X-CSRF-TOKEN':'{{ csrf_token() }}'}})
-                            .then(()=> location.reload())
-                            .catch(()=> alert('Failed'));
+                            .then((res)=>{
+                                if (!res.ok) throw new Error('Request failed');
+                                // update status cell in this row without full reload
+                                try {
+                                    const statusCell = r.querySelector('td:nth-child(3)');
+                                    if (statusCell) {
+                                        const activeSpan = statusCell.querySelector('.status-active') || statusCell.querySelector('.status-inactive');
+                                        if (activeSpan) {
+                                            if (activeSpan.classList.contains('status-active')) {
+                                                activeSpan.classList.remove('status-active');
+                                                activeSpan.classList.add('status-inactive');
+                                                activeSpan.textContent = 'Inactive';
+                                            } else {
+                                                activeSpan.classList.remove('status-inactive');
+                                                activeSpan.classList.add('status-active');
+                                                activeSpan.textContent = 'Active';
+                                            }
+                                        }
+                                    }
+                                } catch (err) {
+                                    // fallback to reload if DOM update fails
+                                    location.reload();
+                                }
+                            })
+                            .catch(()=> alert('Failed to toggle admin'));
                     });
                 }
                 // table-level change-password and toggle links removed; keep form buttons
