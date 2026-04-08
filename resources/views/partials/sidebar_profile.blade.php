@@ -11,6 +11,31 @@
     $showUpload = auth()->check() && ! $isAdminArea;
 @endphp
 
+<style>
+    .profile .avatar { position: relative; }
+    .profile .avatar label { display: block; }
+    .profile .camera-badge {
+        position: absolute;
+        right: 6px;
+        bottom: 6px;
+        width: 34px;
+        height: 34px;
+        background: #fff;
+        color: var(--orange,#ff7a00);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        opacity: 0;
+        transform: translateY(6px) scale(0.95);
+        transition: opacity .14s ease, transform .14s ease;
+        pointer-events: none;
+    }
+    .profile .avatar:hover .camera-badge { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+</style>
+
 <div class="profile">
     <div class="avatar">
         @if($showUpload)
@@ -22,7 +47,11 @@
                     @else
                         {{ $initials }}
                     @endif
-                    <span aria-hidden="true" style="position:absolute;right:6px;bottom:6px;background:#fff;color:var(--orange,#ff7a00);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,0.12);">📷</span>
+                    <span class="camera-badge" aria-hidden="true">
+                        <svg width="18" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <path d="M21 7h-3.2l-1.7-2.4A1 1 0 0015.6 4H8.4a1 1 0 00-.5.6L6.2 7H3a1 1 0 00-1 1v10a1 1 0 001 1h18a1 1 0 001-1V8a1 1 0 00-1-1zM12 17a4 4 0 110-8 4 4 0 010 8z" fill="#6b6b6b"/>
+                        </svg>
+                    </span>
                 </label>
                 <input id="profilePicInput" name="profile_picture" type="file" accept="image/*" style="display:none">
             </form>
