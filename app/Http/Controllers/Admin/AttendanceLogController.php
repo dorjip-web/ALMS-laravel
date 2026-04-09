@@ -285,6 +285,54 @@ class AttendanceLogController extends Controller
     }
 
     /**
+     * Ensure a value is a UTF-8 encoded string (no-op for non-strings).
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    private function ensureUtf8(mixed $value): mixed
+    {
+        if (! is_string($value)) {
+            return $value;
+        }
+
+        $value = trim($value);
+
+        // If already valid UTF-8 and doesn't contain common mojibake markers, return
+        if (mb_check_encoding($value, 'UTF-8') && ! preg_match('/[\xC2\xC3]|Ã|Â/', $value)) {
+            return $value;
+        }
+
+        // Try common single-byte encodings
+        $encodings = ['Windows-1252', 'ISO-8859-1', 'CP1252', 'ASCII'];
+        foreach ($encodings as $enc) {
+            $try = @mb_convert_encoding($value, 'UTF-8', $enc);
+            if ($try !== false && mb_check_encoding($try, 'UTF-8') && ! preg_match('/[\xC2\xC3]|Ã|Â/', $try)) {
+                return $try;
+            }
+        }
+
+        // If string contains typical double-encoding artifacts (Ã©, Â…), try utf8_decode -> re-encode
+        if (preg_match('/Ã|Â|Ã\x/iu', $value)) {
+            $decoded = @utf8_decode($value); // converts UTF-8 to ISO-8859-1
+            if ($decoded !== false) {
+                $reencoded = @mb_convert_encoding($decoded, 'UTF-8', 'ISO-8859-1');
+                if ($reencoded !== false && mb_check_encoding($reencoded, 'UTF-8')) {
+                    return $reencoded;
+                }
+            }
+        }
+
+        // Last resort: force UTF-8 and strip invalid byte sequences
+        $forced = @mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+        if ($forced !== false && mb_check_encoding($forced, 'UTF-8')) {
+            return $forced;
+        }
+
+        return $value;
+    }
+
+    /**
      * Export attendance logs as CSV using same filters as index.
      */
     public function export(Request $request)
@@ -389,7 +437,13 @@ class AttendanceLogController extends Controller
 
         $callback = function() use ($logs, $columns) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, $columns);
+
+            // write UTF-8 BOM so Excel recognises UTF-8 encoded CSV
+            fwrite($out, "\xEF\xBB\xBF");
+
+            // write headings
+            fputcsv($out, array_map(fn($c) => $this->ensureUtf8($c), $columns));
+
             foreach ($logs as $row) {
                 $line = [
                     $row->employee_id ?? '',
@@ -406,13 +460,15 @@ class AttendanceLogController extends Controller
                     $row->checkout_status ?? '',
                     $row->remarks ?? '',
                 ];
+
+                $line = array_map(fn($c) => $this->ensureUtf8($c), $line);
                 fputcsv($out, $line);
             }
             fclose($out);
         };
 
         return response()->streamDownload($callback, $filename, [
-            'Content-Type' => 'text/csv',
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
