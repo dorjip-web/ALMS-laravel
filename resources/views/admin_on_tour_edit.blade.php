@@ -7,7 +7,7 @@
         <header><h1>Edit Tour Record</h1></header>
 
         <section class="panel">
-            <form method="POST" action="{{ route('admin.on_tour.update', $record['record_id'] ?? $record['tour_id'] ?? $record['id'] ?? $record['employee_id'] ?? 0) }}">
+            <form method="POST" action="{{ route('admin.on_tour.update', $record['record_id'] ?? $record['tour_id'] ?? $record['id'] ?? $record['employee_id'] ?? 0, false) }}">
                 @csrf
                 <div style="margin-bottom:8px">
                     <label style="display:block;margin-bottom:6px">Employee</label>

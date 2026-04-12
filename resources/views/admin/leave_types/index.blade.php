@@ -46,7 +46,7 @@
 							</td>
 							<td>
 								<a class="action-orange" href="{{ route('admin.leave_types.edit', $lt->leave_type_id) }}">Edit</a> |
-								<form method="POST" action="{{ route('admin.leave_types.toggle', $lt->leave_type_id) }}" style="display:inline">
+								<form method="POST" action="{{ route('admin.leave_types.toggle', $lt->leave_type_id, false) }}" style="display:inline">
 									@csrf
 									<button class="action-orange" type="submit" style="background:none;border:none;padding:0;margin:0;cursor:pointer">Toggle</button>
 								</form>

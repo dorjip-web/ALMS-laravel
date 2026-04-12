@@ -5,7 +5,7 @@
     <h2>Leave Records</h2>
 
     <div class="filter-box" style="background:#1e293b;padding:15px;border-radius:10px;margin-bottom:20px;">
-        <form method="GET" action="{{ route('admin.leave_records.index') }}" class="leave-form row-inline" style="margin-bottom:0;gap:12px;align-items:center;">
+        <form method="GET" action="{{ route('admin.leave_records.index', [], false) }}" class="leave-form row-inline" style="margin-bottom:0;gap:12px;align-items:center;">
             <select name="status" style="width:160px;">
                 <option value="all" {{ $status === 'all' ? 'selected' : '' }}>All</option>
                 <option value="approved" {{ $status === 'approved' ? 'selected' : '' }}>Approved</option>

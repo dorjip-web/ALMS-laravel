@@ -13,7 +13,7 @@
             <h2>Staff Currently On Tour</h2>
             <div style="margin:12px 0 18px 0;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
                 <div style="min-width:240px">
-                    <form method="GET" action="{{ route('admin.on_tour') }}" style="display:flex;gap:8px;align-items:center">
+                    <form method="GET" action="{{ route('admin.on_tour', [], false) }}" style="display:flex;gap:8px;align-items:center">
                         <label style="font-weight:700">Department:</label>
                         <select name="department_id" style="padding:8px;border:1px solid #e6eef8;border-radius:6px">
                             <option value="">All</option>
@@ -72,7 +72,7 @@
                             <td style="white-space:nowrap">
                                 <a class="action-link" href="{{ route('admin.on_tour.edit', $tour['record_id'] ?? $tour['employee_id'] ?? '') }}">Edit</a>
                                 |
-                                <form method="POST" action="{{ route('admin.on_tour.delete', $tour['record_id'] ?? $tour['employee_id'] ?? '') }}" style="display:inline" onsubmit="return confirm('Delete this tour record?');">
+                                <form method="POST" action="{{ route('admin.on_tour.delete', $tour['record_id'] ?? $tour['employee_id'] ?? '', false) }}" style="display:inline" onsubmit="return confirm('Delete this tour record?');">
                                     @csrf
                                     <button type="submit" style="background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;padding:0;margin-left:6px">Delete</button>
                                 </form>

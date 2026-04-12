@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Pending Approvals</title>
-    <link rel="stylesheet" href="{{ asset('css/ms_dashboard.css') }}">
+    <link rel="stylesheet" href="/css/ms_dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -15,7 +15,7 @@
         <header class="topbar">
             <div class="search"><input placeholder="Search..."></div>
             <div class="logout">
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">@csrf<button type="submit">Logout</button></form>
+                <form method="POST" action="/logout" style="display:inline;">@csrf<button type="submit">Logout</button></form>
             </div>
         </header>
 
@@ -49,7 +49,7 @@
                                 <td>{{ $req['total_days'] }}</td>
                                 <td>{{ $req['reason'] ?? '-' }}</td>
                                 <td class="actions">
-                                    <form method="POST" action="{{ route('ms.dashboard.action') }}" class="inline-form">@csrf
+                                    <form method="POST" action="{{ route('ms.dashboard.action', [], false) }}" class="inline-form">@csrf
                                         <input type="hidden" name="request_id" value="{{ $req['application_id'] }}">
                                         <button type="submit" name="action" value="approve" class="btn btn-approve">Approve</button>
                                         <button type="submit" name="action" value="reject" class="btn btn-reject">Reject</button>
@@ -89,7 +89,7 @@
                                 <td>{{ $req['total_days'] }}</td>
                                 <td>{{ $req['reason'] }}</td>
                                 <td class="actions">
-                                    <form method="POST" action="{{ route('ms.dashboard.action') }}" class="inline-form">@csrf
+                                    <form method="POST" action="{{ route('ms.dashboard.action', [], false) }}" class="inline-form">@csrf
                                         <input type="hidden" name="application_id" value="{{ $req['application_id'] }}">
                                         <button type="submit" name="action" value="approve" class="btn btn-approve">Approve</button>
                                         <button type="submit" name="action" value="reject" class="btn btn-reject">Reject</button>

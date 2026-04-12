@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Leave Request</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         .leave-form .row-grid-3 .col input, .leave-form .row-grid-3 .col select{min-height:38px}
@@ -29,7 +29,7 @@
         <header class="topbar">
             <div class="search"><input placeholder="Search..." disabled></div>
             <div class="logout">
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">@csrf<button type="submit">Logout</button></form>
+                <form method="POST" action="/logout" style="display:inline;">@csrf<button type="submit">Logout</button></form>
             </div>
         </header>
 
@@ -40,7 +40,7 @@
                 @if(session('flash_error'))<div class="flash flash-error">{{ session('flash_error') }}</div>@endif
                 @if ($errors->any())<div class="flash flash-error">{{ $errors->first() }}</div>@endif
 
-                <form method="post" action="{{ route('dashboard.leave') }}" class="leave-form">
+                <form method="post" action="{{ route('dashboard.leave', [], false) }}" class="leave-form">
                     @csrf
                     <div class="row-grid-3">
                         <div class="col">

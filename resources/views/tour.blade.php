@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Tour Records</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -23,7 +23,7 @@
         <header class="topbar">
             <div class="search"><input placeholder="Search..." disabled></div>
             <div class="logout">
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                <form method="POST" action="/logout" style="display:inline;">
                     @csrf
                     <button type="submit" style="background:#fff;padding:8px 12px;border-radius:6px;border:none;color:var(--orange);font-weight:600;cursor:pointer;">Logout</button>
                 </form>
@@ -40,7 +40,7 @@
         <section class="grid" style="grid-template-columns:1fr;">
             <div id="tour" class="card leave-card">
                 <h3>Tour Records</h3>
-                <form method="POST" action="{{ route('dashboard.tour.store') }}" class="leave-form" style="margin-top:10px;" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('dashboard.tour.store', [], false) }}" class="leave-form" style="margin-top:10px;" enctype="multipart/form-data">
                     @csrf
                     <div class="row-grid-4">
                         <div class="col">

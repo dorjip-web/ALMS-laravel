@@ -3,7 +3,7 @@
 @section('content')
 <div style="padding:18px">
     <h3>Edit Leave Type</h3>
-    <form method="POST" action="{{ route('leave-types.update', $leaveType->leave_type_id) }}">
+    <form method="POST" action="{{ route('leave-types.update', $leaveType->leave_type_id, false) }}">
         @csrf
         @method('PUT')
         <div class="row-grid-4">

@@ -3,7 +3,7 @@
 @section('content')
 <div class="leave-form" style="padding:18px">
     <h2>Add New User</h2>
-    <form method="POST" action="{{ route('admin.users.create.store') }}">
+    <form method="POST" action="{{ route('admin.users.create.store', [], false) }}">
         @csrf
         <div class="row-grid-3">
             <div class="col">

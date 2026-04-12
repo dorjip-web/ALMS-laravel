@@ -7,7 +7,7 @@
         <section class="panel">
             <h2>Edit Adhoc Request</h2>
 
-            <form method="POST" action="{{ route('admin.adhoc.update', $record['id'] ?? $record['adhoc_request_id'] ?? $record['adhoc_id'] ?? $record['application_id'] ?? $record['employee_id'] ?? 0) }}">
+            <form method="POST" action="{{ route('admin.adhoc.update', $record['id'] ?? $record['adhoc_request_id'] ?? $record['adhoc_id'] ?? $record['application_id'] ?? $record['employee_id'] ?? 0, false) }}">
                 @csrf
                 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
                     <div style="flex:2;min-width:220px">

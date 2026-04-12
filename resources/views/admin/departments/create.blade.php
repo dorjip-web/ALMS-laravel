@@ -21,7 +21,7 @@
             {{ $errors->first() }}
         </div>
     @endif
-    <form method="POST" action="{{ route('admin.departments.create.store') }}">
+    <form method="POST" action="{{ route('admin.departments.create.store', [], false) }}">
         @csrf
         <label class="form-label">Department Name:</label>
         <input class="form-input" type="text" name="department_name" required value="{{ old('department_name') }}">

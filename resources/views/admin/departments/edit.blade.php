@@ -21,7 +21,7 @@
             {{ $errors->first() }}
         </div>
     @endif
-    <form method="POST" action="{{ route('admin.departments.edit.update', $department->department_id) }}">
+    <form method="POST" action="{{ route('admin.departments.edit.update', $department->department_id, false) }}">
         @csrf
         @method('POST')
         <label class="form-label">Department Name:</label>

@@ -49,12 +49,12 @@
                             <td>
                                 @if(! empty($r['id']))
                                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;white-space:nowrap">
-                                            <form method="POST" action="{{ route('admin.device_bindings.unbind', ['id' => $r['id']]) }}" style="display:inline">
+                                            <form method="POST" action="{{ route('admin.device_bindings.unbind', ['id' => $r['id']], false) }}" style="display:inline">
                                             @csrf
                                             <button type="submit" class="action-orange" onclick="return confirm('Unbind this device?')" style="background:none;border:none;padding:0;margin:0;cursor:pointer">Unbind</button>
                                         </form>
 
-                                        <form method="POST" action="{{ route('admin.device_bindings.rebind', ['id' => $r['id']]) }}" style="display:inline;">
+                                        <form method="POST" action="{{ route('admin.device_bindings.rebind', ['id' => $r['id']], false) }}" style="display:inline;">
                                             @csrf
                                             <select name="employee_id" required style="padding:8px;border:1px solid #cfd8db;border-radius:6px;min-width:90px;max-width:180px;box-sizing:border-box">
                                                 <option value="">--select employee--</option>

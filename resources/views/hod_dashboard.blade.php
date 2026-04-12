@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>HoD Dashboard</title>
-    <link rel="stylesheet" href="{{ asset('css/hod_dashboard.css') }}">
+    <link rel="stylesheet" href="/css/hod_dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body{font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;}
@@ -20,7 +20,7 @@
         <header class="topbar">
             <div class="search"><input placeholder="Search..."></div>
             <div class="logout">
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="/logout">
                     @csrf
                     <button type="submit">Logout</button>
                 </form>

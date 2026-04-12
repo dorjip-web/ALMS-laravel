@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>HoD - Pending Leave Requests</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         /* Make logout button match other dashboard pages */
@@ -26,7 +26,7 @@
     <main class="main">
         <header class="topbar">
             <div class="search"><input placeholder="Search..."></div>
-            <div class="logout"><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">Logout</button></form></div>
+            <div class="logout"><form method="POST" action="/logout">@csrf<button type="submit">Logout</button></form></div>
         </header>
 
         <section class="panel">
@@ -56,7 +56,7 @@
                                 <td>{{ $req['total_days'] }}</td>
                                 <td>{{ $req['reason'] }}</td>
                                 <td class="actions">
-                                    <form method="POST" action="{{ route('hod.dashboard.action') }}" class="inline-form">
+                                    <form method="POST" action="{{ route('hod.dashboard.action', [], false) }}" class="inline-form">
                                         @csrf
                                         <input type="hidden" name="request_id" value="{{ $req['application_id'] }}">
                                         <button type="submit" name="action" value="Forward" class="btn btn-forward">Forward</button>

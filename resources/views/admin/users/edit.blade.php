@@ -3,7 +3,7 @@
 @section('content')
 <div style="padding:18px">
     <h2>Edit User</h2>
-    <form method="post" action="{{ route('admin.users.edit.update', $user->employee_id) }}">
+    <form method="post" action="{{ route('admin.users.edit.update', $user->employee_id, false) }}">
         @csrf
         @method('POST')
         <input type="hidden" name="employee_id" value="{{ $user->employee_id }}">

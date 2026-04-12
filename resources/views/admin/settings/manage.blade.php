@@ -7,7 +7,7 @@
     <h1>Manage Admin</h1>
 
     <div class="panel" style="max-width:860px;padding:18px">
-        <form method="POST" action="{{ route('admin.settings.manage.save', $admin['id'] ?? '') }}">
+        <form method="POST" action="{{ route('admin.settings.manage.save', $admin['id'] ?? '', false) }}">
             @csrf
             <div class="admin-form">
                 <div class="form-grid">

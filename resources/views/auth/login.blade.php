@@ -52,7 +52,7 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('login') }}" method="post" class="space-y-4">
+                        <form action="{{ route('login', [], false) }}" method="post" class="space-y-4">
                             @csrf
                             <div>
                                 <label class="block text-sm text-gray-300 mb-2">Username</label>

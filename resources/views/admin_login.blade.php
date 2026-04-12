@@ -63,7 +63,7 @@
             <div class="error" role="alert">{{ session('login_error') }}</div>
         @endif
 
-        <form method="post" action="{{ route('admin.login.post') }}" autocomplete="off" novalidate>
+        <form method="post" action="{{ route('admin.login.post', [], false) }}" autocomplete="off" novalidate>
             @csrf
             <div class="form-row">
                 <label for="username">Username</label>

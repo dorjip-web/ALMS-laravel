@@ -21,7 +21,7 @@
             {{ $errors->first() }}
         </div>
     @endif
-    <form method="POST" action="{{ route('admin.departments.assign_hod.store', $department->department_id) }}">
+    <form method="POST" action="{{ route('admin.departments.assign_hod.store', $department->department_id, false) }}">
         @csrf
         <label class="form-label">Select HoD:</label>
         <select name="employee_id" required class="form-select">

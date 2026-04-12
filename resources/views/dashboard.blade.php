@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Employee Dashboard</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -41,7 +41,7 @@
         <header class="topbar">
             <div class="search"><input placeholder="Search..."></div>
             <div class="logout">
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                <form method="POST" action="/logout" style="display:inline;">
                     @csrf
                     <button type="submit" style="background:#fff;padding:8px 12px;border-radius:6px;border:none;color:var(--orange);font-weight:600;cursor:pointer;">Logout</button>
                 </form>

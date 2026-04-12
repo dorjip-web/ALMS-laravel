@@ -9,7 +9,7 @@
 
             {{-- debug info removed --}}
             <div style="display:flex;gap:18px;align-items:center;margin-bottom:12px">
-                <form method="GET" action="{{ route('admin.adhoc') }}" style="display:flex;gap:8px;align-items:center">
+                <form method="GET" action="{{ route('admin.adhoc', [], false) }}" style="display:flex;gap:8px;align-items:center">
                     <label style="font-weight:700">Department:</label>
                     <select name="department_id" style="padding:8px;border:1px solid #e6eef8;border-radius:6px">
                         <option value="">All</option>
@@ -58,7 +58,7 @@
                                             <td style="white-space:nowrap">
                                                 <a class="action-link" href="{{ route('admin.adhoc.edit', $r['id'] ?? $r['adhoc_request_id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '') }}">Edit</a>
                                                 |
-                                                <form method="POST" action="{{ route('admin.adhoc.delete', $r['id'] ?? $r['adhoc_request_id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '') }}" style="display:inline" onsubmit="return confirm('Delete this adhoc request?');">
+                                                <form method="POST" action="{{ route('admin.adhoc.delete', $r['id'] ?? $r['adhoc_request_id'] ?? $r['adhoc_id'] ?? $r['application_id'] ?? $r['employee_id'] ?? '', false) }}" style="display:inline" onsubmit="return confirm('Delete this adhoc request?');">
                                                     @csrf
                                                     <button type="submit" style="background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;padding:0;margin-left:6px">Delete</button>
                                                 </form>

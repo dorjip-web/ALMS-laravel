@@ -38,7 +38,7 @@
                         </td>
                         <td>
                             <a href="{{ route('leave-types.edit', $leaveType->leave_type_id) }}">Edit</a> |
-                            <form action="{{ route('leave-types.destroy', $leaveType->leave_type_id) }}" method="POST" style="display:inline">
+                            <form action="{{ route('leave-types.destroy', $leaveType->leave_type_id, false) }}" method="POST" style="display:inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>

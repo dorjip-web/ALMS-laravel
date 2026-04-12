@@ -15,7 +15,7 @@
 <div class="panel">
     <h2>Edit Tour Record</h2>
 
-    <form method="POST" action="{{ route('ms.on_tour.update', $record['id'] ?? 0) }}">
+    <form method="POST" action="{{ route('ms.on_tour.update', $record['id'] ?? 0, false) }}">
         @csrf
         <label class="form-label">Place</label>
         <input class="form-input" type="text" name="place" value="{{ old('place', $record['place'] ?? '') }}">

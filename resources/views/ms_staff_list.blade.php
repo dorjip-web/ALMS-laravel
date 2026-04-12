@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Staff List</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         .topbar .logout form button{
@@ -32,7 +32,7 @@
         <header class="topbar">
             <div class="search"><input placeholder="Search..."></div>
             <div class="logout">
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="/logout">
                     @csrf
                     <button type="submit">Logout</button>
                 </form>
@@ -46,7 +46,7 @@
 
             <section class="panel staff-list-panel">
                 <div style="margin-bottom:12px;display:flex;gap:10px;align-items:center;">
-                    <form method="GET" action="{{ route('ms.staff_list') }}" style="display:flex;gap:10px;align-items:center;margin:0">
+                    <form method="GET" action="{{ route('ms.staff_list', [], false) }}" style="display:flex;gap:10px;align-items:center;margin:0">
                         <select name="department_id" style="padding:8px;border-radius:6px;border:1px solid #ddd">
                             <option value="">All Departments</option>
                             @foreach(($departments ?? []) as $d)

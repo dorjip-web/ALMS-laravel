@@ -62,7 +62,7 @@
     <!-- Add Role form -->
     <div id="add-role" style="padding:18px;display:none">
         <h2>Create Role</h2>
-        <form method="POST" action="{{ route('admin.roles_permissions.saveRole') }}">
+        <form method="POST" action="{{ route('admin.roles_permissions.saveRole', [], false) }}">
             @csrf
             <input type="hidden" name="role_id" value="0">
             <div style="margin-bottom:8px"><label class="muted">Role name</label>
@@ -106,7 +106,7 @@
 @if($editRole)
     <div style="padding:18px">
         <h2>Edit Role</h2>
-        <form method="POST" action="{{ route('admin.roles_permissions.saveRole') }}">
+        <form method="POST" action="{{ route('admin.roles_permissions.saveRole', [], false) }}">
             @csrf
             <input type="hidden" name="role_id" value="{{ $editRole->role_id }}">
             <div style="margin-bottom:8px"><label class="muted">Role name</label>
@@ -130,7 +130,7 @@
     </div>
     <!-- Add Permission form -->
     <div id="add-perm" style="padding:8px 0 18px 0;display:none">
-        <form method="POST" action="{{ route('admin.roles_permissions.savePermission') }}">
+        <form method="POST" action="{{ route('admin.roles_permissions.savePermission', [], false) }}">
             @csrf
             <input type="hidden" name="perm_id" value="0">
             <div style="margin-bottom:8px"><label class="muted">Permission name</label>
@@ -186,7 +186,7 @@
 @if($editPermission)
     <div style="padding:18px">
         <h2>Edit Permission</h2>
-        <form method="POST" action="{{ route('admin.roles_permissions.savePermission') }}">
+        <form method="POST" action="{{ route('admin.roles_permissions.savePermission', [], false) }}">
             @csrf
             <input type="hidden" name="perm_id" value="{{ $editPermission->permission_id }}">
             <div style="margin-bottom:8px"><label class="muted">Permission name</label>
@@ -206,7 +206,7 @@
 @if(request('assign_role_id') || request('assign_role'))
     <div style="padding:18px">
         <h2>Assign Permissions</h2>
-        <form method="POST" action="{{ route('admin.roles_permissions.saveAssign') }}">
+        <form method="POST" action="{{ route('admin.roles_permissions.saveAssign', [], false) }}">
             @csrf
             <div style="margin-bottom:10px">
                 <label class="muted">Select Role</label>
