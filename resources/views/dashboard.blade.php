@@ -73,7 +73,7 @@
                 <p class="attendance-subtitle">Track your daily activity</p>
 
                 <div class="att-actions">
-                    <form method="POST" action="{{ route('dashboard.attendance') }}" class="inline attendance-form" data-action="checkin">
+                    <form method="POST" action="/dashboard/attendance" class="inline attendance-form" data-action="checkin">
                         @csrf
                         <input type="hidden" name="action" value="checkin">
                         <input type="hidden" name="lat" class="lat-input">
@@ -88,7 +88,7 @@
                         </button>
                     </form>
 
-                    <form method="POST" action="{{ route('dashboard.attendance') }}" class="inline attendance-form" data-action="checkout">
+                    <form method="POST" action="/dashboard/attendance" class="inline attendance-form" data-action="checkout">
                         @csrf
                         <input type="hidden" name="action" value="checkout">
                         <input type="hidden" name="lat" class="lat-input">
@@ -210,6 +210,7 @@
                         const lat = pos.coords.latitude;
                         const lon = pos.coords.longitude;
                         const hiddenLate = form.querySelector('.late-reason-hidden');
+                        console.log('DEBUG attendance submit', { action: form.action, origin: window.location.origin, actionProtocol: new URL(form.action, window.location.href).protocol });
                         try { const lateArea = document.getElementById('late-reason-area'); if (lateArea && hiddenLate) hiddenLate.value = lateArea.value.trim(); } catch (e) {}
                         latInput.value = lat; lonInput.value = lon; form.submit();
                     }, function () { alert('Location permission is required.'); }, { timeout: 60000, enableHighAccuracy: false, maximumAge: 30000 });
