@@ -7,9 +7,55 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" href="/css/login.css">
+        <style>
+            /* mobile background for small screens only */
+            .mobile-bg { background-size: cover; background-position: center; background-image: url("{{ asset('images/left-panel.jpg') }}"); }
+            @media (min-width: 768px) { .mobile-bg { background-image: none !important; background-color: #f3f4f6; } }
+        </style>
     </head>
     <body class="bg-gray-100 font-poppins">
-        <div class="min-h-screen flex items-center justify-center p-6">
+
+        <!-- Mobile-only login (visible on <md) -->
+        <div class="md:hidden mobile-bg flex items-center justify-center min-h-screen">
+            <div class="bg-white bg-opacity-70 backdrop-blur-sm shadow-xl rounded-xl w-11/12 max-w-xs p-6">
+                <div class="text-center mb-6">
+                    <img src="{{ asset('images/ntmh-logo.png') }}" alt="NTMH Logo" class="mx-auto w-16 h-16 rounded-full mb-2" />
+                    <h1 class="text-xl font-bold text-orange-600">NTMH ALMS</h1>
+                    <p class="text-gray-600 text-xs">Welcome back — please enter your username and password</p>
+                </div>
+
+                <form action="{{ route('login') }}" method="POST" class="space-y-3">
+                    @csrf
+                    <input type="text" name="username" placeholder="Enter your username"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+
+                    <input type="password" name="password" placeholder="Enter your password"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+
+                    <div class="flex items-center justify-between text-xs">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="remember" class="mr-1" /> Remember me
+                        </label>
+                        <a href="/forgot-password" class="text-orange-600 hover:underline">Forgot password?</a>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full bg-orange-600 text-white font-semibold py-2 rounded-lg text-sm hover:bg-orange-700 transition">
+                        Login
+                    </button>
+                </form>
+
+                <div class="mt-5 text-center text-xs text-gray-600">
+                    <p>Quick Links:</p>
+                    <div class="flex justify-center space-x-3 mt-2">
+                        <a href="/google-login" class="bg-gray-100 px-3 py-1 rounded-lg hover:bg-gray-200">Sign in with Google</a>
+                        <a href="/admin-login" class="bg-gray-100 px-3 py-1 rounded-lg hover:bg-gray-200">Admin Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden md:flex min-h-screen items-center justify-center p-6">
             <div class="w-full max-w-6xl rounded-2xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-2">
                 <div class="relative hidden md:block">
                     <img
