@@ -15,8 +15,8 @@
         if (! empty($attendanceToday['checkin']) && ! empty($attendanceToday['checkout'])) {
             $fill = 100;
         } elseif (! empty($attendanceToday['checkin'])) {
-            // show an almost-full green fill when user has checked in but not checked out
-            $fill = 94;
+            // show a half-width green fill when user has checked in but not checked out
+            $fill = 50;
         }
 
         $nowTime = now('Asia/Thimphu')->format('H:i:s');
@@ -33,7 +33,21 @@
                 $checkinDisplay = '';
             }
         }
-        $fillStyle = 'width:' . $fillWidth . ';';
+
+        // keep empty when missing (no placeholder)
+        $checkinDisplay = $checkinDisplay ?: '';
+
+        $checkoutDisplay = '';
+        if (! empty($attendanceToday['checkout'])) {
+            try {
+                $checkoutDisplay = \Illuminate\Support\Carbon::parse($attendanceToday['checkout'], 'Asia/Thimphu')->format('h:i A');
+            } catch (\Throwable $e) {
+                $checkoutDisplay = '';
+            }
+        }
+
+        $checkoutDisplay = $checkoutDisplay ?: '';
+        $fillStyle = $fillWidth;
     @endphp
 
     <header class="m-header">
@@ -71,28 +85,44 @@
             </a>
         </div>
 
-        <div class="m-card">
-            <div class="m-checked">● Checked in at {{ !empty($attendanceToday['checkin']) ? \Illuminate\Support\Carbon::parse($attendanceToday['checkin'],'Asia/Thimphu')->format('h:i A') : '' }}</div>
-        </div>
+        <!-- Checked-in summary card removed as requested -->
 
+        <!-- Desktop-like Timeline card -->
         <div class="m-card">
             <h4 class="m-card-title">Today's Timeline</h4>
             <div class="m-timeline-row">
                 <div class="m-timeline-time">{{ $checkinDisplay }}</div>
+                @if (empty($attendanceToday['checkin']) && empty($attendanceToday['checkout']))
+                    <div class="m-timeline-edge" aria-hidden="true"></div>
+                @endif
                 <div class="m-timeline-bar">
-                    <div class="m-timeline-fill" style="width: {{ (int)($fill ?? 0) }}% !important; background: var(--green) !important; height:100% !important; border-radius:999px !important; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.06), 0 6px 14px rgba(20,184,102,0.06) !important; transition: width .36s ease !important;"></div>
+                    @if (!empty($attendanceToday['checkin']))
+                        <div class="m-timeline-fill" style="width: {{ $fillStyle }}; background: var(--green) !important; height: 100% !important; border-radius: 999px !important; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.06), 0 6px 14px rgba(20,184,102,0.06) !important; transition: width .36s ease !important;"></div>
+                    @endif
                 </div>
-                <div class="m-timeline-time m-timeline-now">Now</div>
+                @if (empty($attendanceToday['checkin']) && empty($attendanceToday['checkout']))
+                    <div class="m-timeline-edge" aria-hidden="true"></div>
+                @endif
+                <div class="m-timeline-time m-timeline-now">{{ $checkoutDisplay }}</div>
             </div>
+        </div>
 
-            <div class="m-late">
-                <input id="late-reason-input" name="late_reason" placeholder="Enter reason for being late" class="m-late-input" />
-            </div>
-
-            @if(!empty($notifications) && is_array($notifications))
-                <div class="m-reminder">⚠️ {{ implode(' | ', $notifications) }}</div>
+        <!-- Late reason card (desktop-style) -->
+        <div class="m-card">
+            @if ($showLateReason)
+                <label for="late-reason-area" style="display:block;margin-bottom:6px;font-weight:600;">Late reason (required after 09:15)</label>
+                <textarea id="late-reason-area" placeholder="Provide reason for being late" style="width:100%;min-height:76px;padding:10px;border-radius:8px;border:1px solid #e6edf3;"></textarea>
             @endif
         </div>
+
+        <!-- Reminder card -->
+        @if (!empty($notifications) && is_array($notifications))
+            <div class="m-card">
+                <div class="m-reminder">{{ implode(' | ', $notifications) }}</div>
+            </div>
+        @endif
+
+        <!-- Timeline removed as requested -->
     </main>
 
     <nav class="m-bottom-nav">
@@ -106,8 +136,8 @@
         (function () {
             const checkin = document.getElementById('m-checkin-btn');
             const checkout = document.getElementById('m-checkout-btn');
-            const lateInput = document.getElementById('late-reason-input');
-            const showLate = @json($showLateReason);
+            const lateInput = document.getElementById('late-reason-input') || document.getElementById('late-reason-area');
+            const showLate = <?php echo json_encode($showLateReason); ?>;
 
             function navigateWithLocation(anchor, opts = {}) {
                 if (!anchor) return;

@@ -46,12 +46,16 @@ body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif}
 .m-btn-secondary .m-btn-icon-inner{background:#ffffff}
 .m-checked{color:#2e7d32;margin-top:8px;display:flex;align-items:center;gap:8px}
 .m-timeline-meta{display:flex;justify-content:space-between;color:#6b7280;margin-top:6px;font-size:13px}
-.m-timeline-bar{background:#eef5ee;border-radius:999px;overflow:hidden;height:16px;margin-top:8px;padding:3px}
-.m-timeline-fill{height:100%;background:var(--green);border-radius:999px;box-shadow:inset 0 -2px 0 rgba(0,0,0,0.06),0 6px 14px rgba(20,184,102,0.06);transition:width .36s ease}
+.m-timeline-bar{background:#eef7f0;border-radius:999px;position:relative;overflow:hidden;height:10px;margin-top:8px;flex:1;min-width:0;padding:0}
+.m-timeline-fill{position:absolute;left:0;top:0;height:100%;background:var(--green);border-radius:999px;width:0;box-shadow:none;transition:width .36s ease}
 .m-timeline-row{display:flex;align-items:center;gap:12px}
+.m-timeline-edge{width:18px;height:6px;background:#0b2b53;border-radius:4px;opacity:0.12}
 .m-timeline-time{width:60px;color:#6b7280;font-size:13px}
-.m-timeline-now{text-align:right;width:40px}
-.m-late input#m-late-reason-input, #late-reason-input{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef3;margin-top:10px}
+.m-timeline-now{width:60px;text-align:right;color:#6b7280;font-size:13px}
+.m-late input#m-late-reason-input, #late-reason-input, textarea#late-reason-area{width:100%;padding:12px;border-radius:8px;border:1px solid #e6eef3;margin-top:10px;box-sizing:border-box;min-height:76px;resize:vertical;background:#fff}
+
+/* Ensure late reason card spacing aligns with other cards */
+.m-card > label[for="late-reason-area"]{display:block;margin-bottom:8px;font-weight:600}
 .m-reminder{margin-top:10px;background:#fff7f0;border-left:6px solid var(--orange);padding:10px 12px;border-radius:8px;color:#8a3e14}
 .m-bottom-nav{position:fixed;bottom:12px;left:12px;right:12px;background:#fff;border-radius:14px;display:flex;justify-content:space-around;padding:10px 8px;box-shadow:0 12px 36px rgba(16,24,40,0.10);align-items:center}
 .m-nav-item{color:#213547;text-decoration:none;font-weight:600;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 8px}
@@ -67,6 +71,11 @@ body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif}
   .m-logo-img{width:56px;height:56px}
   .m-logo-text{font-size:16px}
   .m-header{padding:14px 12px;border-bottom-left-radius:20px;border-bottom-right-radius:20px}
+}
+
+@media (max-width:420px){
+  .m-timeline-bar{height:8px;padding:1px}
+  .m-timeline-fill{border-radius:8px}
 }
 
 /* Button fit fixes: make checkin/checkout share the full width without overflowing */
