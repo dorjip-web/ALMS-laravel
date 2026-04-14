@@ -57,6 +57,9 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
+    // GET helpers for simple mobile checkin/checkout (avoids CSRF issues on some clients)
+    Route::get('/dashboard/attendance/checkin', [EmployeeDashboardController::class, 'attendanceCheckin'])->name('dashboard.attendance.checkin');
+    Route::get('/dashboard/attendance/checkout', [EmployeeDashboardController::class, 'attendanceCheckout'])->name('dashboard.attendance.checkout');
     Route::get('/dashboard/tour', [EmployeeDashboardController::class, 'tour'])->name('dashboard.tour');
     Route::post('/dashboard/tour', [EmployeeDashboardController::class, 'submitTour'])->name('dashboard.tour.store');
     Route::post('/dashboard/attendance', [EmployeeDashboardController::class, 'attendance'])->name('dashboard.attendance');

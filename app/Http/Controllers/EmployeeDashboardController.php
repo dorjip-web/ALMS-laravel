@@ -119,7 +119,9 @@ class EmployeeDashboardController extends Controller
             $notifications[] = 'Reminder: Your check-out is pending.';
         }
 
-        return view('dashboard', [
+        $view = $this->isMobile($request) ? 'mobile.dashboard' : 'dashboard';
+
+        return view($view, [
             'employee' => $employee,
             'attendanceToday' => $attendanceToday,
             'hasMorning' => $hasMorning,
@@ -132,6 +134,16 @@ class EmployeeDashboardController extends Controller
             'hodName' => $hodName,
             'departmentId' => (int) ($departmentId ?? 0),
         ]);
+    }
+
+    /**
+     * Very small User-Agent based mobile detection.
+     * Works for basic device detection to serve a mobile-specific view.
+     */
+    private function isMobile(Request $request): bool
+    {
+        $ua = $request->header('User-Agent', '') ?: '';
+        return (bool) preg_match('/Mobile|Android|iPhone|iPad|iPod|Opera Mini|IEMobile|BlackBerry|BB10|Windows Phone/i', $ua);
     }
 
     public function tour(Request $request): View
@@ -463,6 +475,26 @@ class EmployeeDashboardController extends Controller
         $query->update($updateData);
 
         return back()->with('flash_success', 'Checked out successfully.');
+    }
+
+    /**
+     * Mobile-friendly GET wrapper for check-in.
+     * Merges the action into the request and delegates to attendance().
+     */
+    public function attendanceCheckin(Request $request): RedirectResponse
+    {
+        $request->merge(['action' => 'checkin']);
+        return $this->attendance($request);
+    }
+
+    /**
+     * Mobile-friendly GET wrapper for check-out.
+     * Merges the action into the request and delegates to attendance().
+     */
+    public function attendanceCheckout(Request $request): RedirectResponse
+    {
+        $request->merge(['action' => 'checkout']);
+        return $this->attendance($request);
     }
 
     public function attendanceSummary(Request $request): View

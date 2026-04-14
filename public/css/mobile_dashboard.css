@@ -1,0 +1,87 @@
+:root{--orange:#ff6b00;--dark:#1e3a8a;--muted:#6b7280;--green:#14b866}
+body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif}
+.m-mobile-root{min-height:100vh;background:#f3f6fb;display:flex;flex-direction:column}
+.m-header{background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:18px 18px;box-shadow:0 10px 30px rgba(30,58,138,0.16);border-bottom-left-radius:26px;border-bottom-right-radius:26px}
+.m-menu-btn{background:transparent;border:none;color:#fff;font-size:24px}
+.m-header-center{display:flex;flex-direction:row;align-items:center;gap:12px;justify-content:center}
+.m-logo{font-weight:800;font-size:18px}
+.m-logo-img{width:64px;height:64px;border-radius:50%;background:#fff;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.m-logo-text{font-weight:800;font-size:18px;color:#fff;letter-spacing:2px}
+.m-org{font-size:12px;opacity:0.95}
+.m-main{flex:1;padding:16px;display:flex;flex-direction:column;gap:14px;overflow:auto;padding-bottom:160px}
+.m-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 8px 24px rgba(22,37,84,0.06)}
+.m-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 12px 30px rgba(22,37,84,0.08);position:relative;z-index:1}
+.m-card-title{margin:0 0 8px 0;font-size:16px;color:#0b2b53;font-weight:700}
+.m-welcome-prefix{color:var(--orange);font-weight:800;font-size:20px}
+.m-welcome-name{color:#1e73be;font-weight:800;font-size:20px;margin-left:6px}
+.m-welcome{font-size:20px;margin:0;color:#0b2b53}
+.m-welcome-light{color:var(--orange);font-weight:800;margin-right:6px}
+.m-welcome-name{color:#1e73be;font-weight:800}
+.m-subtitle{color:#213547;margin:8px 0 10px 0;font-weight:700}
+.m-detail-box{background:#fff;border-radius:10px;padding:10px;border:1px solid #eef2f6}
+.m-row{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid #eef2f6}
+.m-row:last-child{border-bottom:none}
+.m-row-label{color:#62718a;font-weight:600}
+.m-row-value{font-weight:800;color:#0b2540;text-align:left}
+.m-status{color:#1e73be;font-weight:700}
+.m-att-row{display:flex;gap:26px;padding:0;background:transparent;border-radius:14px;align-items:center}
+.m-btn{flex:1;display:flex;align-items:center;justify-content:flex-start;gap:14px;height:56px;border-radius:18px;border:none;box-shadow:0 8px 22px rgba(16,24,40,0.06);padding:0 18px;text-decoration:none}
+.m-btn:focus{outline:none}
+.m-btn-badge{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:0;box-shadow:inset 0 -2px 6px rgba(0,0,0,0.04),0 6px 16px rgba(16,24,40,0.08)}
+.m-btn-icon-inner{width:22px;height:22px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green);font-size:14px}
+.m-btn-label{color:#fff;font-size:16px;font-weight:800;white-space:nowrap;flex:1;text-align:center}
+.m-btn-primary{background:var(--green)}
+.m-btn-secondary{background:var(--orange)}
+.m-btn-primary .m-btn-icon-inner{color:var(--green)}
+.m-btn-secondary .m-btn-icon-inner{color:var(--orange)}
+.m-btn-primary .m-btn-icon-inner{color:var(--green)}
+.m-btn-secondary .m-btn-icon-inner{color:var(--orange)}
+.m-btn-primary .m-btn-icon-inner{color:var(--green)}
+.m-btn-secondary .m-btn-icon-inner{color:var(--orange)}
+.m-btn-primary{background:var(--green);color:#fff}
+.m-btn-secondary{background:var(--orange);color:#fff}
+.m-att-row > .m-btn:first-child{margin-left:6px}
+.m-att-row > .m-btn:last-child{margin-right:6px}
+.m-btn-primary .m-btn-icon-inner{background:#ffffff}
+.m-btn-secondary .m-btn-icon-inner{background:#ffffff}
+.m-checked{color:#2e7d32;margin-top:8px;display:flex;align-items:center;gap:8px}
+.m-timeline-meta{display:flex;justify-content:space-between;color:#6b7280;margin-top:6px;font-size:13px}
+.m-timeline-bar{background:#eef5ee;border-radius:999px;overflow:hidden;height:16px;margin-top:8px;padding:3px}
+.m-timeline-fill{height:100%;background:var(--green);border-radius:999px;box-shadow:inset 0 -2px 0 rgba(0,0,0,0.06),0 6px 14px rgba(20,184,102,0.06);transition:width .36s ease}
+.m-timeline-row{display:flex;align-items:center;gap:12px}
+.m-timeline-time{width:60px;color:#6b7280;font-size:13px}
+.m-timeline-now{text-align:right;width:40px}
+.m-late input#m-late-reason-input, #late-reason-input{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef3;margin-top:10px}
+.m-reminder{margin-top:10px;background:#fff7f0;border-left:6px solid var(--orange);padding:10px 12px;border-radius:8px;color:#8a3e14}
+.m-bottom-nav{position:fixed;bottom:12px;left:12px;right:12px;background:#fff;border-radius:14px;display:flex;justify-content:space-around;padding:10px 8px;box-shadow:0 12px 36px rgba(16,24,40,0.10);align-items:center}
+.m-nav-item{color:#213547;text-decoration:none;font-weight:600;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 8px}
+.m-nav-icon{font-size:20px}
+.m-nav-item.active .m-nav-icon, .m-nav-item.active .m-nav-label{color:var(--orange)}
+.m-nav-label{font-size:11px}
+@media (min-width:769px){
+  /* hide mobile root on larger screens when desktop view is visible */
+  .m-mobile-root{display:none}
+}
+
+@media (max-width:420px){
+  .m-logo-img{width:56px;height:56px}
+  .m-logo-text{font-size:16px}
+  .m-header{padding:14px 12px;border-bottom-left-radius:20px;border-bottom-right-radius:20px}
+}
+
+/* Button fit fixes: make checkin/checkout share the full width without overflowing */
+.m-att-row{display:flex;gap:12px;padding:8px 0;background:transparent;border-radius:14px;align-items:center;box-sizing:border-box;width:100%}
+.m-att-row > .m-btn{flex:1 1 0%;min-width:0;display:flex;align-items:center;justify-content:center;gap:12px;height:52px;border-radius:10px;border:none;padding:0 16px 0 60px;box-shadow:0 8px 20px rgba(16,24,40,0.06);margin:0;position:relative;z-index:3;cursor:pointer;display:inline-flex}
+.m-att-row > .m-btn + .m-btn{margin-left:0}
+.m-att-row > .m-btn:first-child{margin-left:0}
+.m-att-row > .m-btn:last-child{margin-right:0}
+.m-btn-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;text-align:center;font-size:16px}
+.m-btn-badge{position:absolute;left:16px;margin:0;flex-shrink:0}
+/* ensure the badge doesn't intercept clicks and buttons remain clickable */
+.m-btn{pointer-events:auto}
+.m-btn-badge{pointer-events:none}
+@media (max-width:420px){
+  .m-att-row{gap:10px;padding:6px 0}
+  .m-att-row > .m-btn{height:46px;padding:0 10px 0 54px;border-radius:8px}
+  .m-btn-label{font-size:14px}
+}
