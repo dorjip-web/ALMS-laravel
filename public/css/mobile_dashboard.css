@@ -1,16 +1,32 @@
 :root{--orange:#ff6b00;--dark:#1e3a8a;--muted:#6b7280;--green:#14b866}
 body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif}
 .m-mobile-root{min-height:100vh;background:#f3f6fb;display:flex;flex-direction:column}
-.m-header{background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:18px 18px;box-shadow:0 10px 30px rgba(30,58,138,0.16);border-bottom-left-radius:26px;border-bottom-right-radius:26px}
+.m-header{background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:18px 18px;box-shadow:0 10px 30px rgba(30,58,138,0.16);border-top-left-radius:20px;border-top-right-radius:20px;border-bottom-left-radius:0;border-bottom-right-radius:0;margin:12px 12px 0 12px;position:relative;z-index:5}
 .m-menu-btn{background:transparent;border:none;color:#fff;font-size:24px}
 .m-header-center{display:flex;flex-direction:row;align-items:center;gap:12px;justify-content:center}
+
+/* Menu dropdown (hidden by default; toggled when clicking the menu button) */
+.m-menu-dropdown{position:absolute;top:100%;left:12px;transform:translateY(8px);display:none;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(16,24,40,0.08);padding:8px;z-index:20;min-width:140px}
+.m-menu-dropdown.open{display:block}
+.m-logout-btn{background:transparent;border:none;color:var(--dark);font-weight:700;padding:8px 12px;border-radius:8px;cursor:pointer}
+.m-logout-btn:active,.m-logout-btn:focus{outline:none}
+
+@media (min-width:769px){
+  .m-menu-dropdown{display:none !important}
+}
 .m-logo{font-weight:800;font-size:18px}
 .m-logo-img{width:64px;height:64px;border-radius:50%;background:#fff;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
 .m-logo-text{font-weight:800;font-size:18px;color:#fff;letter-spacing:2px}
 .m-org{font-size:12px;opacity:0.95}
-.m-main{flex:1;padding:16px;display:flex;flex-direction:column;gap:14px;overflow:auto;padding-bottom:220px}
+.m-main{flex:1;padding:12px;display:flex;flex-direction:column;gap:14px;overflow:auto;padding-bottom:220px}
 .m-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 8px 24px rgba(22,37,84,0.06)}
 .m-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 12px 30px rgba(22,37,84,0.08);position:relative;z-index:1}
+
+/* Visually merge the first employee detail card with the header */
+.m-main .m-card:first-of-type{margin-top:-12px;border-top-left-radius:0;border-top-right-radius:0;padding-top:12px;box-shadow:0 12px 30px rgba(22,37,84,0.06)}
+
+/* Ensure stacking order keeps header above the overlapping card */
+.m-header{position:relative;z-index:6;border-top-left-radius:20px;border-top-right-radius:20px;border-bottom-left-radius:0;border-bottom-right-radius:0}
 .m-card-title{margin:0 0 8px 0;font-size:16px;color:#0b2b53;font-weight:700}
 .m-welcome-prefix{color:var(--orange);font-weight:800;font-size:20px}
 .m-welcome-name{color:#1e73be;font-weight:800;font-size:20px;margin-left:6px}
@@ -57,7 +73,7 @@ body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif}
 /* Ensure late reason card spacing aligns with other cards */
 .m-card > label[for="late-reason-area"]{display:block;margin-bottom:8px;font-weight:600}
 .m-reminder{margin-top:10px;background:#fff7f0;border-left:6px solid var(--orange);padding:10px 12px;border-radius:8px;color:#8a3e14}
-.m-bottom-nav{position:fixed;bottom:12px;left:12px;right:12px;background:#fff;border-radius:14px;display:flex;justify-content:space-around;padding:10px 8px;box-shadow:0 12px 36px rgba(16,24,40,0.10);align-items:center}
+.m-bottom-nav{position:fixed;bottom:12px;left:12px;right:12px;background:#fff;border-radius:14px;display:flex;justify-content:space-around;padding:10px 8px;box-shadow:0 12px 36px rgba(16,24,40,0.10);align-items:center;z-index:10000}
 .m-nav-item{color:#213547;text-decoration:none;font-weight:600;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 8px}
 .m-nav-icon{font-size:20px}
 .m-nav-item.active .m-nav-icon, .m-nav-item.active .m-nav-label{color:var(--orange)}
@@ -70,7 +86,7 @@ body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif}
 @media (max-width:420px){
   .m-logo-img{width:56px;height:56px}
   .m-logo-text{font-size:16px}
-  .m-header{padding:14px 12px;border-bottom-left-radius:20px;border-bottom-right-radius:20px}
+  .m-header{padding:14px 12px;border-top-left-radius:18px;border-top-right-radius:18px;border-bottom-left-radius:0;border-bottom-right-radius:0}
 }
 
 @media (max-width:420px){

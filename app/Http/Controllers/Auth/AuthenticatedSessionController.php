@@ -131,10 +131,13 @@ class AuthenticatedSessionController extends Controller
                     $request->session()->flash('device_binding_warning', 'Device binding skipped: legacy employee record not found. Contact admin.');
                 }
             } else {
-                // Subsequent login: require matching token in cookie
+                // Subsequent login: require a matching token in cookie.
+                // If the binding exists but the browser has lost the cookie
+                // (a common mobile issue), refuse login to avoid allowing
+                // a different employee to bind the same physical device.
                 $storedToken = $request->cookie('device_token');
                 if (! $storedToken || $storedToken !== $binding->device_token) {
-                    Log::warning('Device token mismatch', ['username' => $username, 'storedToken' => $storedToken, 'expected' => $binding->device_token, 'host' => $request->getSchemeAndHttpHost()]);
+                    Log::warning('Device token missing or mismatch - blocking login', ['username' => $username, 'storedToken' => $storedToken ?? null, 'expected' => $binding->device_token, 'host' => $request->getSchemeAndHttpHost()]);
                     return back()->withErrors([
                         'username' => 'Device not authorized. Contact administrator for rebind.'
                     ])->onlyInput('username');

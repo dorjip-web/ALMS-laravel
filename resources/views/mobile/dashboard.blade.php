@@ -51,7 +51,13 @@
     @endphp
 
     <header class="m-header">
-        <button class="m-menu-btn" aria-label="menu">☰</button>
+        <button class="m-menu-btn" aria-label="menu" id="m-menu-btn">☰</button>
+        <div class="m-menu-dropdown" id="m-menu-dropdown" aria-hidden="true">
+            <form id="m-logout-form" method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="button" id="m-logout-btn" class="m-logout-btn">Logout</button>
+            </form>
+        </div>
         <div class="m-header-center">
             <div class="m-logo-text m-logo-left">NTMH</div>
             <img class="m-logo-img" src="/images/ntmh-logo.png" alt="logo" />
@@ -188,6 +194,89 @@
             navigateWithLocation(checkout, { requireLate: false, includeLate: false });
         }());
     </script>
+        <script>
+        (function () {
+            const menuBtn = document.getElementById('m-menu-btn');
+            const menuDropdown = document.getElementById('m-menu-dropdown');
+
+            if (menuBtn && menuDropdown) {
+            menuBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const opened = menuDropdown.classList.toggle('open');
+                menuDropdown.setAttribute('aria-hidden', (!opened).toString());
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                if (!menuDropdown.contains(e.target) && !menuBtn.contains(e.target)) {
+                    menuDropdown.classList.remove('open');
+                    menuDropdown.setAttribute('aria-hidden', 'true');
+                }
+            });
+
+            // Intercept logout to use fetch() instead of native form submit
+            const logoutBtn = document.getElementById('m-logout-btn');
+            const logoutForm = document.getElementById('m-logout-form');
+            if (logoutBtn && logoutForm) {
+                logoutBtn.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+                    const action = logoutForm.getAttribute('action');
+                    let tokenInput = logoutForm.querySelector('input[name="_token"]');
+                    let token = tokenInput ? tokenInput.value : null;
+                    if (! token) {
+                        // fallback to meta tag
+                        const meta = document.querySelector('meta[name="csrf-token"]');
+                        if (meta) token = meta.getAttribute('content');
+                    }
+
+                    // Send POST via fetch to avoid browser "insecure form" prompt.
+                    // Use a same-origin path to avoid mixed-scheme blocking when
+                    // route() emits an absolute URL with a different scheme.
+                    try {
+                        const urlObj = new URL(action, window.location.origin);
+                        const sameOriginPath = urlObj.pathname + (urlObj.search || '');
+
+                        function readCookie(name) {
+                            const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+                            return v ? v.pop() : null;
+                        }
+
+                        const xsrfCookie = readCookie('XSRF-TOKEN');
+                        const xsrfHeader = xsrfCookie ? decodeURIComponent(xsrfCookie) : (token || '');
+
+                        fetch(sameOriginPath, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-CSRF-TOKEN': token || '',
+                                'X-XSRF-TOKEN': xsrfHeader || '',
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: new URLSearchParams({'_token': token || ''})
+                        }).then(function (res) {
+                            // Always refresh the page so the UI reflects the
+                            // server state — some servers send non-OK responses
+                            // but still clear the session; reloading shows the
+                            // actual login state without a misleading "failed" alert.
+                            if (!res.ok) {
+                                console.warn('Logout returned non-OK status', res.status);
+                            }
+                            window.location.reload();
+                        }).catch(function (err) {
+                            console.error('Fetch error during logout', err);
+                            // Still reload to pick up possible server-side logout
+                            // that completed despite the network error.
+                            window.location.reload();
+                        });
+                    } catch (ex) {
+                        console.error('Logout URL parsing error', ex);
+                        alert('Logout failed. Please try again.');
+                    }
+                });
+            }
+        }
+        }());
+        </script>
 </div>
 </body>
 </html>
