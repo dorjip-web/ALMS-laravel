@@ -81,7 +81,7 @@
 
             <div class="actions">
                 <button class="btn btn-primary" type="submit">Login</button>
-                <a class="btn btn-ghost" href="{{ route('login') }}">Employee login</a>
+                <a class="btn btn-ghost" href="{{ route('login', [], false) }}">Employee login</a>
             </div>
         </form>
     </section>

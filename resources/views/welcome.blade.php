@@ -32,7 +32,7 @@
 <body>
     <div class="card">
         <h1>{{ config('app.name', 'Laravel') }}</h1>
-        <p><a href="{{ route('login') }}">Go to login</a></p>
+        <p><a href="{{ route('login', [], false) }}">Go to login</a></p>
     </div>
 </body>
 </html>

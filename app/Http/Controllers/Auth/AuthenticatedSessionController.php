@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -42,6 +43,7 @@ class AuthenticatedSessionController extends Controller
         $storedPassword = (string) ($legacyUser->password ?? '');
 
         if (! $legacyUser || $storedPassword === '' || ! password_verify($credentials['password'], $storedPassword)) {
+            Log::warning('Auth failed', ['username' => $username, 'host' => $request->getSchemeAndHttpHost()]);
             return back()->withErrors([
                 'username' => 'Invalid username or password.',
             ])->onlyInput('username');
@@ -76,6 +78,7 @@ class AuthenticatedSessionController extends Controller
             if ($incomingToken) {
                 $existingByToken = DB::table('device_bindings')->where('device_token', $incomingToken)->first();
                 if ($existingByToken && (string) $existingByToken->employee_id !== (string) $employeeId) {
+                    Log::warning('Device binding prevents login', ['username' => $username, 'incoming_token' => $incomingToken, 'host' => $request->getSchemeAndHttpHost()]);
                     return back()->withErrors([
                         'username' => 'This device is already bound to another user. Contact administrator to rebind.'
                     ])->onlyInput('username');
@@ -123,6 +126,7 @@ class AuthenticatedSessionController extends Controller
                         $secure,
                         true // httpOnly
                     ));
+                    Log::debug('Device token queued', ['employee_id' => $fkValue, 'device_token' => $deviceToken, 'secure' => $secure, 'host' => $request->getSchemeAndHttpHost()]);
                 } else {
                     $request->session()->flash('device_binding_warning', 'Device binding skipped: legacy employee record not found. Contact admin.');
                 }
@@ -130,12 +134,15 @@ class AuthenticatedSessionController extends Controller
                 // Subsequent login: require matching token in cookie
                 $storedToken = $request->cookie('device_token');
                 if (! $storedToken || $storedToken !== $binding->device_token) {
+                    Log::warning('Device token mismatch', ['username' => $username, 'storedToken' => $storedToken, 'expected' => $binding->device_token, 'host' => $request->getSchemeAndHttpHost()]);
                     return back()->withErrors([
                         'username' => 'Device not authorized. Contact administrator for rebind.'
                     ])->onlyInput('username');
                 }
             }
         }
+
+        Log::debug('Before Auth::login', ['username' => $username, 'host' => $request->getSchemeAndHttpHost(), 'cookies' => $request->cookies->all(), 'session_id' => $request->session()->getId()]);
 
         Auth::login($appUser, $request->boolean('remember'));
 
@@ -145,6 +152,8 @@ class AuthenticatedSessionController extends Controller
         $request->session()->put('username', $legacyUser->username ?? $username);
 
         $request->session()->regenerate();
+
+        Log::debug('After login', ['username' => $username, 'auth_id' => Auth::id(), 'session_id' => $request->session()->getId(), 'host' => $request->getSchemeAndHttpHost()]);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

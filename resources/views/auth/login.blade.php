@@ -24,7 +24,7 @@
                     <p class="text-gray-600 text-xs">Welcome back — please enter your username and password</p>
                 </div>
 
-                <form action="{{ route('login') }}" method="POST" class="space-y-3">
+                <form action="{{ route('login', [], false) }}" method="POST" class="space-y-3">
                     @csrf
                     <input type="text" name="username" placeholder="Enter your username"
                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
@@ -131,7 +131,7 @@
                                 <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google" class="w-5 h-5">
                                 Google
                             </button>
-                            <a href="{{ route('admin.login') }}" class="py-2 px-4 rounded border border-gray-600 bg-transparent text-white flex items-center justify-center gap-2 no-underline">
+                            <a href="{{ route('admin.login', [], false) }}" class="py-2 px-4 rounded border border-gray-600 bg-transparent text-white flex items-center justify-center gap-2 no-underline">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-5.33 0-8 2.67-8 5v1h16v-1c0-2.33-2.67-5-8-5z"/></svg>
                                 Admin Login
                             </a>

@@ -168,3 +168,14 @@ Route::get('/admin_dashboard.php', function () {
     return redirect()->route('admin.dashboard');
 });
 
+// Temporary debug route: returns current session config
+Route::get('/_sessinfo', function () {
+    return response()->json(config('session'));
+});
+
+// Temporary debug route: write to session and return a simple response
+Route::get('/_setsession', function () {
+    session(['__debug_test' => time()]);
+    return response('ok');
+});
+
