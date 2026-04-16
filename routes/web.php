@@ -179,3 +179,12 @@ Route::get('/_setsession', function () {
     return response('ok');
 });
 
+// Temporary debug route: return device binding row for given employee id
+Route::get('/_binding/{eid}', function ($eid) {
+    if (! \Illuminate\Support\Facades\Schema::hasTable('device_bindings')) {
+        return response()->json(['error' => 'device_bindings table missing'], 404);
+    }
+    $row = \Illuminate\Support\Facades\DB::table('device_bindings')->where('employee_id', $eid)->first();
+    return response()->json($row);
+});
+
