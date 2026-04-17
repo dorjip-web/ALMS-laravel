@@ -114,8 +114,9 @@
                         <button class="btn" type="submit">Submit</button>
                     </div>
                 </form>
+            </div>
 
-                <div class="leave-history" style="margin-top:12px">
+            <div class="leave-history" style="margin-top:12px">
                     <h4>Leave History</h4>
                     <div class="table-wrap">
                         <table class="users">
@@ -163,7 +164,6 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
             </div>
         </main>
 
