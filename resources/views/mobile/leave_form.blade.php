@@ -53,7 +53,7 @@
 
         <main class="m-main">
             <div class="m-card">
-                <h3 class="m-card-title">Leave</h3>
+                <h3 class="m-card-title m-page-title">Leave</h3>
                 <form method="post" action="{{ route('dashboard.leave', [], false) }}" class="leave-form">
                     @csrf
                     <div class="row-grid-3">
