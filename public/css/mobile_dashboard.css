@@ -888,6 +888,14 @@ table.attendance td {
   }
 }
 
+/* Remove left/right gradient overlay hints on small/mobile screens to avoid visual artifacts */
+@media (max-width:420px) {
+  .table-wrap:before,
+  .table-wrap:after {
+    display: none !important;
+  }
+}
+
 @media (max-width:360px) {
 
   /* stronger stacking fallback for very narrow devices */
@@ -932,23 +940,31 @@ table.attendance td {
   display: inline-block;
   font-size: 12px;
 }
+
 .leave-status-badge.status-pending {
-  color: #14b866; /* green text */
+  color: #14b866;
+  /* green text */
   background: rgba(20, 184, 102, 0.06);
   border: 1px solid rgba(20, 184, 102, 0.12);
 }
+
 .leave-status-badge.status-forwarded {
-  color: #8b5a2b; /* brown text */
+  color: #8b5a2b;
+  /* brown text */
   background: rgba(139, 90, 43, 0.05);
   border: 1px solid rgba(139, 90, 43, 0.08);
 }
+
 .leave-status-badge.status-approved {
-  color: #1e73be; /* blue text */
+  color: #1e73be;
+  /* blue text */
   background: rgba(30, 115, 190, 0.06);
   border: 1px solid rgba(30, 115, 190, 0.1);
 }
+
 .leave-status-badge.status-rejected {
-  color: #dc2626; /* red text */
+  color: #dc2626;
+  /* red text */
   background: rgba(220, 38, 38, 0.06);
   border: 1px solid rgba(220, 38, 38, 0.12);
 }
