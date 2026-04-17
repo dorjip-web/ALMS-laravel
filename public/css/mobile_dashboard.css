@@ -688,6 +688,11 @@ input.form-control:focus {
   /* give more breathing room between label+control groups */
 }
 
+/* Add extra space between the grid of inputs and the following single-row (eg. Reason) */
+.leave-form .row-grid-3 + .row {
+  margin-top: 12px;
+}
+
 /* Make file input less cramped on mobile: full-width boxed control */
 input[type="file"].form-control,
 input[type="file"] {
