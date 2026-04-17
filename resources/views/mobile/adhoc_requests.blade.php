@@ -93,32 +93,7 @@
                     @endif
                 @endif
             </div>
-            @if (!empty($rows))
-                <div class="leave-history" style="margin-top:8px;">
-                    <div class="table-wrap">
-                        <table class="users">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Purpose</th>
-                                    <th>Remarks</th>
-                                    <th>Created</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($rows as $r)
-                                    <tr>
-                                        <td>{{ $r['date'] ?? '-' }}</td>
-                                        <td>{{ ucfirst($r['purpose'] ?? '-') }}</td>
-                                        <td>{{ $r['remarks'] ?? '-' }}</td>
-                                        <td>{{ $r['created_at'] ?? '-' }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            @endif
+            
         </main>
 
         <nav class="m-bottom-nav">
