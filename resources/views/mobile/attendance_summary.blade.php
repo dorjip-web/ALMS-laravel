@@ -76,6 +76,7 @@
                                         <th>Late Reason</th>
                                         <th>Check-out</th>
                                         <th>Check-out Status</th>
+                                        <th>Remark</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -89,6 +90,7 @@
                                             <td>{{ !empty($r['checkout']) ? \Illuminate\Support\Carbon::parse($r['checkout'], 'Asia/Thimphu')->format('g:i A') : '-' }}
                                             </td>
                                             <td>{{ $r['checkout_status'] ?? '-' }}</td>
+                                            <td>{{ $r['remarks'] ?? '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
