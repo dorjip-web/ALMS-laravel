@@ -117,53 +117,53 @@
             </div>
 
             <div class="leave-history" style="margin-top:12px">
-                    <h4>Leave History</h4>
-                    <div class="table-wrap">
-                        <table class="users">
-                            <thead>
+                <h4>Leave History</h4>
+                <div class="table-wrap">
+                    <table class="users">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>S.date</th>
+                                <th>E.date</th>
+                                <th>Reason</th>
+                                <th>Days</th>
+                                <th>HoD</th>
+                                <th>HoD Status</th>
+                                <th>MS</th>
+                                <th>MS Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($leaveApplications as $lv)
                                 <tr>
-                                    <th>Type</th>
-                                    <th>S.date</th>
-                                    <th>E.date</th>
-                                    <th>Reason</th>
-                                    <th>Days</th>
-                                    <th>HoD</th>
-                                    <th>HoD Status</th>
-                                    <th>MS</th>
-                                    <th>MS Status</th>
+                                    <td>{{ $lv['type'] ?? '-' }}</td>
+                                    <td>{{ $lv['start_date'] ?? '-' }}</td>
+                                    <td>{{ $lv['end_date'] ?? '-' }}</td>
+                                    <td>{{ $lv['reason'] ?? '-' }}</td>
+                                    <td>{{ $lv['days'] ?? '-' }}</td>
+                                    <td>{{ empty($lv['hod_status']) ? '' : 'HoD' }}</td>
+                                    <td>
+                                        @if (!empty($lv['hod_status']))
+                                            <span
+                                                class="leave-status-badge status-{{ strtolower($lv['hod_status']) }}">{{ ucfirst($lv['hod_status']) }}</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ empty($lv['ms_status']) ? '' : 'MS' }}</td>
+                                    <td>
+                                        @if (!empty($lv['ms_status']))
+                                            <span
+                                                class="leave-status-badge status-{{ strtolower($lv['ms_status']) }}">{{ ucfirst($lv['ms_status']) }}</span>
+                                        @endif
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($leaveApplications as $lv)
-                                    <tr>
-                                        <td>{{ $lv['type'] ?? '-' }}</td>
-                                        <td>{{ $lv['start_date'] ?? '-' }}</td>
-                                        <td>{{ $lv['end_date'] ?? '-' }}</td>
-                                        <td>{{ $lv['reason'] ?? '-' }}</td>
-                                        <td>{{ $lv['days'] ?? '-' }}</td>
-                                        <td>{{ empty($lv['hod_status']) ? '' : 'HoD' }}</td>
-                                        <td>
-                                            @if (!empty($lv['hod_status']))
-                                                <span
-                                                    class="leave-status-badge status-{{ strtolower($lv['hod_status']) }}">{{ ucfirst($lv['hod_status']) }}</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ empty($lv['ms_status']) ? '' : 'MS' }}</td>
-                                        <td>
-                                            @if (!empty($lv['ms_status']))
-                                                <span
-                                                    class="leave-status-badge status-{{ strtolower($lv['ms_status']) }}">{{ ucfirst($lv['ms_status']) }}</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="9">No leave records</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            @empty
+                                <tr>
+                                    <td colspan="9">No leave records</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
 

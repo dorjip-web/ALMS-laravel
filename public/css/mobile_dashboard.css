@@ -890,6 +890,7 @@ table.attendance td {
 
 /* Remove left/right gradient overlay hints on small/mobile screens to avoid visual artifacts */
 @media (max-width:420px) {
+
   .table-wrap:before,
   .table-wrap:after {
     display: none !important;
