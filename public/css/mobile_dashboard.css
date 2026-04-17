@@ -947,3 +947,8 @@ table.attendance td {
   background: rgba(30, 115, 190, 0.06);
   border: 1px solid rgba(30, 115, 190, 0.1);
 }
+.leave-status-badge.status-rejected {
+  color: #dc2626; /* red text */
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.12);
+}
