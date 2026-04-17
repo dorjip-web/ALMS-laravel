@@ -1,112 +1,925 @@
-:root{--orange:#ff6b00;--dark:#1e3a8a;--muted:#6b7280;--green:#14b866}
-body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif}
-.m-mobile-root{min-height:100vh;background:#f3f6fb;display:flex;flex-direction:column}
-.m-header{background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:18px 18px;box-shadow:0 10px 30px rgba(30,58,138,0.16);border-top-left-radius:20px;border-top-right-radius:20px;border-bottom-left-radius:0;border-bottom-right-radius:0;margin:12px 12px 0 12px;position:relative;z-index:5}
-.m-menu-btn{background:transparent;border:none;color:#fff;font-size:24px}
-.m-header-center{display:flex;flex-direction:row;align-items:center;gap:12px;justify-content:center}
+:root {
+  --orange: #ff6b00;
+  --dark: #1e3a8a;
+  --muted: #6b7280;
+  --green: #14b866
+}
+
+body {
+  font-family: Inter, system-ui, Arial, Helvetica, sans-serif
+}
+
+.m-mobile-root {
+  min-height: 100vh;
+  background: #f3f6fb;
+  display: flex;
+  flex-direction: column
+}
+
+.m-header {
+  background: var(--dark);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 18px;
+  box-shadow: 0 10px 30px rgba(30, 58, 138, 0.16);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  margin: 12px 12px 0 12px;
+  position: relative;
+  z-index: 5
+}
+
+.m-menu-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 24px
+}
+
+.m-header-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  justify-content: center
+}
 
 /* Menu dropdown (hidden by default; toggled when clicking the menu button) */
-.m-menu-dropdown{position:absolute;top:100%;left:12px;transform:translateY(8px);display:none;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(16,24,40,0.08);padding:8px;z-index:20;min-width:140px}
-.m-menu-dropdown.open{display:block}
-.m-logout-btn{background:transparent;border:none;color:var(--dark);font-weight:700;padding:8px 12px;border-radius:8px;cursor:pointer}
-.m-logout-btn:active,.m-logout-btn:focus{outline:none}
-
-@media (min-width:769px){
-  .m-menu-dropdown{display:none !important}
+.m-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 12px;
+  transform: translateY(8px);
+  display: none;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+  padding: 8px;
+  z-index: 20;
+  min-width: 140px
 }
-.m-logo{font-weight:800;font-size:18px}
-.m-logo-img{width:64px;height:64px;border-radius:50%;background:#fff;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
-.m-logo-text{font-weight:800;font-size:18px;color:#fff;letter-spacing:2px}
-.m-org{font-size:12px;opacity:0.95}
-.m-main{flex:1;padding:12px;display:flex;flex-direction:column;gap:14px;overflow:auto;padding-bottom:220px}
-.m-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 8px 24px rgba(22,37,84,0.06)}
-.m-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 12px 30px rgba(22,37,84,0.08);position:relative;z-index:1}
+
+.m-menu-dropdown.open {
+  display: block
+}
+
+.m-logout-btn {
+  background: transparent;
+  border: none;
+  color: var(--dark);
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer
+}
+
+.m-logout-btn:active,
+.m-logout-btn:focus {
+  outline: none
+}
+
+@media (min-width:769px) {
+  .m-menu-dropdown {
+    display: none !important
+  }
+}
+
+.m-logo {
+  font-weight: 800;
+  font-size: 18px
+}
+
+.m-logo-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #fff;
+  padding: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08)
+}
+
+.m-logo-text {
+  font-weight: 800;
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: 2px
+}
+
+.m-org {
+  font-size: 12px;
+  opacity: 0.95
+}
+
+.m-main {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+  padding-bottom: 220px
+}
+
+.m-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(22, 37, 84, 0.06)
+}
+
+.m-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 12px 30px rgba(22, 37, 84, 0.08);
+  position: relative;
+  z-index: 1
+}
 
 /* Visually merge the first employee detail card with the header */
-.m-main .m-card:first-of-type{margin-top:-12px;border-top-left-radius:0;border-top-right-radius:0;padding-top:12px;box-shadow:0 12px 30px rgba(22,37,84,0.06)}
+.m-main .m-card:first-of-type {
+  margin-top: -12px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding-top: 12px;
+  box-shadow: 0 12px 30px rgba(22, 37, 84, 0.06)
+}
 
 /* Ensure stacking order keeps header above the overlapping card */
-.m-header{position:relative;z-index:6;border-top-left-radius:20px;border-top-right-radius:20px;border-bottom-left-radius:0;border-bottom-right-radius:0}
-.m-card-title{margin:0 0 8px 0;font-size:16px;color:#0b2b53;font-weight:700}
-.m-welcome-prefix{color:var(--orange);font-weight:800;font-size:20px}
-.m-welcome-name{color:#1e73be;font-weight:800;font-size:20px;margin-left:6px}
-.m-welcome{font-size:20px;margin:0;color:#0b2b53}
-.m-welcome-light{color:var(--orange);font-weight:800;margin-right:6px}
-.m-welcome-name{color:#1e73be;font-weight:800}
-.m-subtitle{color:#213547;margin:8px 0 10px 0;font-weight:700}
-.m-detail-box{background:#fff;border-radius:10px;padding:10px;border:1px solid #eef2f6}
-.m-row{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:12px;padding:10px 12px;border-bottom:1px solid #eef2f6}
-.m-row:last-child{border-bottom:none}
-.m-row-label{color:#62718a;font-weight:600}
-.m-row-value{font-weight:800;color:#0b2540;text-align:left}
-.m-status{color:#1e73be;font-weight:700}
-.m-att-row{display:flex;gap:26px;padding:0;background:transparent;border-radius:14px;align-items:center}
-.m-btn{flex:1;display:flex;align-items:center;justify-content:flex-start;gap:14px;height:56px;border-radius:18px;border:none;box-shadow:0 8px 22px rgba(16,24,40,0.06);padding:0 18px;text-decoration:none}
-.m-btn:focus{outline:none}
-.m-btn-badge{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-left:0;box-shadow:inset 0 -2px 6px rgba(0,0,0,0.04),0 6px 16px rgba(16,24,40,0.08)}
-.m-btn-icon-inner{width:22px;height:22px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--green);font-size:14px}
-.m-btn-label{color:#fff;font-size:16px;font-weight:800;white-space:nowrap;flex:1;text-align:center}
-.m-btn-primary{background:var(--green)}
-.m-btn-secondary{background:var(--orange)}
-.m-btn-primary .m-btn-icon-inner{color:var(--green)}
-.m-btn-secondary .m-btn-icon-inner{color:var(--orange)}
-.m-btn-primary .m-btn-icon-inner{color:var(--green)}
-.m-btn-secondary .m-btn-icon-inner{color:var(--orange)}
-.m-btn-primary .m-btn-icon-inner{color:var(--green)}
-.m-btn-secondary .m-btn-icon-inner{color:var(--orange)}
-.m-btn-primary{background:var(--green);color:#fff}
-.m-btn-secondary{background:var(--orange);color:#fff}
-.m-att-row > .m-btn:first-child{margin-left:6px}
-.m-att-row > .m-btn:last-child{margin-right:6px}
-.m-btn-primary .m-btn-icon-inner{background:#ffffff}
-.m-btn-secondary .m-btn-icon-inner{background:#ffffff}
-.m-checked{color:#2e7d32;margin-top:8px;display:flex;align-items:center;gap:8px}
-.m-timeline-meta{display:flex;justify-content:space-between;color:#6b7280;margin-top:6px;font-size:13px}
-.m-timeline-bar{background:#eef7f0;border-radius:999px;position:relative;overflow:hidden;height:12px;margin-top:0;flex:1;min-width:0;padding:0;display:flex;align-items:center}
-.m-timeline-fill{position:absolute;left:0;top:0;height:100%;background:var(--green);border-radius:999px;width:0;box-shadow:inset 0 -2px 0 rgba(0,0,0,0.06),0 6px 14px rgba(20,184,102,0.06);transition:width .36s ease}
-.m-timeline-row{display:flex;align-items:center;gap:12px}
-.m-timeline-edge{width:18px;height:6px;background:#0b2b53;border-radius:4px;opacity:0.12}
-.m-timeline-time{width:72px;color:#0b2b53;font-size:14px;font-weight:700;display:flex;align-items:center}
-.m-timeline-now{width:72px;text-align:right;color:#0b2b53;font-size:14px;font-weight:700;display:flex;align-items:center}
-.m-late input#m-late-reason-input, #late-reason-input, textarea#late-reason-area{width:100%;padding:12px;border-radius:8px;border:1px solid #e6eef3;margin-top:10px;box-sizing:border-box;min-height:76px;resize:vertical;background:#fff}
+.m-header {
+  position: relative;
+  z-index: 6;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0
+}
+
+.m-card-title {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #0b2b53;
+  font-weight: 700
+}
+
+.m-welcome-prefix {
+  color: var(--orange);
+  font-weight: 800;
+  font-size: 20px
+}
+
+.m-welcome-name {
+  color: #1e73be;
+  font-weight: 800;
+  font-size: 20px;
+  margin-left: 6px
+}
+
+.m-welcome {
+  font-size: 20px;
+  margin: 0;
+  color: #0b2b53
+}
+
+.m-welcome-light {
+  color: var(--orange);
+  font-weight: 800;
+  margin-right: 6px
+}
+
+.m-welcome-name {
+  color: #1e73be;
+  font-weight: 800
+}
+
+.m-subtitle {
+  color: #213547;
+  margin: 8px 0 10px 0;
+  font-weight: 700
+}
+
+.m-detail-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid #eef2f6
+}
+
+.m-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef2f6
+}
+
+.m-row:last-child {
+  border-bottom: none
+}
+
+.m-row-label {
+  color: #62718a;
+  font-weight: 600
+}
+
+.m-row-value {
+  font-weight: 800;
+  color: #0b2540;
+  text-align: left
+}
+
+.m-status {
+  color: #1e73be;
+  font-weight: 700
+}
+
+.m-att-row {
+  display: flex;
+  gap: 26px;
+  padding: 0;
+  background: transparent;
+  border-radius: 14px;
+  align-items: center
+}
+
+.m-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  height: 56px;
+  border-radius: 18px;
+  border: none;
+  box-shadow: 0 8px 22px rgba(16, 24, 40, 0.06);
+  padding: 0 18px;
+  text-decoration: none
+}
+
+.m-btn:focus {
+  outline: none
+}
+
+.m-btn-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0;
+  box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.04), 0 6px 16px rgba(16, 24, 40, 0.08)
+}
+
+.m-btn-icon-inner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--green);
+  font-size: 14px
+}
+
+.m-btn-label {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  white-space: nowrap;
+  flex: 1;
+  text-align: center
+}
+
+.m-btn-primary {
+  background: var(--green)
+}
+
+.m-btn-secondary {
+  background: var(--orange)
+}
+
+.m-btn-primary .m-btn-icon-inner {
+  color: var(--green)
+}
+
+.m-btn-secondary .m-btn-icon-inner {
+  color: var(--orange)
+}
+
+.m-btn-primary .m-btn-icon-inner {
+  color: var(--green)
+}
+
+.m-btn-secondary .m-btn-icon-inner {
+  color: var(--orange)
+}
+
+.m-btn-primary .m-btn-icon-inner {
+  color: var(--green)
+}
+
+.m-btn-secondary .m-btn-icon-inner {
+  color: var(--orange)
+}
+
+.m-btn-primary {
+  background: var(--green);
+  color: #fff
+}
+
+.m-btn-secondary {
+  background: var(--orange);
+  color: #fff
+}
+
+.m-att-row>.m-btn:first-child {
+  margin-left: 6px
+}
+
+.m-att-row>.m-btn:last-child {
+  margin-right: 6px
+}
+
+.m-btn-primary .m-btn-icon-inner {
+  background: #ffffff
+}
+
+.m-btn-secondary .m-btn-icon-inner {
+  background: #ffffff
+}
+
+.m-checked {
+  color: #2e7d32;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px
+}
+
+.m-timeline-meta {
+  display: flex;
+  justify-content: space-between;
+  color: #6b7280;
+  margin-top: 6px;
+  font-size: 13px
+}
+
+.m-timeline-bar {
+  background: #eef7f0;
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+  height: 12px;
+  margin-top: 0;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  display: flex;
+  align-items: center
+}
+
+.m-timeline-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--green);
+  border-radius: 999px;
+  width: 0;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.06), 0 6px 14px rgba(20, 184, 102, 0.06);
+  transition: width .36s ease
+}
+
+.m-timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 12px
+}
+
+.m-timeline-edge {
+  width: 18px;
+  height: 6px;
+  background: #0b2b53;
+  border-radius: 4px;
+  opacity: 0.12
+}
+
+.m-timeline-time {
+  width: 72px;
+  color: #0b2b53;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center
+}
+
+.m-timeline-now {
+  width: 72px;
+  text-align: right;
+  color: #0b2b53;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center
+}
+
+.m-late input#m-late-reason-input,
+#late-reason-input,
+textarea#late-reason-area {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e6eef3;
+  margin-top: 10px;
+  box-sizing: border-box;
+  min-height: 76px;
+  resize: vertical;
+  background: #fff
+}
 
 /* Ensure late reason card spacing aligns with other cards */
-.m-card > label[for="late-reason-area"]{display:block;margin-bottom:8px;font-weight:600}
-.m-reminder{margin-top:10px;background:#fff7f0;border-left:6px solid var(--orange);padding:10px 12px;border-radius:8px;color:#8a3e14}
-.m-bottom-nav{position:fixed;bottom:12px;left:12px;right:12px;background:#fff;border-radius:14px;display:flex;justify-content:space-around;padding:10px 8px;box-shadow:0 12px 36px rgba(16,24,40,0.10);align-items:center;z-index:10000}
-.m-nav-item{color:#213547;text-decoration:none;font-weight:600;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 8px}
-.m-nav-icon{font-size:20px}
-.m-nav-item.active .m-nav-icon, .m-nav-item.active .m-nav-label{color:var(--orange)}
-.m-nav-label{font-size:11px}
-@media (min-width:769px){
+.m-card>label[for="late-reason-area"] {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600
+}
+
+.m-reminder {
+  margin-top: 10px;
+  background: #fff7f0;
+  border-left: 6px solid var(--orange);
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #8a3e14
+}
+
+.m-bottom-nav {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  background: #fff;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 8px;
+  box-shadow: 0 12px 36px rgba(16, 24, 40, 0.10);
+  align-items: center;
+  z-index: 10000
+}
+
+.m-nav-item {
+  color: #213547;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px
+}
+
+.m-nav-icon {
+  font-size: 20px
+}
+
+.m-nav-item.active .m-nav-icon,
+.m-nav-item.active .m-nav-label {
+  color: var(--orange)
+}
+
+.m-nav-label {
+  font-size: 11px
+}
+
+@media (min-width:769px) {
+
   /* hide mobile root on larger screens when desktop view is visible */
-  .m-mobile-root{display:none}
+  .m-mobile-root {
+    display: none
+  }
 }
 
-@media (max-width:420px){
-  .m-logo-img{width:56px;height:56px}
-  .m-logo-text{font-size:16px}
-  .m-header{padding:14px 12px;border-top-left-radius:18px;border-top-right-radius:18px;border-bottom-left-radius:0;border-bottom-right-radius:0}
+@media (max-width:420px) {
+  .m-logo-img {
+    width: 56px;
+    height: 56px
+  }
+
+  .m-logo-text {
+    font-size: 16px
+  }
+
+  .m-header {
+    padding: 14px 12px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0
+  }
 }
 
-@media (max-width:420px){
-  .m-timeline-bar{height:8px;padding:1px}
-  .m-timeline-fill{border-radius:8px}
+@media (max-width:420px) {
+  .m-timeline-bar {
+    height: 8px;
+    padding: 1px
+  }
+
+  .m-timeline-fill {
+    border-radius: 8px
+  }
 }
 
 /* Button fit fixes: make checkin/checkout share the full width without overflowing */
-.m-att-row{display:flex;gap:12px;padding:8px 0;background:transparent;border-radius:14px;align-items:center;box-sizing:border-box;width:100%}
-.m-att-row > .m-btn{flex:1 1 0%;min-width:0;display:flex;align-items:center;justify-content:center;gap:12px;height:52px;border-radius:10px;border:none;padding:0 16px 0 60px;box-shadow:0 8px 20px rgba(16,24,40,0.06);margin:0;position:relative;z-index:3;cursor:pointer;display:inline-flex}
-.m-att-row > .m-btn + .m-btn{margin-left:0}
-.m-att-row > .m-btn:first-child{margin-left:0}
-.m-att-row > .m-btn:last-child{margin-right:0}
-.m-btn-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;text-align:center;font-size:16px}
-.m-btn-badge{position:absolute;left:16px;margin:0;flex-shrink:0}
+.m-att-row {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  background: transparent;
+  border-radius: 14px;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%
+}
+
+.m-att-row>.m-btn {
+  flex: 1 1 0%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 52px;
+  border-radius: 10px;
+  border: none;
+  padding: 0 16px 0 60px;
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.06);
+  margin: 0;
+  position: relative;
+  z-index: 3;
+  cursor: pointer;
+  display: inline-flex
+}
+
+.m-att-row>.m-btn+.m-btn {
+  margin-left: 0
+}
+
+.m-att-row>.m-btn:first-child {
+  margin-left: 0
+}
+
+.m-att-row>.m-btn:last-child {
+  margin-right: 0
+}
+
+.m-btn-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
+  text-align: center;
+  font-size: 16px
+}
+
+.m-btn-badge {
+  position: absolute;
+  left: 16px;
+  margin: 0;
+  flex-shrink: 0
+}
+
 /* ensure the badge doesn't intercept clicks and buttons remain clickable */
-.m-btn{pointer-events:auto}
-.m-btn-badge{pointer-events:none}
-@media (max-width:420px){
-  .m-att-row{gap:10px;padding:6px 0}
-  .m-att-row > .m-btn{height:46px;padding:0 10px 0 54px;border-radius:8px}
-  .m-btn-label{font-size:14px}
+.m-btn {
+  pointer-events: auto
+}
+
+.m-btn-badge {
+  pointer-events: none
+}
+
+@media (max-width:420px) {
+  .m-att-row {
+    gap: 10px;
+    padding: 6px 0
+  }
+
+  .m-att-row>.m-btn {
+    height: 46px;
+    padding: 0 10px 0 54px;
+    border-radius: 8px
+  }
+
+  .m-btn-label {
+    font-size: 14px
+  }
+}
+
+/* Global mobile form and table responsive tweaks used by mobile pages */
+.leave-form .row-grid,
+.leave-form .row-grid-3,
+.leave-form .row-grid-4,
+.row-grid,
+.row-grid-3,
+.row-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  align-items: start
+}
+
+.leave-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #213547
+}
+
+.leave-form .form-control,
+input.form-control,
+select.form-control,
+textarea.form-control {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--orange);
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.leave-form .form-control:focus,
+.leave-form select.form-control:focus,
+.leave-form textarea.form-control:focus,
+input.form-control:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.08);
+  border-color: var(--orange);
+}
+
+.leave-form .btn {
+  background: var(--orange);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 700;
+}
+
+/* Ensure submit button sits below inputs on small screens and doesn't overlap */
+.leave-form .row .btn,
+.leave-form>.row>.btn {
+  display: inline-block;
+  margin-top: 10px;
+  z-index: 1;
+}
+
+.leave-form .row {
+  display: block;
+  margin-bottom: 14px;
+  /* give more breathing room between label+control groups */
+}
+
+/* Make file input less cramped on mobile: full-width boxed control */
+input[type="file"].form-control,
+input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--orange);
+  background: #fff;
+  box-sizing: border-box;
+}
+
+/* Ensure labels have a little more spacing to improve readability */
+.leave-form label {
+  margin-bottom: 8px;
+}
+
+.leave-history .table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch
+}
+
+/* Make wide tables horizontally swipeable with visual edge hints */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  scroll-behavior: smooth;
+  touch-action: pan-x;
+  position: relative;
+}
+
+.table-wrap table {
+  min-width: 720px;
+  width: auto;
+}
+
+/* Smaller min-width for narrow phones */
+@media (max-width:420px) {
+  .table-wrap table {
+    min-width: 560px
+  }
+
+  /* Prevent cell text from wrapping so table stays wider and becomes horizontally scrollable */
+  .table-wrap th,
+  .table-wrap td {
+    white-space: nowrap;
+  }
+}
+
+/* subtle left/right gradient hints to indicate scrollability */
+.table-wrap:before,
+.table-wrap:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.table-wrap:before {
+  left: 0;
+  background: linear-gradient(to right, rgba(243, 246, 251, 1), rgba(243, 246, 251, 0));
+}
+
+.table-wrap:after {
+  right: 0;
+  background: linear-gradient(to left, rgba(243, 246, 251, 1), rgba(243, 246, 251, 0));
+}
+
+/* hide hints on large screens where tables fit */
+@media (min-width:769px) {
+
+  .table-wrap:before,
+  .table-wrap:after {
+    display: none
+  }
+}
+
+table.users,
+table.attendance,
+table {
+  width: 100%;
+  border-collapse: collapse
+}
+
+table.users th,
+table.attendance th,
+table.users td,
+table.attendance td {
+  padding: 8px;
+  border: 1px solid #e6eef4;
+  text-align: left;
+  font-size: 13px
+}
+
+@media (max-width:480px) {
+
+  table.users th,
+  table.attendance th,
+  table.users td,
+  table.attendance td {
+    padding: 6px;
+    font-size: 12px
+  }
+
+  .m-card {
+    padding: 12px
+  }
+
+  .m-card-title {
+    font-size: 15px
+  }
+}
+
+/* Stack table rows into cards on very small narrow screens to improve readability */
+@media (max-width:360px) {
+
+  .leave-history .table-wrap table,
+  .leave-history .table-wrap thead {
+    display: block
+  }
+
+  .leave-history .table-wrap tbody tr {
+    display: block;
+    border: 1px solid #eef2f6;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    padding: 8px;
+    background: #fff
+  }
+
+  .leave-history .table-wrap tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 8px;
+    border: none
+  }
+
+  .leave-history .table-wrap tbody td:before {
+    content: ''
+  }
+}
+
+/* Override generic table width so tables inside .table-wrap stay wider and scroll horizontally */
+.table-wrap table.users,
+.table-wrap table.attendance,
+.table-wrap table {
+  width: auto !important;
+  table-layout: auto !important;
+  min-width: 720px !important;
+}
+
+@media (max-width:420px) {
+  .table-wrap table {
+    min-width: 560px !important
+  }
+
+  .table-wrap th,
+  .table-wrap td {
+    white-space: nowrap !important;
+  }
+}
+
+/* Ensure header cells align left and keep their padding */
+.table-wrap thead th {
+  text-align: left;
+  padding: 8px 12px;
+}
+
+
+/* Additional small-screen table and form tweaks for Tour page */
+@media (max-width:420px) {
+  .table-wrap {
+    padding-bottom: 8px
+  }
+
+  .table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    min-width: 0
+  }
+
+  .table-wrap th,
+  .table-wrap td {
+    white-space: normal;
+    word-break: break-word;
+    padding: 8px 10px;
+    font-size: 13px
+  }
+
+  .table-wrap thead th {
+    font-weight: 700;
+    color: #0b2b53
+  }
+}
+
+@media (max-width:360px) {
+
+  /* stronger stacking fallback for very narrow devices */
+  .table-wrap table,
+  .table-wrap thead {
+    display: block
+  }
+
+  .table-wrap tbody tr {
+    display: block;
+    border: 1px solid #eef2f6;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    padding: 8px;
+    background: #fff
+  }
+
+  .table-wrap tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 8px;
+    border: none
+  }
+}
+
+/* Make attendance/other history tables preserve horizontal layout on small screens */
+.table-wrap table.attendance,
+.table-wrap table.users,
+.table-wrap table {
+  width: auto !important;
+}
+
+.table-wrap thead th {
+  text-align: left
 }

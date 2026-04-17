@@ -6,8 +6,128 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Mobile Dashboard</title>
-    <link rel="stylesheet" href="/css/mobile_dashboard.css">
+    <link rel="stylesheet" href="/css/mobile_dashboard.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Make injected attendance summary responsive and mobile-friendly */
+        #m-summary-content .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 6px
+        }
+
+        #m-summary-content table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px
+        }
+
+        #m-summary-content th,
+        #m-summary-content td {
+            padding: 8px 6px;
+            border: 1px solid #e6eef4;
+            text-align: left;
+            font-size: 13px;
+            white-space: nowrap
+        }
+
+        #m-summary-content h2,
+        #m-summary-content h3 {
+            font-size: 18px;
+            margin: 0 0 8px 0
+        }
+
+        @media (max-width:480px) {
+
+            #m-summary-content th,
+            #m-summary-content td {
+                padding: 6px 8px;
+                font-size: 12px
+            }
+
+            #m-summary-content table {
+                font-size: 12px
+            }
+        }
+
+        /* Mobile form styles for Leave / Tour / Adhoc */
+        #m-forms-root .m-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 12px;
+            box-shadow: 0 2px 10px rgba(12, 22, 34, 0.04)
+        }
+
+        #m-forms-root .leave-form .row-grid,
+        #m-forms-root .leave-form .row-grid-3,
+        #m-forms-root .leave-form .row-grid-4 {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))
+        }
+
+        #m-forms-root .leave-form .row {
+            margin-top: 10px
+        }
+
+        #m-forms-root .leave-form label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600
+        }
+
+        #m-forms-root .leave-form .form-control,
+        #m-forms-root .leave-form input,
+        #m-forms-root .leave-form select,
+        #m-forms-root .leave-form textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e6edf3;
+            box-sizing: border-box;
+            font-size: 14px
+        }
+
+        #m-forms-root .leave-form input[readonly] {
+            background: #f7fafc
+        }
+
+        #m-forms-root .leave-form .btn {
+            display: inline-block;
+            background: #0b7a75;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600
+        }
+
+        #m-forms-root .leave-history .table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        /* reduce padding on very small screens */
+        @media (max-width:420px) {
+
+            #m-forms-root .leave-form .row-grid,
+            #m-forms-root .leave-form .row-grid-3,
+            #m-forms-root .leave-form .row-grid-4 {
+                grid-template-columns: 1fr
+            }
+
+            #m-forms-root .leave-form .form-control {
+                font-size: 13px;
+                padding: 8px
+            }
+
+            #m-forms-root .m-card {
+                padding: 10px
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -172,21 +292,227 @@
                 </div>
             @endif
 
+            <!-- Hidden mobile forms (Summary / Leave / Tour / Adhoc) -->
+            <div id="m-forms-root">
+                <div id="m-summary-card" class="m-card" style="display:none">
+                    <h4 class="m-card-title">Attendance Summary</h4>
+                    <div id="m-summary-content">Loading...</div>
+                </div>
+
+                <div id="m-leave-card" class="m-card" style="display:none">
+                    <h4 class="m-card-title">Leave</h4>
+                    <form method="post" action="{{ route('dashboard.leave', [], false) }}"
+                        class="leave-form space-y-3">
+                        @csrf
+                        <div class="row-grid-3">
+                            <div class="col">
+                                <label>Type</label>
+                                <select name="leave_type_id" id="m-leave-type-select"
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200">
+                                    @forelse ($leaveTypes as $lt)
+                                        <option value="{{ $lt['leave_type_id'] }}">
+                                            {{ str_replace('_', ' ', $lt['leave_name']) }}</option>
+                                    @empty
+                                        <option value="">No leave type found</option>
+                                    @endforelse
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label>Submit To</label>
+                                <select name="submit_to"
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200">
+                                    <option value="hod">HoD</option>
+                                    <option value="ms">Medical Superintendent</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <label>Balance</label>
+                                <input type="text" id="m-leave-balance" readonly
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200 bg-gray-50">
+                            </div>
+
+                            <div class="col">
+                                <label>Start</label>
+                                <input type="date" name="from_date" required
+                                    min="{{ now('Asia/Thimphu')->toDateString() }}"
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200">
+                            </div>
+                            <div class="col">
+                                <label>End</label>
+                                <input type="date" name="to_date" required
+                                    min="{{ now('Asia/Thimphu')->toDateString() }}"
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200">
+                            </div>
+                            <div class="col">
+                                <label>Total Days</label>
+                                <input name="total_days" type="number" step="0.5" min="0.5"
+                                    placeholder="e.g. 1 or 0.5"
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <label>Reason</label>
+                            <input name="reason" placeholder="Reason" required
+                                class="form-control px-3 py-2 rounded-md border border-gray-200">
+                        </div>
+
+                        <div class="row">
+                            <button class="btn bg-blue-700 text-white px-4 py-2 rounded-md font-semibold"
+                                type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="m-tour-card" class="m-card" style="display:none">
+                    <h4 class="m-card-title">Tour</h4>
+                    <form method="POST" action="{{ route('dashboard.tour.store', [], false) }}"
+                        class="leave-form space-y-3" style="margin-top:10px;" enctype="multipart/form-data">
+                        @csrf
+                        <div class="row-grid-4">
+                            <div class="col">
+                                <label>Place</label>
+                                <input type="text" name="place" placeholder="Tour place" required
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200">
+                            </div>
+                            <div class="col">
+                                <label>Start</label>
+                                <input type="date" name="start_date" required
+                                    min="{{ now('Asia/Thimphu')->toDateString() }}"
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200">
+                            </div>
+                            <div class="col">
+                                <label>End</label>
+                                <input type="date" name="end_date" required
+                                    min="{{ now('Asia/Thimphu')->toDateString() }}"
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200">
+                            </div>
+                            <div class="col">
+                                <label>Total Days</label>
+                                <input type="text" id="m-tour-total-days" value="-" readonly
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200 bg-gray-50">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label>Purpose</label>
+                            <input type="text" name="purpose" placeholder="Purpose of tour" required
+                                class="form-control px-3 py-2 rounded-md border border-gray-200">
+                        </div>
+                        <div class="row">
+                            <label>Office Order (PDF)</label>
+                            <input type="file" name="office_order_pdf" accept="application/pdf"
+                                class="form-control">
+                        </div>
+                        <div class="row">
+                            <button class="btn bg-blue-700 text-white px-4 py-2 rounded-md font-semibold"
+                                type="submit">Save Tour Record</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="m-adhoc-card" class="m-card" style="display:none">
+                    <h4 class="m-card-title">Adhoc Request</h4>
+                    <form method="POST" action="{{ route('dashboard.adhoc_requests.store', [], false) }}"
+                        class="leave-form space-y-3" style="margin-bottom:18px;">
+                        @csrf
+                        <div class="row-grid">
+                            <div class="col">
+                                <label>Date</label>
+                                <input type="date" name="date" required
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200"
+                                    placeholder="mm/dd/yyyy">
+                            </div>
+                            <div class="col">
+                                <label>Purpose</label>
+                                <select name="purpose" required
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200">
+                                    <option value="meeting">Meeting</option>
+                                    <option value="emergency">Emergency</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top:12px">
+                            <label>Remarks</label>
+                            <input type="text" name="remarks" maxlength="255"
+                                class="form-control px-3 py-2 rounded-md border border-gray-200">
+                        </div>
+
+                        <div style="margin-top:12px">
+                            <button type="submit"
+                                class="btn bg-blue-700 text-white px-4 py-2 rounded-md font-semibold">Submit Adhoc
+                                Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Timeline removed as requested -->
         </main>
 
         <nav class="m-bottom-nav">
             <a class="m-nav-item active" href="/dashboard"><span class="m-nav-icon">🏠</span><span
                     class="m-nav-label">Home</span></a>
-            <a class="m-nav-item" href="/summary"><span class="m-nav-icon">📊</span><span
-                    class="m-nav-label">Summary</span></a>
-            <a class="m-nav-item" href="/leave"><span class="m-nav-icon">🧾</span><span
+            <a class="m-nav-item" href="{{ route('dashboard.attendance_summary') }}"><span
+                    class="m-nav-icon">📊</span><span class="m-nav-label">Summary</span></a>
+            <a class="m-nav-item" href="{{ route('dashboard.leave_form') }}"><span class="m-nav-icon">🧾</span><span
                     class="m-nav-label">Leave</span></a>
-            <a class="m-nav-item" href="/attendance"><span class="m-nav-icon">⏰</span><span
+            <a class="m-nav-item" href="{{ route('dashboard.tour') }}"><span class="m-nav-icon">⏰</span><span
                     class="m-nav-label">Tour</span></a>
-            <a class="m-nav-item" href="/profile"><span class="m-nav-icon">👤</span><span
-                    class="m-nav-label">Adhoc</span></a>
+            <a class="m-nav-item" href="{{ route('dashboard.adhoc_requests') }}"><span
+                    class="m-nav-icon">👤</span><span class="m-nav-label">Adhoc</span></a>
         </nav>
+
+        <script id="m-leave-balances-json" type="application/json">@json($leaveBalances ?? [])</script>
+
+        <script>
+            (function() {
+                // Initialize leave balances for mobile leave form (no nav interception)
+                try {
+                    const el = document.getElementById('m-leave-balances-json');
+                    const leaveBalances = el ? JSON.parse(el.textContent || '{}') : {};
+                    const sel = document.getElementById('m-leave-type-select');
+                    const bal = document.getElementById('m-leave-balance');
+                    if (sel && bal) {
+                        const update = function() {
+                            const id = parseInt(sel.value, 10);
+                            bal.value = typeof leaveBalances[id] !== 'undefined' ? leaveBalances[id] : '-';
+                        };
+                        sel.addEventListener('change', update);
+                        update();
+                    }
+                } catch (e) {
+                    console.warn('mobile leave-balances init failed', e);
+                }
+
+                // tour total days calc
+                (function() {
+                    const start = document.querySelector('#m-tour-card input[name="start_date"]');
+                    const end = document.querySelector('#m-tour-card input[name="end_date"]');
+                    const total = document.getElementById('m-tour-total-days');
+
+                    function update() {
+                        if (!start || !end || !total) return;
+                        if (!start.value || !end.value) {
+                            total.value = '-';
+                            return;
+                        }
+                        const s = new Date(start.value + 'T00:00:00');
+                        const e = new Date(end.value + 'T00:00:00');
+                        if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime()) || e < s) {
+                            total.value = '-';
+                            return;
+                        }
+                        const diffMs = e.getTime() - s.getTime();
+                        const days = Math.floor(diffMs / 86400000) + 1;
+                        total.value = days + (days === 1 ? ' day' : ' days');
+                    }
+                    start?.addEventListener('change', update);
+                    end?.addEventListener('change', update);
+                    update();
+                })();
+            }());
+        </script>
         <script>
             (function() {
                 const checkin = document.getElementById('m-checkin-btn');
@@ -212,7 +538,7 @@
                         if (!navigator.geolocation) {
                             alert(
                                 'Location permission is required to record address. Please use a device/browser with geolocation support.'
-                                );
+                            );
                             return;
                         }
 
@@ -239,7 +565,7 @@
                         }, function(err) {
                             alert(
                                 'Location permission is required to record address. Please allow location access and try again.'
-                                );
+                            );
                         }, {
                             timeout: 20000,
                             enableHighAccuracy: false,

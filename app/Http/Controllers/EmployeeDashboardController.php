@@ -40,7 +40,7 @@ class EmployeeDashboardController extends Controller
                 ->where('status', 'active')
                 ->orderBy('leave_name')
                 ->get()
-                ->map(fn ($r) => ['leave_type_id' => (int) $r->leave_type_id, 'leave_name' => $r->leave_name])
+                ->map(fn($r) => ['leave_type_id' => (int) $r->leave_type_id, 'leave_name' => $r->leave_name])
                 ->toArray();
         }
 
@@ -74,7 +74,7 @@ class EmployeeDashboardController extends Controller
                     'la.medical_superintendent_status as ms_status',
                 ])
                 ->get()
-                ->map(fn ($r) => (array) $r)
+                ->map(fn($r) => (array) $r)
                 ->toArray();
         }
 
@@ -152,9 +152,17 @@ class EmployeeDashboardController extends Controller
         $employee = $this->resolveEmployee($request, $user->id, $user->name, $user->email);
         $employeeId = $employee['employee_id'] ?? null;
 
+        $tourRecords = $this->loadTourRecords($employee, $employeeId, $user->id);
+        if ($this->isMobile($request)) {
+            return view('mobile.tour', [
+                'employee' => $employee,
+                'tourRecords' => $tourRecords,
+            ]);
+        }
+
         return view('tour', [
             'employee' => $employee,
-            'tourRecords' => $this->loadTourRecords($employee, $employeeId, $user->id),
+            'tourRecords' => $tourRecords,
         ]);
     }
 
@@ -288,7 +296,7 @@ class EmployeeDashboardController extends Controller
         $tourRows = $tourQuery
             ->limit(50)
             ->get()
-            ->map(fn ($r) => (array) $r)
+            ->map(fn($r) => (array) $r)
             ->toArray();
 
         foreach ($tourRows as $row) {
@@ -363,7 +371,27 @@ class EmployeeDashboardController extends Controller
         $employee = $this->resolveEmployee($request, $user->id, $user->name, $user->email);
         $employeeId = $employee['employee_id'] ?? $user->id;
 
-        
+        // Ensure we have a numeric tab1.employee_id matching the employee
+        // (mobile clients sometimes lose the session 'eid', so fall back
+        // to resolving via the legacy tab1 table when possible).
+        if (empty($employeeId) && Schema::hasTable('tab1')) {
+            $candidate = DB::table('tab1')
+                ->where(function ($q) use ($user, $employee) {
+                    $q->where('eid', $user->email);
+                    if (! empty($employee['eid'])) {
+                        $q->orWhere('eid', $employee['eid']);
+                    }
+                    $q->orWhere('employee_id', $user->id);
+                })
+                ->select('employee_id')
+                ->first();
+
+            if ($candidate) {
+                $employeeId = $candidate->employee_id;
+            }
+        }
+
+
         $departmentId = (int) ($employee['department_id'] ?? 0);
         $tzNow = now('Asia/Thimphu');
         $time = $tzNow->format('H:i:s');
@@ -399,17 +427,17 @@ class EmployeeDashboardController extends Controller
         $normalDepartments = [1, 2, 4, 5, 6];
         $isNormal = in_array($departmentId, $normalDepartments, true);
 
-            if ($request->input('action') === 'checkin') {
-                if ($todayRow) {
-                    return back()->with('flash_error', 'Already checked in.');
-                }
+        if ($request->input('action') === 'checkin') {
+            if ($todayRow) {
+                return back()->with('flash_error', 'Already checked in.');
+            }
 
-                // If checking in after 09:15, late reason is mandatory only for normal departments
-                $isLateByCutoff = $time > '09:15:00';
-                $lateReasonInput = trim((string) $request->input('late_reason', ''));
-                if ($isLateByCutoff && $isNormal && $lateReasonInput === '') {
-                    return back()->with('flash_error', 'Late reason is required for check-in after 09:15 AM.');
-                }
+            // If checking in after 09:15, late reason is mandatory only for normal departments
+            $isLateByCutoff = $time > '09:15:00';
+            $lateReasonInput = trim((string) $request->input('late_reason', ''));
+            if ($isLateByCutoff && $isNormal && $lateReasonInput === '') {
+                return back()->with('flash_error', 'Late reason is required for check-in after 09:15 AM.');
+            }
 
             $shift = null;
             if ($departmentId === 3) {
@@ -429,10 +457,10 @@ class EmployeeDashboardController extends Controller
                 'checkin_address' => $safeAddress,
                 'checkin_status' => $isNormal ? ($time <= '09:15:00' ? 'On Time' : 'Late') : null,
                 'shift_type' => $shift,
-                    'late_reason' => $lateReasonInput ?: null,
-                    // persist computed remarks (uses same logic as admin UI)
-                    'remarks' => $this->computeRemarksForEmployeeDate($employeeId, $today, true, false),
-                    ];
+                'late_reason' => $lateReasonInput ?: null,
+                // persist computed remarks (uses same logic as admin UI)
+                'remarks' => $this->computeRemarksForEmployeeDate($employeeId, $today, true, false),
+            ];
 
             $insertData = $this->filterColumns('attendance', $insert);
             if (empty($insertData)) {
@@ -504,6 +532,9 @@ class EmployeeDashboardController extends Controller
         $employeeId = $employee['employee_id'] ?? $user->id;
 
         if (! Schema::hasTable('attendance')) {
+            if ($this->isMobile($request)) {
+                return view('mobile.generic', ['title' => 'Attendance Summary', 'content' => view('dashboard_attendance', ['rows' => []])->render()]);
+            }
             return view('dashboard_attendance', ['rows' => []]);
         }
 
@@ -513,6 +544,13 @@ class EmployeeDashboardController extends Controller
             ->limit(500);
 
         $rows = $query->get()->map(fn($r) => (array) $r)->toArray();
+
+        if ($this->isMobile($request)) {
+            return view('mobile.attendance_summary', [
+                'employee' => $employee,
+                'rows' => $rows,
+            ]);
+        }
 
         return view('dashboard_attendance', [
             'employee' => $employee,
@@ -533,7 +571,7 @@ class EmployeeDashboardController extends Controller
                 ->where('status', 'active')
                 ->orderBy('leave_name')
                 ->get()
-                ->map(fn ($r) => ['leave_type_id' => (int) $r->leave_type_id, 'leave_name' => $r->leave_name])
+                ->map(fn($r) => ['leave_type_id' => (int) $r->leave_type_id, 'leave_name' => $r->leave_name])
                 ->toArray();
         }
 
@@ -568,8 +606,17 @@ class EmployeeDashboardController extends Controller
                     'la.medical_superintendent_status as ms_status',
                 ])
                 ->get()
-                ->map(fn ($r) => (array) $r)
+                ->map(fn($r) => (array) $r)
                 ->toArray();
+        }
+
+        if ($this->isMobile($request)) {
+            return view('mobile.leave_form', [
+                'employee' => $employee,
+                'leaveTypes' => $leaveTypes,
+                'leaveBalances' => $leaveBalances,
+                'leaveApplications' => $leaveApplications,
+            ]);
         }
 
         return view('leave_form', [
@@ -655,6 +702,14 @@ class EmployeeDashboardController extends Controller
             } catch (\Throwable $e) {
                 logger()->warning('EmployeeDashboardController adhoc logging failed', ['error' => $e->getMessage()]);
             }
+        }
+
+        if ($this->isMobile($request)) {
+            return view('mobile.adhoc_requests', [
+                'employee' => $employee,
+                'rows' => $rows,
+                'tableExists' => (bool) $table,
+            ]);
         }
 
         return view('adhoc_requests', [
@@ -893,7 +948,7 @@ class EmployeeDashboardController extends Controller
         $columns = Schema::getColumnListing($table);
         return array_filter(
             $payload,
-            fn ($value, $key) => in_array($key, $columns, true),
+            fn($value, $key) => in_array($key, $columns, true),
             ARRAY_FILTER_USE_BOTH
         );
     }
@@ -953,7 +1008,7 @@ class EmployeeDashboardController extends Controller
                 Log::debug('reverseGeocode: Success', ['result' => $result]);
                 return $result;
             }
-            
+
             Log::warning('reverseGeocode: No address in response', ['data' => $data]);
         } catch (\Exception $e) {
             Log::error('reverseGeocode: Exception', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
