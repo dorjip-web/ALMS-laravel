@@ -689,7 +689,8 @@ input.form-control:focus {
 }
 
 /* Add extra space between the grid of inputs and the following single-row (eg. Reason) */
-.leave-form .row-grid-3 + .row {
+.leave-form .row-grid-3+.row,
+.leave-form .row-grid-4+.row {
   margin-top: 12px;
 }
 
