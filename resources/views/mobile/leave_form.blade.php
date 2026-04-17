@@ -15,6 +15,20 @@
             width: 100%;
             box-sizing: border-box
         }
+
+        .date-wrapper {
+            position: relative;
+        }
+
+        .date-wrapper .date-placeholder {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -62,24 +76,32 @@
                             </select>
                         </div>
                         <div class="col">
-                            <label>Balance</label>
-                            <input type="text" id="m-leave-balance" readonly class="form-control">
+                            <label>Start</label>
+                            <div class="date-wrapper">
+                                <input type="date" name="from_date" required
+                                    data-min="{{ now('Asia/Thimphu')->toDateString() }}"
+                                    class="form-control date-input">
+                                <span class="date-placeholder">mm/dd/yyyy</span>
+                            </div>
                         </div>
 
                         <div class="col">
-                            <label>Start</label>
-                            <input type="date" name="from_date" required
-                                min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control">
-                        </div>
-                        <div class="col">
                             <label>End</label>
-                            <input type="date" name="to_date" required
-                                min="{{ now('Asia/Thimphu')->toDateString() }}" class="form-control">
+                            <div class="date-wrapper">
+                                <input type="date" name="to_date" required
+                                    data-min="{{ now('Asia/Thimphu')->toDateString() }}"
+                                    class="form-control date-input">
+                                <span class="date-placeholder">mm/dd/yyyy</span>
+                            </div>
                         </div>
                         <div class="col">
                             <label>Total Days</label>
                             <input name="total_days" type="number" step="0.5" min="0.5"
                                 placeholder="e.g. 1 or 0.5" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label>Balance</label>
+                            <input type="text" id="m-leave-balance" readonly class="form-control">
                         </div>
                     </div>
 
@@ -244,6 +266,42 @@
                 } catch (e) {
                     console.warn('m leaveBalances init failed', e);
                 }
+            })();
+        </script>
+        <script>
+            (function() {
+                const start = document.querySelector('input[name="from_date"]');
+                const end = document.querySelector('input[name="to_date"]');
+
+                function togglePlaceholder(input) {
+                    try {
+                        const wrapper = input.closest('.date-wrapper');
+                        if (!wrapper) return;
+                        const ph = wrapper.querySelector('.date-placeholder');
+                        if (!ph) return;
+                        if (input.value) ph.style.display = 'none';
+                        else ph.style.display = 'block';
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+
+                [start, end].forEach(function(inp) {
+                    if (!inp) return;
+                    togglePlaceholder(inp);
+                    inp.addEventListener('focus', function() {
+                        togglePlaceholder(inp);
+                    });
+                    inp.addEventListener('blur', function() {
+                        togglePlaceholder(inp);
+                    });
+                    inp.addEventListener('change', function() {
+                        togglePlaceholder(inp);
+                    });
+                    inp.addEventListener('input', function() {
+                        togglePlaceholder(inp);
+                    });
+                });
             })();
         </script>
     </div>

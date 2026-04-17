@@ -15,6 +15,20 @@
             width: 100%;
             box-sizing: border-box
         }
+
+        .date-wrapper {
+            position: relative;
+        }
+
+        .date-wrapper .date-placeholder {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -51,15 +65,21 @@
                         </div>
                         <div class="col">
                             <label>Start</label>
-                            <input type="date" name="start_date" value="{{ old('start_date') }}" required
-                                min="{{ now('Asia/Thimphu')->toDateString() }}"
-                                class="form-control px-3 py-2 rounded-md border border-gray-200">
+                            <div class="date-wrapper">
+                                <input type="date" name="start_date" value="{{ old('start_date') }}" required
+                                    data-min="{{ now('Asia/Thimphu')->toDateString() }}"
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200 date-input">
+                                <span class="date-placeholder">mm/dd/yyyy</span>
+                            </div>
                         </div>
                         <div class="col">
                             <label>End</label>
-                            <input type="date" name="end_date" value="{{ old('end_date') }}" required
-                                min="{{ now('Asia/Thimphu')->toDateString() }}"
-                                class="form-control px-3 py-2 rounded-md border border-gray-200">
+                            <div class="date-wrapper">
+                                <input type="date" name="end_date" value="{{ old('end_date') }}" required
+                                    data-min="{{ now('Asia/Thimphu')->toDateString() }}"
+                                    class="form-control px-3 py-2 rounded-md border border-gray-200 date-input">
+                                <span class="date-placeholder">mm/dd/yyyy</span>
+                            </div>
                         </div>
                         <div class="col">
                             <label>Total Days</label>
@@ -211,15 +231,45 @@
                 const end = document.querySelector('input[name="end_date"]');
                 const total = document.getElementById('tour-total-days');
 
+                function parseDateVal(v) {
+                    if (!v) return null;
+                    // ISO yyyy-mm-dd
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return new Date(v + 'T00:00:00');
+                    // mm/dd/yyyy or m/d/yyyy
+                    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(v)) {
+                        const parts = v.split('/').map(x => parseInt(x, 10));
+                        const mm = parts[0],
+                            dd = parts[1],
+                            yyyy = parts[2];
+                        return new Date(yyyy, mm - 1, dd);
+                    }
+                    // fallback
+                    const d = new Date(v);
+                    return Number.isNaN(d.getTime()) ? null : d;
+                }
+
+                function togglePlaceholder(input) {
+                    try {
+                        const wrapper = input.closest('.date-wrapper');
+                        if (!wrapper) return;
+                        const ph = wrapper.querySelector('.date-placeholder');
+                        if (!ph) return;
+                        if (input.value) ph.style.display = 'none';
+                        else ph.style.display = 'block';
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+
                 function update() {
                     if (!start || !end || !total) return;
                     if (!start.value || !end.value) {
                         total.value = '-';
                         return;
                     }
-                    const s = new Date(start.value + 'T00:00:00');
-                    const e = new Date(end.value + 'T00:00:00');
-                    if (Number.isNaN(s.getTime()) || Number.isNaN(e.getTime()) || e < s) {
+                    const s = parseDateVal(start.value);
+                    const e = parseDateVal(end.value);
+                    if (!s || !e || e < s) {
                         total.value = '-';
                         return;
                     }
@@ -227,8 +277,26 @@
                     const days = Math.floor(diffMs / 86400000) + 1;
                     total.value = days + (days === 1 ? ' day' : ' days');
                 }
-                start?.addEventListener('change', update);
-                end?.addEventListener('change', update);
+
+                [start, end].forEach(function(inp) {
+                    if (!inp) return;
+                    togglePlaceholder(inp);
+                    inp.addEventListener('focus', function() {
+                        togglePlaceholder(inp);
+                    });
+                    inp.addEventListener('blur', function() {
+                        togglePlaceholder(inp);
+                    });
+                    inp.addEventListener('change', function() {
+                        togglePlaceholder(inp);
+                        update();
+                    });
+                    inp.addEventListener('input', function() {
+                        togglePlaceholder(inp);
+                        update();
+                    });
+                });
+
                 update();
             })();
         </script>
