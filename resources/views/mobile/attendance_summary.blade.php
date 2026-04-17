@@ -59,7 +59,7 @@
         </header>
 
         <main class="m-main">
-            <div class="m-card">
+            <div>
                 <h3 class="m-card-title">Attendance Summary</h3>
 
                 @if (empty($rows))
