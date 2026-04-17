@@ -923,3 +923,27 @@ table.attendance td {
 .table-wrap thead th {
   text-align: left
 }
+
+/* Leave history status badges */
+.leave-status-badge {
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  font-size: 12px;
+}
+.leave-status-badge.status-pending {
+  color: #14b866; /* green text */
+  background: rgba(20, 184, 102, 0.06);
+  border: 1px solid rgba(20, 184, 102, 0.12);
+}
+.leave-status-badge.status-forwarded {
+  color: #8b5a2b; /* brown text */
+  background: rgba(139, 90, 43, 0.05);
+  border: 1px solid rgba(139, 90, 43, 0.08);
+}
+.leave-status-badge.status-approved {
+  color: #1e73be; /* blue text */
+  background: rgba(30, 115, 190, 0.06);
+  border: 1px solid rgba(30, 115, 190, 0.1);
+}
