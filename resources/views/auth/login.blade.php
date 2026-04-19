@@ -37,6 +37,12 @@
                 <p class="text-gray-600 text-xs">Welcome back — please enter your username and password</p>
             </div>
 
+            @if ($errors->any())
+                <div class="mb-4 rounded-md border border-red-300 bg-red-100 px-3 py-2 text-sm text-red-800">
+                    {{ $errors->first() }}
+                </div>
+            @endif
+
             <form action="{{ route('login', [], false) }}" method="POST" class="space-y-3">
                 @csrf
                 <input type="text" name="username" placeholder="Enter your username"
