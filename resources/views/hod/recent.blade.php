@@ -53,7 +53,11 @@
                                     @if ($act === 'forwarded')
                                         <span class="status-forwarded">Forwarded</span>
                                     @elseif ($act === 'rejected')
-                                        <span class="status-rejected">Rejected</span>
+                                        @if (! empty($r['reject_note']))
+                                            <span class="status-rejected js-reject-note" data-note="{{ e($r['reject_note']) }}" style="cursor:pointer;" title="Click to view rejection reason">Rejected</span>
+                                        @else
+                                            <span class="status-rejected">Rejected</span>
+                                        @endif
                                     @else
                                         {{ $r['action'] }}
                                     @endif
@@ -67,5 +71,14 @@
         </section>
     </main>
 </div>
+<script>
+    document.querySelectorAll('.js-reject-note').forEach(function (el) {
+        el.addEventListener('click', function () {
+            const note = (el.getAttribute('data-note') || '').trim();
+            if (!note) return;
+            alert('Rejection reason:\n\n' + note);
+        });
+    });
+</script>
 </body>
 </html>

@@ -259,20 +259,33 @@ class HodDashboardController extends Controller
         $hodId = $hodUser['employee_id'];
         $recent = [];
         if (Schema::hasTable('leave_application') && Schema::hasTable('tab1') && Schema::hasTable('leave_type')) {
-            $recent = DB::table('leave_application as la')
+            $query = DB::table('leave_application as la')
                 ->join('tab1 as e', 'la.employee_id', '=', 'e.employee_id')
                 ->join('leave_type as lt', 'la.leave_type_id', '=', 'lt.leave_type_id')
                 ->where('la.HoD_action_by', $hodId)
                 ->whereRaw('LOWER(la.HoD_status) IN (?, ?)', ['forwarded', 'rejected'])
                 ->orderByDesc('la.HoD_action_at')
-                ->limit(50)
-                ->select([
-                    'e.employee_name as employee',
-                    'lt.leave_name as leave_name',
-                    'la.HoD_status as action',
-                    'la.HoD_action_at as action_at',
-                ])
-                ->get()
+                ->limit(50);
+
+            $query->select([
+                'e.employee_name as employee',
+                'lt.leave_name as leave_name',
+                'la.HoD_status as action',
+                'la.HoD_action_at as action_at',
+            ]);
+
+            $leaveColumns = array_map('strtolower', Schema::getColumnListing('leave_application'));
+            if (in_array('hod_note', $leaveColumns, true)) {
+                $query->addSelect('la.hod_note as reject_note');
+            } elseif (in_array('hod_reject_reason', $leaveColumns, true)) {
+                $query->addSelect('la.hod_reject_reason as reject_note');
+            } elseif (in_array('rejection_reason', $leaveColumns, true)) {
+                $query->addSelect('la.rejection_reason as reject_note');
+            } else {
+                $query->addSelect(DB::raw("'' as reject_note"));
+            }
+
+            $recent = $query->get()
                 ->map(fn ($r) => (array) $r)
                 ->toArray();
         }

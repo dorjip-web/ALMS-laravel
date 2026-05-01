@@ -121,6 +121,19 @@ class MsDashboardController extends Controller
                     'la.medical_superintendent_action_at',
                 ]);
 
+            $leaveColumns = array_map('strtolower', Schema::getColumnListing('leave_application'));
+            if (in_array('ms_note', $leaveColumns, true)) {
+                $query->addSelect('la.ms_note as reject_note');
+            } elseif (in_array('medical_superintendent_note', $leaveColumns, true)) {
+                $query->addSelect('la.medical_superintendent_note as reject_note');
+            } elseif (in_array('medical_superintendent_reject_reason', $leaveColumns, true)) {
+                $query->addSelect('la.medical_superintendent_reject_reason as reject_note');
+            } elseif (in_array('rejection_reason', $leaveColumns, true)) {
+                $query->addSelect('la.rejection_reason as reject_note');
+            } else {
+                $query->addSelect(DB::raw("'' as reject_note"));
+            }
+
             if (Schema::hasColumn('leave_application', 'medical_superintendent_action_by')) {
                 $query->where('la.medical_superintendent_action_by', $msUser['employee_id']);
             }
@@ -508,6 +521,19 @@ class MsDashboardController extends Controller
                     'la.medical_superintendent_status',
                     'la.medical_superintendent_action_at',
                 ]);
+
+            $leaveColumns = array_map('strtolower', Schema::getColumnListing('leave_application'));
+            if (in_array('ms_note', $leaveColumns, true)) {
+                $query->addSelect('la.ms_note as reject_note');
+            } elseif (in_array('medical_superintendent_note', $leaveColumns, true)) {
+                $query->addSelect('la.medical_superintendent_note as reject_note');
+            } elseif (in_array('medical_superintendent_reject_reason', $leaveColumns, true)) {
+                $query->addSelect('la.medical_superintendent_reject_reason as reject_note');
+            } elseif (in_array('rejection_reason', $leaveColumns, true)) {
+                $query->addSelect('la.rejection_reason as reject_note');
+            } else {
+                $query->addSelect(DB::raw("'' as reject_note"));
+            }
 
             if (Schema::hasColumn('leave_application', 'medical_superintendent_action_by')) {
                 $query->where('la.medical_superintendent_action_by', $msUser['employee_id']);
