@@ -223,6 +223,7 @@ class MsDashboardController extends Controller
             return view('ms_staff_list', ['staff' => [], 'authorized' => true, 'username' => $msUser['employee_name'] ?? Auth::user()->name, 'departments' => [], 'dept' => '']);
         }
         $dept = $request->input('department_id', '');
+        $staffSearch = trim((string) $request->input('staff_search', ''));
 
         $query = DB::table('tab1 as t')
             ->select('t.employee_id', 't.employee_name', 't.eid', 't.designation', 't.department_id');
@@ -238,6 +239,13 @@ class MsDashboardController extends Controller
             $query->where('t.department_id', $dept);
         }
 
+        if ($staffSearch !== '') {
+            $query->where(function ($q) use ($staffSearch): void {
+                $q->where('t.employee_name', 'like', '%' . $staffSearch . '%')
+                    ->orWhere('t.eid', 'like', '%' . $staffSearch . '%');
+            });
+        }
+
         $staff = $query->orderBy('t.employee_name')->get()->map(fn($r) => (array) $r)->toArray();
 
         $departments = [];
@@ -251,6 +259,7 @@ class MsDashboardController extends Controller
             'username' => $msUser['employee_name'] ?? Auth::user()->name,
             'departments' => $departments,
             'dept' => $dept,
+            'staffSearch' => $staffSearch,
         ]);
     }
 

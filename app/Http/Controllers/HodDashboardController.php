@@ -429,11 +429,20 @@ class HodDashboardController extends Controller
             ->whereIn('t.department_id', $deptIds)
             ->select('t.employee_id', 't.employee_name', 't.eid', 't.designation', 't.department_id');
 
+        $staffSearch = trim((string) $request->input('staff_search', ''));
+
         if (Schema::hasTable('department')) {
             $query->leftJoin('department as d', 't.department_id', '=', 'd.department_id')
                 ->addSelect(DB::raw("COALESCE(d.department_name, '-') as department_name"));
         } else {
             $query->addSelect(DB::raw("'-' as department_name"));
+        }
+
+        if ($staffSearch !== '') {
+            $query->where(function ($q) use ($staffSearch): void {
+                $q->where('t.employee_name', 'like', '%' . $staffSearch . '%')
+                    ->orWhere('t.eid', 'like', '%' . $staffSearch . '%');
+            });
         }
 
         $staff = $query->orderBy('t.employee_name')->get()->map(fn($r) => (array) $r)->toArray();
@@ -446,6 +455,7 @@ class HodDashboardController extends Controller
             'staff' => $staff,
             'username' => $hodUser['employee_name'] ?? Auth::user()->name,
             'units' => $units,
+            'staffSearch' => $staffSearch,
         ]);
     }
 

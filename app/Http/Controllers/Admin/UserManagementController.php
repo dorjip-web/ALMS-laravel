@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\DB;
 
 class UserManagementController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = DB::table('tab1 as t')
+        $staffSearch = trim((string) $request->input('staff_search', ''));
+
+        $usersQuery = DB::table('tab1 as t')
             ->leftJoin('department as d', 't.department_id', '=', 'd.department_id')
             ->leftJoin('role as r', 't.role_id', '=', 'r.role_id')
             ->select([
@@ -20,11 +22,21 @@ class UserManagementController extends Controller
                 'd.department_name',
                 'r.role_name',
                 't.status',
-            ])->get();
+            ]);
+
+        if ($staffSearch !== '') {
+            $usersQuery->where(function ($q) use ($staffSearch): void {
+                $q->where('t.employee_name', 'like', '%' . $staffSearch . '%')
+                    ->orWhere('t.eid', 'like', '%' . $staffSearch . '%');
+            });
+        }
+
+        $users = $usersQuery->get();
 
         return view('admin.users.index', [
             'users' => $users,
             'username' => 'NTMH',
+            'staffSearch' => $staffSearch,
         ]);
     }
 }

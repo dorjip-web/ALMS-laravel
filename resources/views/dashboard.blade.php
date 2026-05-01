@@ -309,3 +309,106 @@
 </script>
 </body>
 </html>
+    <script>
+    (function () {
+        const NAV_ITEMS = [
+            { label: 'My Dashboard',        url: "{{ route('dashboard') }}#employee" },
+            { label: 'Attendance',          url: "{{ route('dashboard') }}#attendance" },
+            { label: 'Attendance Summary',  url: "{{ route('dashboard.attendance_summary') }}" },
+            { label: 'Leave',               url: "{{ route('dashboard.leave_form') }}" },
+            { label: 'Tour',                url: "{{ route('dashboard.tour') }}" },
+            { label: 'Adhoc Requests',      url: "{{ route('dashboard.adhoc_requests') }}" },
+        ];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchWrap = document.querySelector('.search');
+            const input = searchWrap && searchWrap.querySelector('input');
+            if (!input) return;
+
+            // Dropdown container
+            const dropdown = document.createElement('ul');
+            dropdown.id = 'search-dropdown';
+            Object.assign(dropdown.style, {
+                position: 'absolute', top: '100%', left: '0', right: '0',
+                background: '#fff', border: '1px solid #e6edf3', borderRadius: '8px',
+                listStyle: 'none', margin: '4px 0 0', padding: '4px 0',
+                boxShadow: '0 4px 16px rgba(0,0,0,.12)', zIndex: '999', display: 'none'
+            });
+            searchWrap.style.position = 'relative';
+            searchWrap.appendChild(dropdown);
+
+            let active = -1;
+
+            function renderDropdown(q) {
+                dropdown.innerHTML = '';
+                active = -1;
+                const results = q
+                    ? NAV_ITEMS.filter(n => n.label.toLowerCase().includes(q.toLowerCase()))
+                    : NAV_ITEMS;
+                if (!results.length) { dropdown.style.display = 'none'; return; }
+                results.forEach(function (item, i) {
+                    const li = document.createElement('li');
+                    li.textContent = item.label;
+                    li.dataset.url = item.url;
+                    Object.assign(li.style, {
+                        padding: '8px 14px', cursor: 'pointer', color: '#333', fontSize: '14px'
+                    });
+                    li.addEventListener('mouseenter', function () {
+                        Array.from(dropdown.children).forEach(c => c.style.background = '');
+                        li.style.background = '#fff3e8';
+                        active = i;
+                    });
+                    li.addEventListener('mouseleave', function () { li.style.background = ''; });
+                    li.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        navigate(item.url);
+                    });
+                    dropdown.appendChild(li);
+                });
+                dropdown.style.display = 'block';
+            }
+
+            function navigate(url) {
+                input.value = '';
+                dropdown.style.display = 'none';
+                if (url.includes('#')) {
+                    const [base, frag] = url.split('#');
+                    const currBase = location.origin + location.pathname;
+                    if (base === currBase || base === '') {
+                        const el = document.getElementById(frag);
+                        if (el) { el.scrollIntoView({ behavior: 'smooth' }); return; }
+                    }
+                }
+                window.location.href = url;
+            }
+
+            input.addEventListener('input', function () { renderDropdown(input.value.trim()); });
+            input.addEventListener('focus', function () { renderDropdown(input.value.trim()); });
+            input.addEventListener('blur', function () { setTimeout(function () { dropdown.style.display = 'none'; }, 150); });
+            input.addEventListener('keydown', function (e) {
+                const items = Array.from(dropdown.children);
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    items.forEach(c => c.style.background = '');
+                    active = Math.min(active + 1, items.length - 1);
+                    if (items[active]) items[active].style.background = '#fff3e8';
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    items.forEach(c => c.style.background = '');
+                    active = Math.max(active - 1, 0);
+                    if (items[active]) items[active].style.background = '#fff3e8';
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (active >= 0 && items[active]) {
+                        navigate(items[active].dataset.url);
+                    } else if (items.length === 1) {
+                        navigate(items[0].dataset.url);
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                    input.blur();
+                }
+            });
+        });
+    })();
+    </script>
