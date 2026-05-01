@@ -51,8 +51,9 @@
                                 <td class="actions">
                                     <form method="POST" action="{{ route('ms.dashboard.action', [], false) }}" class="inline-form">@csrf
                                         <input type="hidden" name="request_id" value="{{ $req['application_id'] }}">
+                                        <input type="hidden" name="reject_reason" class="reject-reason-input" value="">
                                         <button type="submit" name="action" value="approve" class="btn btn-approve">Approve</button>
-                                        <button type="submit" name="action" value="reject" class="btn btn-reject">Reject</button>
+                                        <button type="submit" name="action" value="reject" class="btn btn-reject js-reject-btn">Reject</button>
                                     </form>
                                 </td>
                             </tr>
@@ -91,8 +92,9 @@
                                 <td class="actions">
                                     <form method="POST" action="{{ route('ms.dashboard.action', [], false) }}" class="inline-form">@csrf
                                         <input type="hidden" name="application_id" value="{{ $req['application_id'] }}">
+                                        <input type="hidden" name="reject_reason" class="reject-reason-input" value="">
                                         <button type="submit" name="action" value="approve" class="btn btn-approve">Approve</button>
-                                        <button type="submit" name="action" value="reject" class="btn btn-reject">Reject</button>
+                                        <button type="submit" name="action" value="reject" class="btn btn-reject js-reject-btn">Reject</button>
                                     </form>
                                 </td>
                             </tr>
@@ -104,5 +106,27 @@
         </div>
     </main>
 </div>
+<script>
+    document.querySelectorAll('.js-reject-btn').forEach(function (btn) {
+        btn.addEventListener('click', function (ev) {
+            const form = btn.closest('form');
+            if (!form) return;
+            const input = form.querySelector('.reject-reason-input');
+            if (!input) return;
+            const reason = window.prompt('Please enter reason for rejecting this leave request:');
+            if (reason === null) {
+                ev.preventDefault();
+                return;
+            }
+            const trimmed = reason.trim();
+            if (!trimmed) {
+                ev.preventDefault();
+                alert('Rejection reason is required.');
+                return;
+            }
+            input.value = trimmed;
+        });
+    });
+</script>
 </body>
 </html>

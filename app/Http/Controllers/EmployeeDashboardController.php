@@ -59,21 +59,46 @@ class EmployeeDashboardController extends Controller
 
         $leaveApplications = [];
         if ($employeeId && Schema::hasTable('leave_application') && Schema::hasTable('leave_type')) {
-            $leaveApplications = DB::table('leave_application as la')
+            $leaveQuery = DB::table('leave_application as la')
                 ->join('leave_type as lt', 'la.leave_type_id', '=', 'lt.leave_type_id')
                 ->where('la.employee_id', $employeeId)
-                ->orderByDesc('la.applied_at')
-                ->select([
-                    'la.application_id',
-                    'lt.leave_name as type',
-                    'la.from_date as start_date',
-                    'la.to_date as end_date',
-                    'la.reason',
-                    'la.total_days as days',
-                    'la.HoD_status as hod_status',
-                    'la.medical_superintendent_status as ms_status',
-                ])
-                ->get()
+                ->orderByDesc('la.applied_at');
+
+            $leaveQuery->select([
+                'la.application_id',
+                'lt.leave_name as type',
+                'la.from_date as start_date',
+                'la.to_date as end_date',
+                'la.reason',
+                'la.total_days as days',
+                'la.HoD_status as hod_status',
+                'la.medical_superintendent_status as ms_status',
+            ]);
+
+            $leaveColumns = array_map('strtolower', Schema::getColumnListing('leave_application'));
+            if (in_array('hod_note', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.hod_note as hod_reject_note');
+            } elseif (in_array('hod_reject_reason', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.hod_reject_reason as hod_reject_note');
+            } elseif (in_array('rejection_reason', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.rejection_reason as hod_reject_note');
+            } else {
+                $leaveQuery->addSelect(DB::raw("'' as hod_reject_note"));
+            }
+
+            if (in_array('ms_note', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.ms_note as ms_reject_note');
+            } elseif (in_array('medical_superintendent_note', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.medical_superintendent_note as ms_reject_note');
+            } elseif (in_array('medical_superintendent_reject_reason', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.medical_superintendent_reject_reason as ms_reject_note');
+            } elseif (in_array('rejection_reason', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.rejection_reason as ms_reject_note');
+            } else {
+                $leaveQuery->addSelect(DB::raw("'' as ms_reject_note"));
+            }
+
+            $leaveApplications = $leaveQuery->get()
                 ->map(fn($r) => (array) $r)
                 ->toArray();
         }
@@ -591,21 +616,46 @@ class EmployeeDashboardController extends Controller
 
         $leaveApplications = [];
         if ($employeeId && Schema::hasTable('leave_application') && Schema::hasTable('leave_type')) {
-            $leaveApplications = DB::table('leave_application as la')
+            $leaveQuery = DB::table('leave_application as la')
                 ->join('leave_type as lt', 'la.leave_type_id', '=', 'lt.leave_type_id')
                 ->where('la.employee_id', $employeeId)
-                ->orderByDesc('la.applied_at')
-                ->select([
-                    'la.application_id',
-                    'lt.leave_name as type',
-                    'la.from_date as start_date',
-                    'la.to_date as end_date',
-                    'la.reason',
-                    'la.total_days as days',
-                    'la.HoD_status as hod_status',
-                    'la.medical_superintendent_status as ms_status',
-                ])
-                ->get()
+                ->orderByDesc('la.applied_at');
+
+            $leaveQuery->select([
+                'la.application_id',
+                'lt.leave_name as type',
+                'la.from_date as start_date',
+                'la.to_date as end_date',
+                'la.reason',
+                'la.total_days as days',
+                'la.HoD_status as hod_status',
+                'la.medical_superintendent_status as ms_status',
+            ]);
+
+            $leaveColumns = array_map('strtolower', Schema::getColumnListing('leave_application'));
+            if (in_array('hod_note', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.hod_note as hod_reject_note');
+            } elseif (in_array('hod_reject_reason', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.hod_reject_reason as hod_reject_note');
+            } elseif (in_array('rejection_reason', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.rejection_reason as hod_reject_note');
+            } else {
+                $leaveQuery->addSelect(DB::raw("'' as hod_reject_note"));
+            }
+
+            if (in_array('ms_note', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.ms_note as ms_reject_note');
+            } elseif (in_array('medical_superintendent_note', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.medical_superintendent_note as ms_reject_note');
+            } elseif (in_array('medical_superintendent_reject_reason', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.medical_superintendent_reject_reason as ms_reject_note');
+            } elseif (in_array('rejection_reason', $leaveColumns, true)) {
+                $leaveQuery->addSelect('la.rejection_reason as ms_reject_note');
+            } else {
+                $leaveQuery->addSelect(DB::raw("'' as ms_reject_note"));
+            }
+
+            $leaveApplications = $leaveQuery->get()
                 ->map(fn($r) => (array) $r)
                 ->toArray();
         }

@@ -144,15 +144,23 @@
                                     <td>{{ empty($lv['hod_status']) ? '' : 'HoD' }}</td>
                                     <td>
                                         @if (!empty($lv['hod_status']))
-                                            <span
-                                                class="leave-status-badge status-{{ strtolower($lv['hod_status']) }}">{{ ucfirst($lv['hod_status']) }}</span>
+                                            @php $hodStatus = strtolower((string) $lv['hod_status']); @endphp
+                                            @if ($hodStatus === 'rejected' && !empty($lv['hod_reject_note']))
+                                                <span class="leave-status-badge status-{{ $hodStatus }} js-reject-note" data-note="{{ e($lv['hod_reject_note']) }}">{{ ucfirst($lv['hod_status']) }}</span>
+                                            @else
+                                                <span class="leave-status-badge status-{{ $hodStatus }}">{{ ucfirst($lv['hod_status']) }}</span>
+                                            @endif
                                         @endif
                                     </td>
                                     <td>{{ empty($lv['ms_status']) ? '' : 'MS' }}</td>
                                     <td>
                                         @if (!empty($lv['ms_status']))
-                                            <span
-                                                class="leave-status-badge status-{{ strtolower($lv['ms_status']) }}">{{ ucfirst($lv['ms_status']) }}</span>
+                                            @php $msStatus = strtolower((string) $lv['ms_status']); @endphp
+                                            @if ($msStatus === 'rejected' && !empty($lv['ms_reject_note']))
+                                                <span class="leave-status-badge status-{{ $msStatus }} js-reject-note" data-note="{{ e($lv['ms_reject_note']) }}">{{ ucfirst($lv['ms_status']) }}</span>
+                                            @else
+                                                <span class="leave-status-badge status-{{ $msStatus }}">{{ ucfirst($lv['ms_status']) }}</span>
+                                            @endif
                                         @endif
                                     </td>
                                 </tr>
@@ -274,6 +282,18 @@
                 const end = document.querySelector('input[name="to_date"]');
 
                 function togglePlaceholder(input) {
+
+            (function() {
+                document.querySelectorAll('.js-reject-note').forEach(function(el) {
+                    el.style.cursor = 'pointer';
+                    el.title = 'Tap to view rejection reason';
+                    el.addEventListener('click', function() {
+                        const note = (el.getAttribute('data-note') || '').trim();
+                        if (!note) return;
+                        alert('Rejection reason:\n\n' + note);
+                    });
+                });
+            })();
                     try {
                         const wrapper = input.closest('.date-wrapper');
                         if (!wrapper) return;

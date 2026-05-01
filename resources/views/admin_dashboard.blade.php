@@ -26,7 +26,7 @@
             box-shadow: 0 8px 18px rgba(14,30,37,0.08);
             transition: transform .12s ease, box-shadow .12s ease;
         }
-        .quick-tiles .card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(14,30,37,0.12); }
+        .quick-tiles .card:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 14px 30px rgba(14,30,37,0.12); }
 
         /* folded-corner using pseudo-element */
         .quick-tiles .card::after {

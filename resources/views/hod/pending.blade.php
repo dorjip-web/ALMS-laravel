@@ -59,8 +59,9 @@
                                     <form method="POST" action="{{ route('hod.dashboard.action', [], false) }}" class="inline-form">
                                         @csrf
                                         <input type="hidden" name="request_id" value="{{ $req['application_id'] }}">
+                                        <input type="hidden" name="reject_reason" class="reject-reason-input" value="">
                                         <button type="submit" name="action" value="Forward" class="btn btn-forward">Forward</button>
-                                        <button type="submit" name="action" value="Reject" class="btn btn-reject">Reject</button>
+                                        <button type="submit" name="action" value="Reject" class="btn btn-reject js-reject-btn">Reject</button>
                                     </form>
                                 </td>
                             </tr>
@@ -71,5 +72,27 @@
         </section>
     </main>
 </div>
+<script>
+    document.querySelectorAll('.js-reject-btn').forEach(function (btn) {
+        btn.addEventListener('click', function (ev) {
+            const form = btn.closest('form');
+            if (!form) return;
+            const input = form.querySelector('.reject-reason-input');
+            if (!input) return;
+            const reason = window.prompt('Please enter reason for rejecting this leave request:');
+            if (reason === null) {
+                ev.preventDefault();
+                return;
+            }
+            const trimmed = reason.trim();
+            if (!trimmed) {
+                ev.preventDefault();
+                alert('Rejection reason is required.');
+                return;
+            }
+            input.value = trimmed;
+        });
+    });
+</script>
 </body>
 </html>

@@ -373,7 +373,12 @@ class HodDashboardController extends Controller
         $payload = $request->validate([
             'request_id' => ['required', 'integer'],
             'action' => ['required', 'in:Forward,Reject'],
+            'reject_reason' => ['nullable', 'string', 'max:1000'],
         ]);
+
+        if ($payload['action'] === 'Reject' && trim((string) ($payload['reject_reason'] ?? '')) === '') {
+            return back()->with('message', 'Rejection reason is required.');
+        }
 
         $status = $payload['action'] === 'Forward' ? 'forwarded' : 'rejected';
 
@@ -385,6 +390,19 @@ class HodDashboardController extends Controller
 
         if ($payload['action'] === 'Forward') {
             $update['medical_superintendent_status'] = 'pending';
+        } else {
+            $rejectReason = trim((string) ($payload['reject_reason'] ?? ''));
+            $leaveColumnsByLower = [];
+            foreach (Schema::getColumnListing('leave_application') as $column) {
+                $leaveColumnsByLower[strtolower($column)] = $column;
+            }
+
+            foreach (['hod_note', 'hod_reject_reason', 'rejection_reason'] as $target) {
+                $actualColumn = $leaveColumnsByLower[strtolower($target)] ?? null;
+                if ($actualColumn) {
+                    $update[$actualColumn] = $rejectReason;
+                }
+            }
         }
 
         $updateData = $this->filterColumns('leave_application', $update);

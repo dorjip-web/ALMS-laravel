@@ -539,6 +539,7 @@ class MsDashboardController extends Controller
             'request_id' => ['nullable', 'integer'],
             'application_id' => ['nullable', 'integer'],
             'action' => ['required', 'string'],
+            'reject_reason' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $applicationId = (int) ($payload['request_id'] ?? $payload['application_id'] ?? 0);
@@ -549,12 +550,30 @@ class MsDashboardController extends Controller
         $action = strtolower(trim($payload['action']));
         $newStatus = ($action === 'approve' || $action === 'approved') ? 'approved' : 'rejected';
 
+        if ($newStatus === 'rejected' && trim((string) ($payload['reject_reason'] ?? '')) === '') {
+            return back()->with('message', 'Rejection reason is required.');
+        }
+
         $update = ['medical_superintendent_status' => $newStatus];
         if (Schema::hasColumn('leave_application', 'medical_superintendent_action_by')) {
             $update['medical_superintendent_action_by'] = $msUser['employee_id'];
         }
         if (Schema::hasColumn('leave_application', 'medical_superintendent_action_at')) {
             $update['medical_superintendent_action_at'] = now('Asia/Thimphu')->toDateTimeString();
+        }
+        if ($newStatus === 'rejected') {
+            $rejectReason = trim((string) ($payload['reject_reason'] ?? ''));
+            $leaveColumnsByLower = [];
+            foreach (Schema::getColumnListing('leave_application') as $column) {
+                $leaveColumnsByLower[strtolower($column)] = $column;
+            }
+
+            foreach (['ms_note', 'medical_superintendent_note', 'medical_superintendent_reject_reason', 'rejection_reason'] as $target) {
+                $actualColumn = $leaveColumnsByLower[strtolower($target)] ?? null;
+                if ($actualColumn) {
+                    $update[$actualColumn] = $rejectReason;
+                }
+            }
         }
 
         DB::table('leave_application')

@@ -68,7 +68,8 @@ table thead th{background:transparent;color:var(--dark);font-weight:600}
 
 /* Tile style for quick links */
 .tiles{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
-.tile{flex:0 1 calc((100% - 28px) / 3);color:#fff;padding:26px;border-radius:14px;display:flex;align-items:center;gap:18px;text-decoration:none;min-height:130px;height:130px;box-sizing:border-box;border-top:5px solid transparent}
+.tile{flex:0 1 calc((100% - 28px) / 3);color:#fff;padding:26px;border-radius:14px;display:flex;align-items:center;gap:18px;text-decoration:none;min-height:130px;height:130px;box-sizing:border-box;border-top:5px solid transparent;transition:transform .12s ease, box-shadow .12s ease}
+.tile:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 14px 30px rgba(14,30,37,0.12)}
 .tile .icon{width:64px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.12);font-size:22px}
 .tile .content{flex:1}
 .tile .title{font-size:20px;font-weight:700;margin:0 0 8px}
