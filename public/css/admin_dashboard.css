@@ -12,6 +12,9 @@
 /* Slightly more compact cards on admin views */
 .card{padding:16px}
 
+/* Quick-tile top-edge accent: darker shade of each card's own background */
+.quick-tiles .card{border-top:5px solid color-mix(in srgb, var(--tile-bg) 65%, black)}
+
 /* Quick action buttons appearance */
 .card .btn{padding:10px 12px;border-radius:6px}
 

@@ -6,6 +6,7 @@
 <!-- Admin dashboard quick links -->
 <section class="grid">
     <style>
+        .quick-title { margin: 0 0 14px 0; font-size: 32px; font-weight: 800; color: #22313f; }
         .quick-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
         /* Ensure quick-tiles span the full .grid container (prevent empty second column) */
         .grid > .quick-tiles { grid-column: 1 / -1; }
@@ -16,7 +17,7 @@
         .quick-tiles .card {
             display: block;
             width: 100%;
-            border-radius: 10px;
+            border-radius: 14px;
             overflow: hidden;
             background: var(--tile-bg);
             color: #fff;
@@ -47,6 +48,7 @@
             width:64px;height:64px;background:rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px
         }
     </style>
+    <h1 class="quick-title">Admin Cards</h1>
     <div class="quick-tiles">
         @php
             $tiles = [

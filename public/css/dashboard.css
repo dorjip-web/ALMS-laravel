@@ -38,6 +38,7 @@ body{margin:0;background:var(--light)}
 .card{background:#fff;border-radius:8px;padding:20px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
 .card h3{margin:0 0 12px 0;color:var(--dark)}
 .card h2{margin:0 0 12px 0;color:var(--dark)}
+.employee-card h3{margin-top:25px}
 .welcome-light{color:#9fd6ff}
 .welcome-orange{color:var(--orange)}
 .name-blue{color:#1e73be}
